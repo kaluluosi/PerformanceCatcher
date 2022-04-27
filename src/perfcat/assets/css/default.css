@@ -1,0 +1,166 @@
+#container {
+background-color:#2c313c;
+border-radius:8;
+}
+
+#left_menu_frame{
+background-color:#1b1e23;
+border-radius:8;
+}
+
+#title_bar_frame{
+background-color:#343b48;
+border-radius:8;
+}
+
+#status_bar_frame{
+background-color:#343b48;
+border-radius:8;
+}
+
+#content_right_frame {
+background-color:#343b48;
+border-radius:8;
+}
+
+#left_column_frame {
+background-color:#343b48;
+}
+
+/* 侧边菜单栏样式 */
+
+#LeftMenu {
+background-color: #005dfd;
+border-radius:8;
+}
+
+#LeftMenu QPushButton {
+background-color:#1b1e23;
+border-radius: 8;
+height:40;
+text-align:left;
+padding-left:15;
+padding-top:2;
+padding-bottom:2;
+color:#6b7884;
+}
+
+#LeftMenu QPushButton:hover{
+background-color:#21252d;
+}
+
+#LeftMenu QPushButton:pressed{
+background-color:#2c313c;
+}
+
+#LeftMenu QPushButton:checked{
+background-color:#2c313c;
+}
+
+
+#LeftMenu #bottom{
+border-top:1 solid #272c36;
+border-radius: 0;
+}
+
+#LeftMenu #menu {
+border-top:1 solid #272c36;
+border-radius: 0；
+}
+
+#LeftMenu #btn_toggle:checked{
+background-color:#21252d;
+}
+
+
+#LeftMenu QToolTip { 
+color:#6b7884;
+background-color: #1b1e23; 
+border: 0px; 
+border-radius:8;
+border-left: 2px solid #4f9fee;
+}
+
+/* 标题栏样式 */
+
+#TitleBar #bg{
+background-color:#343b48;
+border-radius:8;
+}
+
+#TitleBar #logo {
+border: 1px solid #3c4454;
+padding-right:10px;
+border-top:none;
+border-bottom:none;
+border-left:none;
+margin-right:5px;
+border-radius:0;
+}
+
+#TitleBar  #logo_title{
+color:#77b3f1;
+font-size:20px;
+font-weight:bold;
+}
+
+#TitleBar  #lb_title{
+font-size:14px;
+color:#6c7c96;
+}
+
+#TitleBar  QToolButton{
+background-color:#343b48;
+border:none;
+border-radius:4;
+padding: 4;
+}
+
+#TitleBar QToolButton:hover,
+#TitleBar QToolButton:checked{
+background-color:#3c4454;
+}
+
+
+#TitleBar QToolButton:pressed{
+background-color:#e2e9f7;
+}
+
+#TitleBar #tool{
+border:1px solid #3c4454;
+border-top:none;
+border-bottom:none;
+margin-right:5px;
+border-radius:0;
+}
+
+
+#LeftColumn{
+background-color:#343b48;
+border-radius:8;
+}
+
+#LeftColumn #top{
+background-color: #3c4454;
+border-radius:8;
+}
+
+#LeftColumn #title{
+color:#6c7c96;
+}
+
+#LeftColumn QToolButton{
+border-radius:8;
+border:none;
+padding:4;
+}
+
+#LeftColumn #btn_close:hover{
+background-color:#343b48;
+}
+
+#LeftColumn #btn_close:pressed{
+background-color:#1b1e23;
+}
+
+
