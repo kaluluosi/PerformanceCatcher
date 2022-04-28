@@ -492,6 +492,9 @@
     <file>svg/zoom-in.svg</file>
     <file>svg/zoom-out.svg</file>
   </qresource>
+  <qresource prefix="images">
+    <file>images/logo_sws_10.png</file>
+  </qresource>
   <qresource prefix="icon_b">
     <file>svg_blue/500px.svg</file>
     <file>svg_blue/accessibility.svg</file>

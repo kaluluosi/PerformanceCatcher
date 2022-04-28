@@ -4,7 +4,7 @@
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
-__pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 
@@ -158,3 +158,9 @@ output.xml
 
 # 排除掉项目模板目录的忽略
 !src/xtester_robot/template/*
+src/perfcat/ui/layout/__pycache__/__init__.cpython-310.pyc
+src/perfcat/ui/layout/__pycache__/ui_mainwindow.cpython-310.pyc
+.gitignore
+src/perfcat/ui/layout/__pycache__/__init__.cpython-310.pyc
+src/perfcat/ui/layout/__pycache__/ui_mainwindow.cpython-310.pyc
+src/perfcat/ui/layout/left_column/__pycache__/ui_left_column.cpython-310.pyc

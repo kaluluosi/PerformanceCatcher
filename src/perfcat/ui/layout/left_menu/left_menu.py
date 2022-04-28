@@ -13,10 +13,17 @@
 # here put the import lib
 
 
-from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect, QButtonGroup
+from PySide6.QtWidgets import (
+    QWidget,
+    QGraphicsDropShadowEffect,
+    QButtonGroup,
+    QVBoxLayout,
+    QPushButton,
+)
 from PySide6.QtCore import Slot, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QIcon, QPixmap
 from .ui_left_menu import Ui_LeftMenu
-from .. import effects
+from .. import utils
 
 
 class LeftMenu(QWidget, Ui_LeftMenu):
@@ -34,9 +41,29 @@ class LeftMenu(QWidget, Ui_LeftMenu):
         self.btn_toggle.setChecked(True)
         self.btn_toggle.toggled.connect(self.expand)
 
+        # 删除掉设计时的首页按钮
+        self.menu_group = QButtonGroup(self)
+        self.menu.layout().removeWidget(self.btn_home)
+
+        # 把关于和设置按钮放到按钮组里
         self.bottom_btn_group = QButtonGroup(self)
-        self.bottom_btn_group.addButton(self.btn_setting)
-        self.bottom_btn_group.addButton(self.btn_about)
+        self.bottom_btn_group.addButton(self.btn_about, 1)
+        self.bottom_btn_group.addButton(self.btn_setting, 0)
+
+    def add_menu(self, icon_name: str, name: str):
+        normal_icon = f":/icon_w/svg_white/{icon_name}.svg"
+        checked_icon = f":/icon_b/svg_blue/{icon_name}.svg"
+        title = f"    {name}"
+
+        icon = QIcon()
+        icon.addPixmap(QPixmap(normal_icon), QIcon.Mode.Normal)
+        icon.addPixmap(QPixmap(checked_icon), QIcon.Mode.Active)
+
+        button = QPushButton(icon, title, self)
+        button.setCheckable(True)
+        self.menu_group.addButton(button)
+        self.menu.layout().addWidget(button)
+        return button
 
     def bottom_btn_group_reset(self):
         self.bottom_btn_group.setExclusive(False)
@@ -45,7 +72,4 @@ class LeftMenu(QWidget, Ui_LeftMenu):
         self.bottom_btn_group.setExclusive(True)
 
     def expand(self, checked):
-        effects.set_h_expand_anim(self, checked, self.MAX_WIDTH, self.MIN_WIDTH)
-
-    def add_bottom_entry(self):
-        pass
+        utils.set_h_expand_anim(self, checked, self.MAX_WIDTH, self.MIN_WIDTH)

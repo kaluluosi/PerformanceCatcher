@@ -17,10 +17,11 @@
 # here put the import lib
 import logging
 
-from PySide6.QtWidgets import QMainWindow, QPushButton
+from PySide6.QtWidgets import QMainWindow, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from . import effects
+from . import utils
+from perfcat.module import app
 from .ui_mainwindow import Ui_MainWindow
 
 from .left_menu import LeftMenu
@@ -50,8 +51,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # 设置阴影（很淡……几乎看不见，有点感觉就行）
-        effects.set_shadow_effect(self)
-        effects.set_shadow_effect(self.content_right_frame)
+        utils.set_shadow_effect(self)
+        utils.set_shadow_effect(self.content_right_frame)
 
         # 添加左导航菜单
         self._setup_leftmenu()
@@ -68,12 +69,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setWindowFilePath(self, filePath: str) -> None:
         super().setWindowFilePath(filePath)
         self.windowTitleChanged.emit(self.windowTitle())
-        # return super().setWindowFilePath(filePath)
 
     def setWindowModified(self, arg__1: bool) -> None:
         super().setWindowModified(arg__1)
         self.windowTitleChanged.emit(self.windowTitle())
-        # return super().setWindowModified(arg__1)
 
     def _setup_leftmenu(self):
         self.left_menu = LeftMenu(self)
@@ -81,10 +80,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_menu_frame.layout().addWidget(self.left_menu)
 
         # 添加阴影
-        effects.set_shadow_effect(self.left_menu_frame)
+        utils.set_shadow_effect(self.left_menu_frame)
 
         # 按钮组点击的时候触发展开左栏
-        self.left_menu.bottom_btn_group.buttonToggled.connect(
+        self.left_menu.bottom_btn_group.idToggled.connect(
             self._toggle_left_column_frame
         )
 
@@ -95,13 +94,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.title_bar_frame.layout().addWidget(self.title_bar)
 
         # 设置阴影
-        effects.set_shadow_effect(self.title_bar_frame)
+        utils.set_shadow_effect(self.title_bar_frame)
 
         # 页面设置按钮
         self.title_bar.btn_setting.toggled.connect(self.expand_content_right_frame)
 
     def _setup_status_bar(self):
-        effects.set_shadow_effect(self.status_bar_frame)
+        utils.set_shadow_effect(self.status_bar_frame)
 
     def _setup_left_column(self):
         self.left_column = LeftColumn(self)
@@ -119,13 +118,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def content_right_visible(self) -> bool:
         return self.content_right_frame.maximumWidth() > 0
 
-    def _toggle_left_column_frame(self, button: QPushButton, checked: bool):
+    def _toggle_left_column_frame(self, id, checked: bool):
 
         if not self.left_column_visible:
             self.expand_left_column_frame(True)
 
+        self.left_column.stacked.setCurrentIndex(id)
+
     def expand_left_column_frame(self, checked: bool):
-        effects.set_h_expand_anim(
+        utils.set_h_expand_anim(
             self.left_column_frame,
             checked,
             self.LEFT_COLUMN_MAXWIDTH,
@@ -136,7 +137,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.left_menu.bottom_btn_group_reset()
 
     def expand_content_right_frame(self, checked: bool):
-        effects.set_h_expand_anim(
+        utils.set_h_expand_anim(
             self.content_right_frame,
             checked,
             self.CONTENT_RIGHT_MAXWIDTH,

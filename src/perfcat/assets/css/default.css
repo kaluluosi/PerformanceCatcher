@@ -1,3 +1,8 @@
+* {
+    border-radius:8;
+    color:#6c7c96;
+}
+
 #container {
 background-color:#2c313c;
 border-radius:8;
@@ -145,6 +150,10 @@ background-color: #3c4454;
 border-radius:8;
 }
 
+#leftColumn #icon{
+
+}
+
 #LeftColumn #title{
 color:#6c7c96;
 }
@@ -153,6 +162,7 @@ color:#6c7c96;
 border-radius:8;
 border:none;
 padding:4;
+background-color: #3c4454;
 }
 
 #LeftColumn #btn_close:hover{
@@ -164,3 +174,36 @@ background-color:#1b1e23;
 }
 
 
+#Home{
+background-image: url(:/images/images/logo_sws_10.png);
+background-repeat:none;
+background-position:center;
+background-color:red;
+}
+
+/* 通用控件 */
+QAbstractButton{
+background-color:#1b1e23;
+border:none;
+border-radius:4;
+padding: 4;
+}
+
+QAbstractButton:hover,
+QAbstractButton:checked{
+background-color:#3c4454;
+}
+
+
+QAbstractButton:pressed{
+background-color:#e2e9f7;
+}
+
+QTextEdit{
+    background-color:#3c4454;
+    padding:8px;
+}
+
+QTextEdit:!read-only:focus{
+    border: 2px solid #568af2;
+}

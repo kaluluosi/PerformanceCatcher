@@ -16,17 +16,23 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QSizePolicy, QStackedWidget, QToolButton, QVBoxLayout,
-    QWidget)
+    QSizePolicy, QStackedWidget, QTextEdit, QToolButton,
+    QVBoxLayout, QWidget)
 import asset_rc
 
 class Ui_LeftColumn(object):
     def setupUi(self, LeftColumn):
         if not LeftColumn.objectName():
             LeftColumn.setObjectName(u"LeftColumn")
-        LeftColumn.resize(240, 563)
+        LeftColumn.resize(240, 549)
         LeftColumn.setMaximumSize(QSize(240, 16777215))
-        LeftColumn.setStyleSheet(u"#LeftColumn{\n"
+        LeftColumn.setStyleSheet(u"* {\n"
+"    border-radius:8;\n"
+"    color:#6c7c96;\n"
+"}\n"
+"\n"
+"\n"
+"#LeftColumn{\n"
 "background-color:#343b48;\n"
 "border-radius:8;\n"
 "}\n"
@@ -94,12 +100,30 @@ class Ui_LeftColumn(object):
 
         self.stacked = QStackedWidget(LeftColumn)
         self.stacked.setObjectName(u"stacked")
-        self.page = QWidget()
-        self.page.setObjectName(u"page")
-        self.stacked.addWidget(self.page)
-        self.page_2 = QWidget()
-        self.page_2.setObjectName(u"page_2")
-        self.stacked.addWidget(self.page_2)
+        self.stacked.setMinimumSize(QSize(220, 0))
+        self.page_setting = QWidget()
+        self.page_setting.setObjectName(u"page_setting")
+        self.verticalLayout_2 = QVBoxLayout(self.page_setting)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.stacked.addWidget(self.page_setting)
+        self.page_about = QWidget()
+        self.page_about.setObjectName(u"page_about")
+        self.verticalLayout_3 = QVBoxLayout(self.page_about)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.te_about = QTextEdit(self.page_about)
+        self.te_about.setObjectName(u"te_about")
+        self.te_about.setStyleSheet(u"QTextEdit{\n"
+"    background-color:#3c4454;\n"
+"	padding:8px;\n"
+"}\n"
+"")
+        self.te_about.setReadOnly(True)
+
+        self.verticalLayout_3.addWidget(self.te_about)
+
+        self.stacked.addWidget(self.page_about)
 
         self.verticalLayout.addWidget(self.stacked)
 
@@ -117,5 +141,17 @@ class Ui_LeftColumn(object):
         self.icon.setText(QCoreApplication.translate("LeftColumn", u"PushButton", None))
         self.title.setText(QCoreApplication.translate("LeftColumn", u"\u8bbe\u7f6e", None))
         self.btn_close.setText("")
+        self.te_about.setMarkdown(QCoreApplication.translate("LeftColumn", u"**Perfcat**\n"
+"\n"
+"**v 1.0.0**\n"
+"\n"
+"", None))
+        self.te_about.setHtml(QCoreApplication.translate("LeftColumn", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"</style></head><body style=\" font-family:'Microsoft YaHei UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:18pt; font-weight:700; color:#6c7c96;\">Perfcat</span></p>\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:700; color:#6c7c96;\">v 1.0.0</span></p></body></html>", None))
     # retranslateUi
 
