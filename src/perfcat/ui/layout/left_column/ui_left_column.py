@@ -16,7 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QSizePolicy, QStackedWidget, QTextEdit, QToolButton,
+    QSizePolicy, QStackedWidget, QTextBrowser, QToolButton,
     QVBoxLayout, QWidget)
 import asset_rc
 
@@ -112,7 +112,7 @@ class Ui_LeftColumn(object):
         self.verticalLayout_3 = QVBoxLayout(self.page_about)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.te_about = QTextEdit(self.page_about)
+        self.te_about = QTextBrowser(self.page_about)
         self.te_about.setObjectName(u"te_about")
         self.te_about.setStyleSheet(u"QTextEdit{\n"
 "    background-color:#3c4454;\n"
@@ -120,6 +120,7 @@ class Ui_LeftColumn(object):
 "}\n"
 "")
         self.te_about.setReadOnly(True)
+        self.te_about.setAcceptRichText(True)
 
         self.verticalLayout_3.addWidget(self.te_about)
 
@@ -137,13 +138,13 @@ class Ui_LeftColumn(object):
     # setupUi
 
     def retranslateUi(self, LeftColumn):
-        LeftColumn.setWindowTitle(QCoreApplication.translate("LeftColumn", u"Form", None))
+        LeftColumn.setWindowTitle(QCoreApplication.translate("LeftColumn", u"\u4fa7\u8fb9\u680f", None))
         self.icon.setText(QCoreApplication.translate("LeftColumn", u"PushButton", None))
         self.title.setText(QCoreApplication.translate("LeftColumn", u"\u8bbe\u7f6e", None))
         self.btn_close.setText("")
         self.te_about.setMarkdown(QCoreApplication.translate("LeftColumn", u"**Perfcat**\n"
 "\n"
-"**v 1.0.0**\n"
+"v 1.0.1\n"
 "\n"
 "", None))
         self.te_about.setHtml(QCoreApplication.translate("LeftColumn", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -151,7 +152,7 @@ class Ui_LeftColumn(object):
 "p, li { white-space: pre-wrap; }\n"
 "hr { height: 1px; border-width: 0; }\n"
 "</style></head><body style=\" font-family:'Microsoft YaHei UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:18pt; font-weight:700; color:#6c7c96;\">Perfcat</span></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:700; color:#6c7c96;\">v 1.0.0</span></p></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:18pt; font-weight:700;\">Perfcat</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">v 1.0.1</span></p></body></html>", None))
     # retranslateUi
 

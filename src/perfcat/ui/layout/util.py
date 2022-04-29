@@ -11,7 +11,7 @@
 """
 
 # here put the import lib
-from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect, QLayout
 from PySide6.QtGui import QColor
 from PySide6.QtCore import QPropertyAnimation, QEasingCurve
 
@@ -49,3 +49,21 @@ def set_h_expand_anim(
     # 播放完自己移除掉anim对象的引用，让其自生自灭
     anim.finished.connect(delete)
     return anim
+
+
+def clear_layout(layout: QLayout | QWidget):
+    """
+    清空layout里的widget
+
+    _extended_summary_
+
+    Args:
+        layout (QLayout): _description_
+    """
+    if isinstance(layout, QWidget):
+        layout = layout.layout()
+
+    counts = layout.count()
+    for index in range(counts):
+        item = layout.itemAt(index)
+        layout.removeItem(item)

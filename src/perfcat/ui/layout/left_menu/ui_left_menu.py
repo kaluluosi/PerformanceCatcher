@@ -15,15 +15,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QPushButton, QSizePolicy,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QPushButton, QScrollArea,
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 import asset_rc
 
 class Ui_LeftMenu(object):
     def setupUi(self, LeftMenu):
         if not LeftMenu.objectName():
             LeftMenu.setObjectName(u"LeftMenu")
-        LeftMenu.resize(244, 722)
+        LeftMenu.resize(244, 732)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -65,9 +65,14 @@ class Ui_LeftMenu(object):
 "border-radius: 0;\n"
 "}\n"
 "\n"
-"#menu {\n"
+"#nav_menu {\n"
 "border-top:1 solid #272c36;\n"
 "border-radius: 0\uff1b\n"
+"}\n"
+"\n"
+"#LeftMenu #scrollArea,#scrollAreaWidgetContents_3{\n"
+"background-color:#1b1e23;\n"
+"border:none;\n"
 "}\n"
 "\n"
 "#btn_toggle:checked{\n"
@@ -88,20 +93,15 @@ class Ui_LeftMenu(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.bg = QFrame(LeftMenu)
         self.bg.setObjectName(u"bg")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.bg.sizePolicy().hasHeightForWidth())
-        self.bg.setSizePolicy(sizePolicy1)
+        sizePolicy.setHeightForWidth(self.bg.sizePolicy().hasHeightForWidth())
+        self.bg.setSizePolicy(sizePolicy)
         self.bg.setMinimumSize(QSize(240, 0))
         self.bg.setMaximumSize(QSize(240, 16777215))
         self.bg.setStyleSheet(u"")
         self.bg.setFrameShape(QFrame.StyledPanel)
         self.bg.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_2 = QVBoxLayout(self.bg)
-        self.verticalLayout_2.setSpacing(6)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(4, 4, 4, 4)
+        self.verticalLayout_6 = QVBoxLayout(self.bg)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.top = QFrame(self.bg)
         self.top.setObjectName(u"top")
         self.top.setMaximumSize(QSize(16777215, 46))
@@ -127,19 +127,29 @@ class Ui_LeftMenu(object):
         self.verticalLayout_3.addWidget(self.btn_toggle)
 
 
-        self.verticalLayout_2.addWidget(self.top)
+        self.verticalLayout_6.addWidget(self.top)
 
-        self.menu = QFrame(self.bg)
-        self.menu.setObjectName(u"menu")
-        self.menu.setLayoutDirection(Qt.LeftToRight)
-        self.menu.setStyleSheet(u"")
-        self.menu.setFrameShape(QFrame.StyledPanel)
-        self.menu.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_5 = QVBoxLayout(self.menu)
+        self.scrollArea = QScrollArea(self.bg)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_3 = QWidget()
+        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 220, 553))
+        self.verticalLayout_2 = QVBoxLayout(self.scrollAreaWidgetContents_3)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.nav_menu = QFrame(self.scrollAreaWidgetContents_3)
+        self.nav_menu.setObjectName(u"nav_menu")
+        self.nav_menu.setLayoutDirection(Qt.LeftToRight)
+        self.nav_menu.setStyleSheet(u"")
+        self.nav_menu.setFrameShape(QFrame.StyledPanel)
+        self.nav_menu.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_5 = QVBoxLayout(self.nav_menu)
         self.verticalLayout_5.setSpacing(6)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_5.setContentsMargins(0, 5, 0, 0)
-        self.btn_home = QPushButton(self.menu)
+        self.btn_home = QPushButton(self.nav_menu)
         self.btn_home.setObjectName(u"btn_home")
         icon1 = QIcon()
         icon1.addFile(u":/icon_w/svg_white/home.svg", QSize(), QIcon.Normal, QIcon.Off)
@@ -147,10 +157,18 @@ class Ui_LeftMenu(object):
         self.btn_home.setIcon(icon1)
         self.btn_home.setCheckable(True)
 
-        self.verticalLayout_5.addWidget(self.btn_home, 0, Qt.AlignTop)
+        self.verticalLayout_5.addWidget(self.btn_home)
 
 
-        self.verticalLayout_2.addWidget(self.menu, 0, Qt.AlignTop)
+        self.verticalLayout_2.addWidget(self.nav_menu)
+
+        self.verticalSpacer = QSpacerItem(20, 494, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_2.addItem(self.verticalSpacer)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents_3)
+
+        self.verticalLayout_6.addWidget(self.scrollArea)
 
         self.bottom = QFrame(self.bg)
         self.bottom.setObjectName(u"bottom")
@@ -183,7 +201,7 @@ class Ui_LeftMenu(object):
         self.verticalLayout_4.addWidget(self.btn_setting)
 
 
-        self.verticalLayout_2.addWidget(self.bottom, 0, Qt.AlignBottom)
+        self.verticalLayout_6.addWidget(self.bottom)
 
 
         self.verticalLayout.addWidget(self.bg)

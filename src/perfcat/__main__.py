@@ -12,20 +12,9 @@
 
 # here put the import lib
 import sys
+from . import logger
+from .app import PerfcatApplication
 
-from PySide6.QtWidgets import (
-    QApplication,
-)
-from .ui.layout import MainWindow
 
-app = QApplication(sys.argv)
-
-with open(
-    r"G:\projects\perfcat\src\perfcat\assets\css\default.css", encoding="utf-8"
-) as f:
-    sheet = f.read()
-
-main_win = MainWindow()
-main_win.setStyleSheet(sheet)
-main_win.show()
+app = PerfcatApplication(sys.argv)
 sys.exit(app.exec())

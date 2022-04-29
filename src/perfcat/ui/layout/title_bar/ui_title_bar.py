@@ -24,7 +24,7 @@ class Ui_TitleBar(object):
     def setupUi(self, TitleBar):
         if not TitleBar.objectName():
             TitleBar.setObjectName(u"TitleBar")
-        TitleBar.resize(711, 40)
+        TitleBar.resize(722, 40)
         TitleBar.setMinimumSize(QSize(0, 40))
         TitleBar.setMaximumSize(QSize(16777215, 40))
         TitleBar.setStyleSheet(u"#TitleBar #bg{\n"

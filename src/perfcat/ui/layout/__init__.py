@@ -16,12 +16,16 @@
 
 # here put the import lib
 import logging
+import markdown
+import textwrap
+from unittest.case import doModuleCleanups
 
 from PySide6.QtWidgets import QMainWindow, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from . import utils
-from perfcat.module import app
+from perfcat.modules.home.home import Page
+
+from . import util
 from .ui_mainwindow import Ui_MainWindow
 
 from .left_menu import LeftMenu
@@ -51,8 +55,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # 设置阴影（很淡……几乎看不见，有点感觉就行）
-        utils.set_shadow_effect(self)
-        utils.set_shadow_effect(self.content_right_frame)
+        util.set_shadow_effect(self)
+        util.set_shadow_effect(self.setting_frame)
+
+        # 清除掉page_stacked默认的widget
+        self.page_stacked.removeWidget(self.page)
+        self.page.deleteLater()  # 销毁掉
 
         # 添加左导航菜单
         self._setup_leftmenu()
@@ -65,6 +73,65 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # 添加左面板栏
         self._setup_left_column()
+
+    # region 页面相关
+    def add_page(self, page: Page):
+        """
+        添加页面
+
+        框架默认把页面的object_name和导航按钮的object_name设置成一样
+        通过这种方式关联按钮和页面的切换
+
+        Args:
+            page (Page): _description_
+        """
+        page.setParent(self)
+
+        icon = page.windowIcon()
+        title = page.windowTitle()
+
+        # warning：addwidget必须比add_nav_menu先调用，因为如果是第一个菜单还需要触发切换到第一个页面
+        self.page_stacked.addWidget(page)
+
+        self.left_menu.add_nav_menu(icon, title, page.objectName())
+
+        log.debug(f"添加页面 page_name:{page.objectName()} title:{title}")
+
+    def switch_page(self, page: Page):
+        log.debug(f"切换页面到 {page.objectName()}")
+        self.expand_setting_frame(False)  # 收起setting
+        self.page_stacked.setCurrentWidget(page)
+        self.title_bar.btn_setting.setEnabled(page.setting_widget != None)
+
+        if page.setting_widget:
+            log.debug(f"页面 {page.objectName()} 有设置界面，设置 setting {page.setting_widget}")
+            util.clear_layout(self.setting_container)
+            # setting_widget 从setting_container里删除后parent引用失效，所以重新设置回page。
+            page.setting_widget.setParent(page)
+            self.setting_container.layout().addWidget(page.setting_widget)
+
+    def _on_switch_page(self, button: QPushButton, checked):
+        log.debug(f"触发切换页面 {button} {checked}")
+        page_name = button.objectName()
+        page: Page = self.page_stacked.findChild(Page, page_name)
+        self.switch_page(page)
+
+    # endregion
+
+    @property
+    def current_page(self) -> Page:
+        return self.page_stacked.currentWidget()
+
+    def set_about_info(self, text: str):
+        """
+        设置关于信息，支持markdown
+
+        Args:
+            text (str): 文本， 可以用markdown
+        """
+        text = textwrap.dedent(text)  # 对齐缩进
+        html = markdown.markdown((text))
+        self.left_column.te_about.setHtml(html)
 
     def setWindowFilePath(self, filePath: str) -> None:
         super().setWindowFilePath(filePath)
@@ -80,9 +147,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.left_menu_frame.layout().addWidget(self.left_menu)
 
         # 添加阴影
-        utils.set_shadow_effect(self.left_menu_frame)
+        util.set_shadow_effect(self.left_menu_frame)
 
-        # 按钮组点击的时候触发展开左栏
+        # 导航按钮组点击的时候切换页面
+        self.left_menu.nav_menu_group.buttonToggled.connect(self._on_switch_page)
+
+        # 底部按钮组点击的时候触发展开左栏
         self.left_menu.bottom_btn_group.idToggled.connect(
             self._toggle_left_column_frame
         )
@@ -94,13 +164,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.title_bar_frame.layout().addWidget(self.title_bar)
 
         # 设置阴影
-        utils.set_shadow_effect(self.title_bar_frame)
+        util.set_shadow_effect(self.title_bar_frame)
 
         # 页面设置按钮
-        self.title_bar.btn_setting.toggled.connect(self.expand_content_right_frame)
+        self.title_bar.btn_setting.toggled.connect(self.expand_setting_frame)
 
     def _setup_status_bar(self):
-        utils.set_shadow_effect(self.status_bar_frame)
+        util.set_shadow_effect(self.status_bar_frame)
 
     def _setup_left_column(self):
         self.left_column = LeftColumn(self)
@@ -115,8 +185,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return self.left_column_frame.maximumWidth() > 0
 
     @property
-    def content_right_visible(self) -> bool:
-        return self.content_right_frame.maximumWidth() > 0
+    def setting_frame_visible(self) -> bool:
+        return self.setting_frame.maximumWidth() > 0
 
     def _toggle_left_column_frame(self, id, checked: bool):
 
@@ -124,9 +194,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.expand_left_column_frame(True)
 
         self.left_column.stacked.setCurrentIndex(id)
+        button = self.left_menu.bottom_btn_group.button(id)
+        button_text = button.text()
+        self.left_column.title.setText(button_text)
 
     def expand_left_column_frame(self, checked: bool):
-        utils.set_h_expand_anim(
+        util.set_h_expand_anim(
             self.left_column_frame,
             checked,
             self.LEFT_COLUMN_MAXWIDTH,
@@ -136,10 +209,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # 折叠回去了，清除掉底部互斥选项卡的选中
             self.left_menu.bottom_btn_group_reset()
 
-    def expand_content_right_frame(self, checked: bool):
-        utils.set_h_expand_anim(
-            self.content_right_frame,
+    def expand_setting_frame(self, checked: bool):
+        """
+        展开当前页面的设置界面
+
+        这个方法不仅仅用于信号调用，直接调用也可以展开和收起setting
+
+        Args:
+            checked (bool): _description_
+        """
+        util.set_h_expand_anim(
+            self.setting_frame,
             checked,
             self.CONTENT_RIGHT_MAXWIDTH,
             self.CONTENT_RIGHT_MINWIDTH,
         )
+        self.title_bar.btn_setting.setChecked(checked)

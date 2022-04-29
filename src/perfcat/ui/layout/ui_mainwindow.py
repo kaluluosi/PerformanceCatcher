@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1400, 722)
+        MainWindow.resize(1400, 814)
         MainWindow.setMinimumSize(QSize(1200, 540))
         icon = QIcon()
         icon.addFile(u":/icon_b/svg_blue/xing.svg", QSize(), QIcon.Normal, QIcon.Off)
@@ -50,7 +50,7 @@ class Ui_MainWindow(object):
 "border-radius:8;\n"
 "}\n"
 "\n"
-"#content_right_frame {\n"
+"#content_frame {\n"
 "background-color:#343b48;\n"
 "border-radius:8;\n"
 "}\n"
@@ -86,8 +86,8 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "#LeftMenu QPushButton:checked{\n"
-"backgrou"
-                        "nd-color:#2c313c;\n"
+"background-col"
+                        "or:#2c313c;\n"
 "}\n"
 "\n"
 "\n"
@@ -144,8 +144,8 @@ class Ui_MainWindow(object):
 "\n"
 "#TitleBar  QToolButton{\n"
 "background-color:#343b48;\n"
-"bord"
-                        "er:none;\n"
+"border:non"
+                        "e;\n"
 "border-radius:4;\n"
 "padding: 4;\n"
 "}\n"
@@ -217,6 +217,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
         self.left_menu_frame = QFrame(self.container)
         self.left_menu_frame.setObjectName(u"left_menu_frame")
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.left_menu_frame.sizePolicy().hasHeightForWidth())
+        self.left_menu_frame.setSizePolicy(sizePolicy)
         self.left_menu_frame.setMinimumSize(QSize(50, 0))
         self.left_menu_frame.setMaximumSize(QSize(240, 16777215))
         self.left_menu_frame.setStyleSheet(u"")
@@ -243,9 +248,6 @@ class Ui_MainWindow(object):
 
         self.app_frame = QFrame(self.container)
         self.app_frame.setObjectName(u"app_frame")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.app_frame.sizePolicy().hasHeightForWidth())
         self.app_frame.setSizePolicy(sizePolicy)
         self.app_frame.setFrameShape(QFrame.StyledPanel)
@@ -285,32 +287,45 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QHBoxLayout(self.content_frame)
         self.horizontalLayout_3.setSpacing(6)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(2, 2, 2, 2)
-        self.content_left_stacked = QStackedWidget(self.content_frame)
-        self.content_left_stacked.setObjectName(u"content_left_stacked")
-        sizePolicy.setHeightForWidth(self.content_left_stacked.sizePolicy().hasHeightForWidth())
-        self.content_left_stacked.setSizePolicy(sizePolicy)
-        self.content_left_stacked.setMaximumSize(QSize(16777215, 16777215))
-        self.content_left_stacked.setFrameShape(QFrame.StyledPanel)
-        self.content_left_stacked.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.page_stacked = QStackedWidget(self.content_frame)
+        self.page_stacked.setObjectName(u"page_stacked")
+        sizePolicy.setHeightForWidth(self.page_stacked.sizePolicy().hasHeightForWidth())
+        self.page_stacked.setSizePolicy(sizePolicy)
+        self.page_stacked.setMaximumSize(QSize(16777215, 16777215))
+        self.page_stacked.setFrameShape(QFrame.StyledPanel)
+        self.page_stacked.setFrameShadow(QFrame.Raised)
         self.page = QWidget()
         self.page.setObjectName(u"page")
-        self.content_left_stacked.addWidget(self.page)
+        self.page_stacked.addWidget(self.page)
 
-        self.horizontalLayout_3.addWidget(self.content_left_stacked)
+        self.horizontalLayout_3.addWidget(self.page_stacked)
 
-        self.content_right_frame = QFrame(self.content_frame)
-        self.content_right_frame.setObjectName(u"content_right_frame")
-        self.content_right_frame.setMinimumSize(QSize(0, 0))
-        self.content_right_frame.setMaximumSize(QSize(0, 16777215))
-        self.content_right_frame.setBaseSize(QSize(0, 0))
-        self.content_right_frame.setFrameShape(QFrame.StyledPanel)
-        self.content_right_frame.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_7 = QVBoxLayout(self.content_right_frame)
+        self.setting_frame = QFrame(self.content_frame)
+        self.setting_frame.setObjectName(u"setting_frame")
+        self.setting_frame.setMinimumSize(QSize(0, 0))
+        self.setting_frame.setMaximumSize(QSize(0, 16777215))
+        self.setting_frame.setBaseSize(QSize(0, 0))
+        self.setting_frame.setFrameShape(QFrame.StyledPanel)
+        self.setting_frame.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_7 = QVBoxLayout(self.setting_frame)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_7.setContentsMargins(2, 2, 2, 2)
+        self.setting_container = QFrame(self.setting_frame)
+        self.setting_container.setObjectName(u"setting_container")
+        self.setting_container.setMinimumSize(QSize(240, 0))
+        self.setting_container.setMaximumSize(QSize(16777215, 16777215))
+        self.setting_container.setStyleSheet(u"")
+        self.setting_container.setFrameShape(QFrame.StyledPanel)
+        self.setting_container.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_6 = QVBoxLayout(self.setting_container)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(9, 9, 9, 9)
 
-        self.horizontalLayout_3.addWidget(self.content_right_frame)
+        self.verticalLayout_7.addWidget(self.setting_container)
+
+
+        self.horizontalLayout_3.addWidget(self.setting_frame)
 
 
         self.verticalLayout.addWidget(self.content_frame)
