@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QPushButton
 from perfcat.ui.page import Page
 from .ui_widgets import Ui_Widgets
+from PySide6.QtCore import Qt
 
 
 class Widgets(Page, Ui_Widgets):
@@ -9,6 +10,8 @@ class Widgets(Page, Ui_Widgets):
 
         self.setupUi(self)
         self.clear_stylesheet()
+
+        self.comboBox.addItem("x10")
 
         self.btn_reload.clicked.connect(self.reload_stylesheet)
 

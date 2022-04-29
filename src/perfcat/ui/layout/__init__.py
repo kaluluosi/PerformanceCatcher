@@ -20,7 +20,7 @@ import markdown
 import textwrap
 from unittest.case import doModuleCleanups
 
-from PySide6.QtWidgets import QMainWindow, QPushButton, QWidget
+from PySide6.QtWidgets import QMainWindow, QPushButton, QAbstractButton, QWidget
 from PySide6.QtCore import Qt
 
 from perfcat.modules.home.home import Page

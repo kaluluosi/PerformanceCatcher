@@ -59,6 +59,10 @@ background-color:#2c313c;
 background-color:#2c313c;
 }
 
+#LeftMenu QPushButton:focus{
+border:none;
+}
+
 
 #LeftMenu #bottom{
 border-top:1 solid #272c36;
@@ -170,17 +174,17 @@ background-color:#1b1e23;
 QToolTip { 
 color:#6b7884;
 background-color: #1b1e23; 
-border: 0px; 
 border-left: 2px solid #4f9fee;
+border-radius: 8px;
 }
 
-Page QGroupBox{
+QGroupBox{
 	border: 2px solid gray; 
     border-radius: 3px; 
     margin:10;
 }
 
-Page QGroupBox::title { 
+QGroupBox::title { 
     subcontrol-position: center top; /* position at the top left*/ 
 	subcontrol-origin: border;
 	margin-top:-20px;
@@ -188,54 +192,56 @@ Page QGroupBox::title {
 }
 
 /* Button */
-Page QAbstractButton{
+QAbstractButton{
 background-color:#1b1e23;
 border:none;
 border-radius:4;
 padding: 4;
 outline:none;
+width:36;
+height:36;
 }
 
-Page QAbstractButton:hover,
-Page QAbstractButton:checked{
+QAbstractButton:hover,
+QAbstractButton:checked{
 background-color:#21252d;
 }
 
 
-Page QAbstractButton:pressed{
+QAbstractButton:pressed{
 background-color:#272c36;
 }
 
-Page QAbstractButton:disabled{
+QAbstractButton:disabled{
 background-color: #272c36;
 }
 
-Page QAbstractButton:checked{
+QAbstractButton:checked{
 background-color:#568af2;
 color:black;
 }
 
-Page QAbstractButton:focus{
+QAbstractButton:focus{
 border: 2px solid #568af2;
 }
 
-Page QAbstractButton[style~='success']:checked{
+QAbstractButton[style~='success']:checked{
     background-color: #67c23a;
 }
-Page QAbstractButton[style~='warning']:checked{
+QAbstractButton[style~='warning']:checked{
     background-color: #e6a23c;
 }
-Page QAbstractButton[style~='danger']:checked{
+QAbstractButton[style~='danger']:checked{
     background-color: #f56c6c;
 }
-Page QAbstractButton[style~='info']:checked{
+QAbstractButton[style~='info']:checked{
     background-color: #909399;
 }
 
 
 /* CheckBox */
 
-Page QCheckBox::indicator{
+QCheckBox::indicator{
     border:2px solid #6c7c96;
     border-radius: 2px;
     width:10px;
@@ -243,12 +249,12 @@ Page QCheckBox::indicator{
     margin-left:8px;
 }
 
-Page QCheckBox::indicator:checked{
+QCheckBox::indicator:checked{
     border:2px solid black;
     image: url(:/icon/svg/checkmark.svg);
 }
 
-Page QRadioButton::indicator{
+QRadioButton::indicator{
     border:1px solid #6c7c96;
     background-color:#6c7c96;
     border-radius: 4px;
@@ -257,45 +263,45 @@ Page QRadioButton::indicator{
     margin-left:8px;
 }
 
-Page QRadioButton::indicator:checked{
+QRadioButton::indicator:checked{
     border:1px solid #fff;
     background-color:black;
 }
 
 /* TextEdit */
-Page QPlainTextEdit,
-Page QTextEdit,
-Page QLineEdit{
+QPlainTextEdit,
+QTextEdit,
+QLineEdit{
     background-color: #1b1e23;
     padding:8px;
 }
 
-Page QPlainTextEdit:focus,
-Page QTextEdit:focus,
-Page QLineEdit:focus{
+QPlainTextEdit:focus,
+QTextEdit:focus,
+QLineEdit:focus{
     border: 2px solid #568af2;
 }
 
-Page QPlainTextEdit:read-only,
-Page QTextEdit:read-only,
-Page QLineEdit:read-only{
+QPlainTextEdit:read-only,
+QTextEdit:read-only,
+QLineEdit:read-only{
     border:none;
 }
 
 /* ProgressBar */
-Page QProgressBar{
+QProgressBar{
     background-color: #1b1e23;
     text-align:center;
     font-weight: bold;
 }
 
-Page QProgressBar::chunk:horizontal{
+QProgressBar::chunk:horizontal{
     background-color: #4f9fee;
     border-radius: 8px;
     border-top-right-radius: 0;
     border-bottom-right-radius:0;
 }
-Page QProgressBar::chunk:vertical{
+QProgressBar::chunk:vertical{
     background-color: #4f9fee;
     border-radius: 8px;
     border-top-left-radius: 0;
@@ -304,27 +310,27 @@ Page QProgressBar::chunk:vertical{
 
 
 /* ScrollBar */
-Page QScrollBar:horizontal{
+QScrollBar:horizontal{
     background-color: #2c313c;
     border-radius: 0;
     border:none;
     max-height: 8px;
 }
 
-Page QScrollBar::handle:horizontal{
+QScrollBar::handle:horizontal{
     background-color:#568af2;
     border-radius:4px;
     min-width: 25px;
 }
 
-Page QScrollBar::add-page:horizontal{
+QScrollBar::add-page:horizontal{
     background-color:none;
 }
-Page QScrollBar::sub-page:horizontal{
+QScrollBar::sub-page:horizontal{
     background-color:none;
 }
 
-Page QScrollBar::add-line:horizontal{
+QScrollBar::add-line:horizontal{
     background-color:#272c36;
     border:none;
     width:0px;
@@ -333,7 +339,7 @@ Page QScrollBar::add-line:horizontal{
     subcontrol-posistion:right;
     subcontrol-origin:margin;
 }
-Page QScrollBar::sub-line:horizontal{
+QScrollBar::sub-line:horizontal{
     background-color:#272c36;
     border:none;
     width:0px;
@@ -344,27 +350,27 @@ Page QScrollBar::sub-line:horizontal{
 }
 
 /* Vertical */
-Page QScrollBar:vertical{
+QScrollBar:vertical{
     background-color: #2c313c;
     border-radius: 0;
     border:none;
     max-width: 8px;
 }
 
-Page QScrollBar::handle:vertical{
+QScrollBar::handle:vertical{
     background-color:#568af2;
     border-radius:4px;
     min-height: 25px;
 }
 
-Page QScrollBar::add-page:vertical{
+QScrollBar::add-page:vertical{
     background-color:none;
 }
-Page QScrollBar::sub-page:vertical{
+QScrollBar::sub-page:vertical{
     background-color:none;
 }
 
-Page QScrollBar::add-line:vertical{
+QScrollBar::add-line:vertical{
     background-color:#272c36;
     border:none;
     width:0px;
@@ -373,7 +379,7 @@ Page QScrollBar::add-line:vertical{
     subcontrol-posistion:right;
     subcontrol-origin:margin;
 }
-Page QScrollBar::sub-line:vertical{
+QScrollBar::sub-line:vertical{
     background-color:#272c36;
     border:none;
     width:0px;
@@ -386,21 +392,21 @@ Page QScrollBar::sub-line:vertical{
 
 /* Slider */
 
-Page QSlider:horizontal{
+QSlider:horizontal{
     margin:8;
 }
 
-Page QSlider::groove:horizontal{
+QSlider::groove:horizontal{
     background-color: #1b1e23;
     border-radius: 4px;
     margin:0px;
     height: 10px;
 }
-Page QSlider::groove:horizontal:hover{
+QSlider::groove:horizontal:hover{
     background-color: #21252d;
 }
 
-Page QSlider::handle:horizontal{
+QSlider::handle:horizontal{
     border:none;
     height:16px;
     width:16px;
@@ -409,21 +415,21 @@ Page QSlider::handle:horizontal{
     background-color: #4f9fee;
 }
 
-Page QSlider:vertical{
+QSlider:vertical{
     margin:8;
 }
 
-Page QSlider::groove:vertical{
+QSlider::groove:vertical{
     background-color: #1b1e23;
     border-radius: 4px;
     margin:0px;
     width: 10px;
 }
-Page QSlider::groove:vertical:hover{
+QSlider::groove:vertical:hover{
     background-color: #21252d;
 }
 
-Page QSlider::handle:vertical{
+QSlider::handle:vertical{
     border:none;
     height:16px;
     width:16px;
@@ -431,3 +437,85 @@ Page QSlider::handle:vertical{
     border-radius: 8px;
     background-color: #4f9fee;
 }
+
+
+/* ComboBox */
+
+QComboBox{
+    background-color: #1b1e23;
+    padding:8px;
+    selection-background-color:transparent;
+}
+
+QComboBox:disabled{
+    background-color: #272c36;
+}
+
+QComboBox::drop-down{
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    subcontrol-origin:padding;
+    subcontrol-position:center right;
+    background-color:#1b1e23;
+    width:10px;
+    padding:10px;
+}
+
+QComboBox::drop-down:disabled{
+    background-color: #272c36;
+}
+
+QComboBox::drop-down:hover{
+    background-color:black;
+}
+
+QComboBox::down-arrow{
+    image:url(:/icon_w/svg_white/circle-down.svg);
+    width: 18px;
+    height:18px;
+}
+
+
+/* TabWidget */
+QTabWidget::pane { /* The tab widget frame */
+    border-top: 2px solid #1b1e23;
+    background-color:#1b1e23;
+    border-radius: 8px;
+    border-top-left-radius:0px;
+}
+
+QTabWidget::tab-bar {
+    left: 0px; /* move to the right by 5px */
+}
+
+/* Style the tab using the tab sub-control. Note that
+    it reads QTabBar _not_ QTabWidget */
+QTabBar::tab {
+    /* background: #1b1e23;
+    border-bottom-color: #1b1e23;  */
+    background:#2c313c;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    min-width: 8ex;
+    padding: 8px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: #1b1e23;
+    /* color:black; */
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}
+
+
+QScrollArea{
+    background-color: transparent;
+}
+
+
+QScrollArea #scrollAreaWidgetContents *{
+    margin-right:5px;
+}
+

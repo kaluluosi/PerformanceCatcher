@@ -53,10 +53,12 @@ class LeftMenu(QWidget, Ui_LeftMenu):
         self.bottom_btn_group.addButton(self.btn_about, 1)
 
     def add_nav_menu(self, icon, text, binding_page_name):
-        text = textwrap.indent(text, " " * 4)  # 缩进4格用来适配按钮样式
-        btn_menu = QPushButton(icon, text, self)
+        indented_text = textwrap.indent(text, " " * 4)  # 缩进4格用来适配按钮样式
+        btn_menu = QPushButton(icon, indented_text, self)
         btn_menu.setCheckable(True)
         btn_menu.setObjectName(binding_page_name)
+        btn_menu.setToolTip(indented_text)
+
         self.nav_menu.layout().addWidget(btn_menu)
         self.nav_menu_group.addButton(btn_menu)
         if self.nav_menu.layout().count() == 1:

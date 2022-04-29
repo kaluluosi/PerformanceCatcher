@@ -28,9 +28,7 @@ from .ui.layout import MainWindow
 # here put the import lib
 from PySide6.QtWidgets import QWidget, QApplication
 
-from .modules.home import Home
-from .modules.profiler import Profiler
-from .modules.widgets import Widgets
+from . import modules
 
 log = logging.getLogger(__name__)
 
@@ -73,6 +71,5 @@ class PerfcatApplication(QApplication):
 
     def _install_pages(self):
         w = self.main_win
-        w.add_page(Home(w))
-        w.add_page(Profiler(w))
-        w.add_page(Widgets(w))
+        for page in modules.register:
+            w.add_page(page(w))

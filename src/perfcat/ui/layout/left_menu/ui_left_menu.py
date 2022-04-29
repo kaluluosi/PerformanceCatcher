@@ -222,9 +222,12 @@ class Ui_LeftMenu(object):
 #endif // QT_CONFIG(whatsthis)
         self.btn_toggle.setText(QCoreApplication.translate("LeftMenu", u"    \u9690\u85cf\u83dc\u5355", None))
         self.btn_home.setText(QCoreApplication.translate("LeftMenu", u"    \u9996\u9875", None))
+#if QT_CONFIG(tooltip)
+        self.btn_about.setToolTip(QCoreApplication.translate("LeftMenu", u"\u5173\u4e8e", None))
+#endif // QT_CONFIG(tooltip)
         self.btn_about.setText(QCoreApplication.translate("LeftMenu", u"    \u5173\u4e8e", None))
 #if QT_CONFIG(tooltip)
-        self.btn_setting.setToolTip(QCoreApplication.translate("LeftMenu", u"<html><head/><body><p>\u8bbe\u7f6e</p></body></html>", None))
+        self.btn_setting.setToolTip(QCoreApplication.translate("LeftMenu", u"\u8bbe\u7f6e", None))
 #endif // QT_CONFIG(tooltip)
         self.btn_setting.setText(QCoreApplication.translate("LeftMenu", u"    \u8bbe\u7f6e", None))
     # retranslateUi
