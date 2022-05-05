@@ -160,8 +160,4 @@ output.xml
 !src/xtester_robot/template/*
 
 
-**/*/__pycache__/*
-src/perfcat/__pycache__/*
-src/perfcat/__pycache__/*
-src/perfcat/__pycache__/*
-src/perfcat/__pycache__/*
+**/*/__pycache__
