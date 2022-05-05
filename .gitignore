@@ -160,4 +160,4 @@ output.xml
 !src/xtester_robot/template/*
 
 
-**/*/__pycache__
+**/*/__pycache__/
