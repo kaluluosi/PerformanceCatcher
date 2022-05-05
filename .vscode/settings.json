@@ -1,4 +1,6 @@
 {
     "python.formatting.provider": "black",
-    "qtForPython.designer.path": "c:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python310\\Lib\\site-packages\\PySide6\\designer.exe"
+    "qtForPython.designer.path": "pyside6-designer",
+    "qtForPython.uic.path": "pyside6-uic",
+    "qtForPython.rcc.path": "pyside6-rcc"
 }
