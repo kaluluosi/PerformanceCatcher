@@ -12,6 +12,9 @@
 
 # here put the import lib
 from PySide6.QtWidgets import QWidget
+from perfcat.ui.constant import ButtonStyle
+
+from perfcat.ui.widgets import notification
 
 
 class Page(QWidget):
@@ -33,3 +36,6 @@ class Page(QWidget):
             _type_: _description_
         """
         return self._setting_widget
+
+    def notify(self, msg:str="警告", style:ButtonStyle=ButtonStyle.warning):
+        notification.Notification(self, msg, style).show()

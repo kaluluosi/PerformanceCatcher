@@ -791,6 +791,12 @@ class Ui_Widgets(object):
         self.comboBox.setMinimumSize(QSize(0, 36))
         self.comboBox.setEditable(False)
         self.comboBox.setModelColumn(0)
+        self.btn_notify = QPushButton(self.frame)
+        self.btn_notify.setObjectName(u"btn_notify")
+        self.btn_notify.setGeometry(QRect(30, 440, 181, 41))
+        self.btn_notify_2 = QPushButton(self.frame)
+        self.btn_notify_2.setObjectName(u"btn_notify_2")
+        self.btn_notify_2.setGeometry(QRect(30, 490, 181, 41))
 
         self.verticalLayout.addWidget(self.frame)
 
@@ -848,5 +854,8 @@ class Ui_Widgets(object):
         self.pushButton_4.setText(QCoreApplication.translate("Widgets", u"PushButton", None))
         self.pushButton_5.setText(QCoreApplication.translate("Widgets", u"PushButton", None))
         self.comboBox.setCurrentText("")
+        self.btn_notify.setText(QCoreApplication.translate("Widgets", u"\u6d88\u606f\u63d0\u793a\u6837\u5f0f1", None))
+        self.btn_notify_2.setText(QCoreApplication.translate("Widgets", u"\u6d88\u606f\u63d0\u793a\u6837\u5f0f2", None))
+        self.btn_notify_2.setProperty("style", QCoreApplication.translate("Widgets", u"success", None))
     # retranslateUi
 

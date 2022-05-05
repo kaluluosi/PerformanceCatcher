@@ -15,6 +15,7 @@ import sys
 from . import logger
 from .app import PerfcatApplication
 
+from PySide6.QtGui import QWindow
 
 app = PerfcatApplication(sys.argv)
 sys.exit(app.exec())

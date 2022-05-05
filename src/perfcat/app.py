@@ -10,7 +10,25 @@
 @Desc    :   app全局对象
 """
 # app 关于信息
+
+
+# here put the import lib
+import logging
+from typing import Optional, Tuple, Union
+import PySide6
+import pkg_resources
+from ctypes.wintypes import MSG
+import win32con
+from .ui.layout import MainWindow
+from PySide6.QtWidgets import QWidget, QApplication
+from PySide6.QtCore import QAbstractNativeEventFilter, SignalInstance, Signal, QObject,QEvent
+
 from . import __version__, __author__, __author_email__
+from .modules.hot_plug import HotPlugWatcher
+from . import pages
+
+log = logging.getLogger(__name__)
+
 
 __doc__ = f"""
 # Perfcat
@@ -22,15 +40,6 @@ __doc__ = f"""
 
 邮件: {__author_email__}
 """
-import logging
-from .ui.layout import MainWindow
-
-# here put the import lib
-from PySide6.QtWidgets import QWidget, QApplication
-
-from . import modules
-
-log = logging.getLogger(__name__)
 
 
 class PerfcatApplication(QApplication):
@@ -54,22 +63,32 @@ class PerfcatApplication(QApplication):
         self.main_win.show()
 
         self._install_pages()
+        
+        HotPlugWatcher.install(self)
+
 
     @classmethod
     @property
     def instance(cls) -> "PerfcatApplication":
         return QApplication.instance()
 
-    def load_stylesheet(self):
-        with open(
-            r"G:\projects\perfcat\src\perfcat\assets\css\default.css", encoding="utf-8"
-        ) as f:
-            sheet = f.read()
+    def load_stylesheet(self, path=None):
+        if not path:
+            stylesheet = pkg_resources.resource_string(
+                __package__, "assets/css/default.css"
+            ).decode("utf-8")
+            log.debug("加载内置stylesheet")
+        else:
+            with open(path) as f:
+                stylesheet = f.read()
+            log.debug(f"加载stylesheet：{path}")
 
-        self.setStyleSheet(sheet)
+        self.setStyleSheet(stylesheet)
         log.debug("加载stylesheet")
-
+        
     def _install_pages(self):
         w = self.main_win
-        for page in modules.register:
+        for page in pages.register:
             w.add_page(page(w))
+
+

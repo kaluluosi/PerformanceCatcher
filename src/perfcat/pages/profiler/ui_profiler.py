@@ -570,14 +570,14 @@ class Ui_Profiler(object):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.cbx_device = QComboBox(self.frame_2)
         self.cbx_device.setObjectName(u"cbx_device")
-        self.cbx_device.setEnabled(False)
+        self.cbx_device.setEnabled(True)
         self.cbx_device.setMinimumSize(QSize(0, 36))
 
         self.verticalLayout_3.addWidget(self.cbx_device)
 
         self.cbx_app = QComboBox(self.frame_2)
         self.cbx_app.setObjectName(u"cbx_app")
-        self.cbx_app.setEnabled(False)
+        self.cbx_app.setEnabled(True)
         self.cbx_app.setMinimumSize(QSize(0, 36))
 
         self.verticalLayout_3.addWidget(self.cbx_app)

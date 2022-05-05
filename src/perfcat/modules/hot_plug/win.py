@@ -26,7 +26,7 @@ import win32gui_struct
 import win32gui, win32con
 
 from typing import Tuple, Union
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QCoreApplication,QTimer
 from PySide6.QtGui import QWindow
 from .base import BaseHotPlugNativeEventFilter
 
@@ -48,18 +48,24 @@ class WinHotPlugNativeEventFilter(BaseHotPlugNativeEventFilter):
             if msg.message == win32con.WM_DEVICECHANGE:
                 # log.debug(f"设备变更 {msg.message} {msg.wParam} {msg.lParam}")
                 # info = win32gui_struct.UnpackDEV_BROADCAST(msg.lParam)
+                timer = QTimer(self)
+                timer.setSingleShot(True)
+                timer.setInterval(1000)
+                timer.timeout.connect(lambda: self.device_changed.emit())
                 
                 if msg.wParam == win32con.DBT_DEVICEARRIVAL:
                     log.debug("设备插入")
-                    self.device_changed.emit()
-                    self.device_added.emit()
+                    timer.timeout.connect(lambda: self.device_added.emit())
+                    timer.start()
                 
                 if msg.wParam == win32con.DBT_DEVICEREMOVECOMPLETE:
                     log.debug("设备移除")
-                    self.device_changed.emit()
-                    self.device_removed.emit()
+                    timer = QTimer(self)
+                    timer.setSingleShot(True)
+                    timer.setInterval(100)
+                    timer.timeout.connect(lambda: self.device_removed.emit())
+                    timer.start()
 
-                
         return False
     
 

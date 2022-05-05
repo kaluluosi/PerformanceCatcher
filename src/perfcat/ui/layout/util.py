@@ -11,6 +11,7 @@
 """
 
 # here put the import lib
+from typing import Union
 from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect, QLayout
 from PySide6.QtGui import QColor
 from PySide6.QtCore import QPropertyAnimation, QEasingCurve
@@ -51,7 +52,7 @@ def set_h_expand_anim(
     return anim
 
 
-def clear_layout(layout: QLayout | QWidget):
+def clear_layout(layout:Union[QLayout,QWidget]):
     """
     清空layout里的widget
 

@@ -619,7 +619,7 @@ QTabBar::tab:!selected {
             <item>
              <widget class="QComboBox" name="cbx_device">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -632,7 +632,7 @@ QTabBar::tab:!selected {
             <item>
              <widget class="QComboBox" name="cbx_app">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>

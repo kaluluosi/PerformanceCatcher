@@ -16,6 +16,8 @@
 
 # here put the import lib
 import logging
+from typing import Tuple, Union
+import PySide6
 import markdown
 import textwrap
 from unittest.case import doModuleCleanups
@@ -23,7 +25,8 @@ from unittest.case import doModuleCleanups
 from PySide6.QtWidgets import QMainWindow, QPushButton, QAbstractButton, QWidget
 from PySide6.QtCore import Qt
 
-from perfcat.modules.home.home import Page
+from perfcat.pages.home.home import Page
+from perfcat.ui.widgets.notification import Notification
 
 from . import util
 from .ui_mainwindow import Ui_MainWindow
@@ -73,6 +76,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # 添加左面板栏
         self._setup_left_column()
+        
+        
 
     # region 页面相关
     def add_page(self, page: Page):
@@ -101,6 +106,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         log.debug(f"切换页面到 {page.objectName()}")
         self.expand_setting_frame(False)  # 收起setting
         self.page_stacked.setCurrentWidget(page)
+        # page.show()
         self.title_bar.btn_setting.setEnabled(page.setting_widget != None)
 
         if page.setting_widget:
@@ -225,3 +231,4 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.CONTENT_RIGHT_MINWIDTH,
         )
         self.title_bar.btn_setting.setChecked(checked)
+
