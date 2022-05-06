@@ -1,23 +1,35 @@
-from ast import Set
-from os import stat
-from tkinter import Button, EventType
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+"""
+@File    :   profiler.py
+@Time    :   2022/05/05 20:16:06
+@Author  :   Calros Teng 
+@Version :   1.0
+@Contact :   303359166@qq.com
+@License :   (C)Copyright 2017-2018, Xin Yuan Studio
+@Desc    :  
+todo:
+[1] 如果需要设备选择和app选择体验更好点就要重新实现model和itemdelegate了。目前暂时这样吧。
+[2] 最好还是开一个线程去采集性能数据，不然会阻塞主线程。
+
+"""
+
+# here put the import lib
+
+
 import PySide6
 import logging
-from typing import List, Optional, Sequence, Tuple, Union
 from ppadb.client import Client as adb
 from ppadb.device import Device
-from PySide6.QtWidgets import QWidget, QPushButton, QErrorMessage, QApplication
+from PySide6.QtWidgets import QCompleter, QTableWidgetItem
 from perfcat.ui.constant import ButtonStyle
 from perfcat.ui.page import Page
-from PySide6.QtCore import (
-    Qt,
-    Signal,
-    SignalInstance,
-)
+from PySide6.QtCore import Qt, Signal, SignalInstance, QThread
 from perfcat.modules.hot_plug import HotPlugWatcher
 
 
 from .ui_profiler import Ui_Profiler
+from .util import device_info
 
 log = logging.getLogger(__name__)
 
@@ -36,40 +48,134 @@ class Profiler(Page, Ui_Profiler):
         # 让监视器layout顶部对齐（designer里无法做到只能代码设置）
         self.verticalLayout_6.setAlignment(Qt.AlignTop)
 
-        self.devices:Set = set()
-        self.current_device: Device = None
-
         self.adb = adb()
-        
+        self.tick_timer_id = -1
+
+        self.btn_connect.toggled.connect(self._connect_device)
+
+        # 默认是没选中任何设备和app，此时连接和录制置灰
+        self.btn_connect.setEnabled(False)
+        self.btn_record.setEnabled(False)
+
+        # 档设备选择改变的时候更新连接按钮状态
+        self.cbx_device.currentIndexChanged.connect(self._update_btn_status)  # 设备切换时更新
+        self.cbx_device.currentIndexChanged.connect(self._update_device_info)
+        self.cbx_app.currentIndexChanged.connect(self._update_btn_status)  # app切换时更新
+        self.cbx_app.editTextChanged.connect(self._update_btn_status)  # app名修改的时候更新
+
+        self.cbx_device.currentIndexChanged.connect(self._update_app_list)
+
+    @property
+    def current_device(self) -> Device:
+        """
+        返回当前选中的设备
+
+        Returns:
+            Device: _description_
+        """
+        return self.cbx_device.currentData(Qt.UserRole)
+
+    @property
+    def device_info(self) -> dict[str, str]:
+        if self.current_device is None:
+            return {}
+
+        return device_info(self.current_device)
+
+    def _update_btn_status(self):
+        valid_device = self.cbx_device.currentIndex() > -1
+        valid_app = (
+            self.cbx_app.currentIndex() > -1 and self.cbx_app.currentText() != ""
+        )
+
+        log.debug(f"更新按钮状态 valid_device:{valid_device} valid_app:{valid_app}")
+        self.btn_connect.setEnabled(valid_device and valid_app)
+
+    def _update_device_info(self):
+        thread = QThread(self)
+
+        def run():
+            dev_info = self.device_info
+            self.tb_device_info.setRowCount(len(dev_info))
+            index = 0
+            for prop, value in dev_info.items():
+                prop_item = QTableWidgetItem(prop)
+                prop_item.setFlags(prop_item.flags() ^ Qt.ItemIsEditable)
+                self.tb_device_info.setItem(index, 0, prop_item)
+                value_item = QTableWidgetItem(value)
+                value_item.setToolTip(value)
+                value_item.setFlags(prop_item.flags() ^ Qt.ItemIsEditable)
+                self.tb_device_info.setItem(index, 1, value_item)
+                index += 1
+
+        thread.run = run
+        thread.start()
+
+    def _update_app_list(self, index: int):
+        if not self.current_device:
+            self.cbx_app.clear()
+            return
+        packages = self.current_device.list_packages()
+        self.cbx_app.clear()
+        items = packages
+        self.cbx_app.addItems(items)
+        completer = QCompleter(items, self.cbx_app)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        self.cbx_app.setCompleter(completer)
+
+    def _update_devices_list(self):
+        log.debug("你好啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊")
+        devices: list[Device] = self.adb.devices()
+        pre_selected = self.cbx_device.currentText()
+        self.cbx_device.clear()
+        for dev in devices:
+            model = dev.get_properties()["ro.product.model"]
+            self.cbx_device.addItem(f"[{dev.serial}] {model}", dev)
+
+        self.cbx_device.setCurrentText(pre_selected)
+        # 这一段检查当前选中的设备是不是断开了
+        if self.cbx_device.currentIndex() == -1 and pre_selected != "":
+            self.notify("当前选择的设备已经断开！", ButtonStyle.danger)
+            # 如果断开了不管是不是正在连接都强制断开
+            self._connect_device(False)
+
     def showEvent(self, event: PySide6.QtGui.QShowEvent) -> None:
-        HotPlugWatcher.device_added.connect(self._on_device_add)
-        HotPlugWatcher.device_removed.connect(self._on_device_removed)
-        
-        self.devices = set(self.adb.devices())
-        
-        for d in self.devices:
-            self.cbx_device.addItem(d.serial)
-        
+
+        # 这种神奇的用法……用monkeypatch的方式强行把run方法替换成内部函数，就不用派生了
+        # 这样可以快速的编写异步代码，防止阻塞UI线程
+        # 如果不需要维护和释放thread，那么就不需要self里声明一个变量来保存了
+        # 这样写用完就抛，python会帮我们释放这个thread对象
+        thread = QThread(self)
+
+        def run():
+            HotPlugWatcher.device_added.connect(self._on_device_add)
+            HotPlugWatcher.device_removed.connect(self._on_device_removed)
+
+            self.devices = set(self.adb.devices())
+
+            self._update_devices_list()
+            log.debug(f"刷新设备列表 {self.devices}")
+
+        thread.run = run
+        thread.start()
+
         return super().showEvent(event)
-    
+
     def hideEvent(self, event: PySide6.QtGui.QHideEvent) -> None:
         HotPlugWatcher.device_added.disconnect(self._on_device_add)
         HotPlugWatcher.device_removed.disconnect(self._on_device_removed)
         return super().hideEvent(event)
 
     def _on_device_add(self):
-        self.notify("发现新设备！",ButtonStyle.success)
-        device_list = set(self.adb.devices())
-        log.debug(self.devices)
-        log.debug(device_list)
-
+        self.notify("发现新设备！", ButtonStyle.success)
+        # todo: 添加新设备item
+        self._update_devices_list()
 
     def _on_device_removed(self):
-        self.notify("设备被移除！",ButtonStyle.warning)
-        
-        log.debug(self.devices)
-        
-
+        self.notify("设备被移除！", ButtonStyle.warning)
+        # todo: 移除旧设备item，如果旧设备的serial正好是当前连接中设备，那么就置空currentIndex
+        self._update_devices_list()
 
     def start_tick(self):
         log.debug("开启tick定时器 开始采集")
@@ -79,3 +185,44 @@ class Profiler(Page, Ui_Profiler):
         log.debug("停止tick定时器 停止采集")
         self.killTimer(self.tick_timer_id)
 
+    def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
+
+        try:
+            log.info(f"cpu:{self.current_device.cpu_percent()}")
+        except Exception as e:
+            log.warning(e)
+
+        return super().timerEvent(event)
+
+    def _connect_device(self, enable: bool = True):
+        """
+        连接设备
+
+        这个方法说是连接设备，其实只是开启tick定时器来轮询设备而已
+
+        Args:
+            enable (bool, optional): True开始轮询，False结束轮询. Defaults to True.
+        """
+
+        if enable:
+            log.debug(f"连接设备 {self.current_device.serial}")
+            self.notify(f"连接设备 {self.current_device.serial}", ButtonStyle.success)
+            self.start_tick()
+        else:
+            if self.current_device:  # current_device非none就是还连着usb
+                log.debug(f"断开设备 {self.current_device.serial}")
+                self.notify(f"断开设备 {self.current_device.serial}", ButtonStyle.warning)
+            else:
+                self.notify(f"当前设备异常断开，可能被直接拔了！", ButtonStyle.danger)
+
+            self.stop_tick()
+
+        self.cbx_device.setDisabled(enable)
+        self.cbx_app.setDisabled(enable)
+
+        # 先拦截信号防止setchecked的时候发出toggled信号导致执行两次
+        self.btn_connect.blockSignals(True)
+        self.btn_connect.setChecked(enable)
+        self.btn_connect.blockSignals(False)
+
+        self.btn_record.setEnabled(enable)

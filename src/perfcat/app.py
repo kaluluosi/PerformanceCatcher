@@ -21,7 +21,13 @@ from ctypes.wintypes import MSG
 import win32con
 from .ui.layout import MainWindow
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtCore import QAbstractNativeEventFilter, SignalInstance, Signal, QObject,QEvent
+from PySide6.QtCore import (
+    QAbstractNativeEventFilter,
+    SignalInstance,
+    Signal,
+    QObject,
+    QEvent,
+)
 
 from . import __version__, __author__, __author_email__
 from .modules.hot_plug import HotPlugWatcher
@@ -63,9 +69,8 @@ class PerfcatApplication(QApplication):
         self.main_win.show()
 
         self._install_pages()
-        
-        HotPlugWatcher.install(self)
 
+        HotPlugWatcher.install(self)
 
     @classmethod
     @property
@@ -85,10 +90,8 @@ class PerfcatApplication(QApplication):
 
         self.setStyleSheet(stylesheet)
         log.debug("加载stylesheet")
-        
+
     def _install_pages(self):
         w = self.main_win
         for page in pages.register:
             w.add_page(page(w))
-
-

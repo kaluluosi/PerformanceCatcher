@@ -525,3 +525,92 @@ QScrollArea #scrollAreaWidgetContents *{
     padding-right:20px;
     color:black;
 }
+
+QSplitter::handle{
+    background-color: #2c313c;
+    margin-top:5px;
+    margin-bottom: 5px;
+}
+
+
+QTableWidget{
+	background-color:#343b48;
+	/* padding:5px; */
+gridline-color:#2c313c;
+}
+
+QTableWidget::item{
+border-color:none;
+padding-left:5px;
+padding-right:5px;
+gridline-color:rgb(44, 49, 60);
+border-bottom: 1px solid #3c4454;
+}
+
+QTableWidget::item:selected{
+	background-color: #568af2;
+}
+
+QHeaderView::section{
+	background-color: rgb(33, 37, 43);
+	max-width: 30px;
+	border: 1px solid rgb(44, 49, 58);
+	border-style: none;
+    border-bottom: 1px solid rgb(44, 49, 60);
+    border-right: 1px solid rgb(44, 49, 60);
+}
+
+QTableWidget::horizontalHeader {
+	background-color: rgb(33, 37, 43);
+}
+
+QTableWidget QTableCornerButton::section {
+    border: none;
+	background-color: rgb(33, 37, 43);
+	padding: 3px;
+    border-top-left-radius: 8px;
+}
+
+QHeaderView::section:horizontal
+{
+    border: none;
+	background-color: rgb(33, 37, 43);
+	padding: 3px;
+}
+
+QHeaderView::section:vertical
+{
+    border: none;
+	background-color: rgb(33, 37, 43);
+	padding-left: 5px;
+    padding-right: 5px;
+    border-bottom: 1px solid #3c4454;
+}
+
+
+
+QHeaderView {
+    background-color: #21252b;
+}
+
+QHeaderView::section:horizontal:first
+{
+
+	background-color: rgb(33, 37, 43);
+	padding: 3px;
+border-top-left-radius: 8px;
+}
+
+QHeaderView::section:horizontal:last
+{
+
+	background-color: rgb(33, 37, 43);
+	padding: 3px;
+border-top-right-radius: 8px;
+}
+
+QTableWidget QLineEdit{
+	padding:2px;
+background-color:#568af2;
+color:black;
+}

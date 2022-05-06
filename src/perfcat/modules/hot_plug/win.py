@@ -26,7 +26,7 @@ import win32gui_struct
 import win32gui, win32con
 
 from typing import Tuple, Union
-from PySide6.QtCore import QCoreApplication,QTimer
+from PySide6.QtCore import QCoreApplication, QTimer
 from PySide6.QtGui import QWindow
 from .base import BaseHotPlugNativeEventFilter
 
@@ -38,8 +38,6 @@ GUID_DEVINTERFACE_USB_DEVICE = "{A5DCBF10-6530-11D2-901F-00C04FB951ED}"
 
 
 class WinHotPlugNativeEventFilter(BaseHotPlugNativeEventFilter):
-    
-
     def nativeEventFilter(
         self, eventType: Union[PySide6.QtCore.QByteArray, bytes], message: int
     ) -> Tuple[object, int]:
@@ -52,41 +50,39 @@ class WinHotPlugNativeEventFilter(BaseHotPlugNativeEventFilter):
                 timer.setSingleShot(True)
                 timer.setInterval(1000)
                 timer.timeout.connect(lambda: self.device_changed.emit())
-                
+
                 if msg.wParam == win32con.DBT_DEVICEARRIVAL:
                     log.debug("设备插入")
                     timer.timeout.connect(lambda: self.device_added.emit())
                     timer.start()
-                
+
                 if msg.wParam == win32con.DBT_DEVICEREMOVECOMPLETE:
                     log.debug("设备移除")
-                    timer = QTimer(self)
-                    timer.setSingleShot(True)
-                    timer.setInterval(100)
                     timer.timeout.connect(lambda: self.device_removed.emit())
                     timer.start()
 
         return False
-    
 
     def install(self, app: QCoreApplication):
 
         # 创建一个看不见的窗口用来RegisterDeviceNotification
         # 我们无法从app中获取其主窗口
-        self._watcher = QWindow()  
+        self._watcher = QWindow()
         hwnd = self._watcher.winId()
-        
+
         filter = win32gui_struct.PackDEV_BROADCAST_DEVICEINTERFACE(
             GUID_DEVINTERFACE_USB_DEVICE
         )
-        
-        self.h_notify = win32gui.RegisterDeviceNotification(hwnd, filter, win32con.DEVICE_NOTIFY_WINDOW_HANDLE)
-        
+
+        self.h_notify = win32gui.RegisterDeviceNotification(
+            hwnd, filter, win32con.DEVICE_NOTIFY_WINDOW_HANDLE
+        )
+
         if self.h_notify == 0:
             log.error(f"RegisterDeviceNotification {ctypes.FormatError()}")
-        
+
         return super().install(app)
-    
+
     def uninstall(self, app: QCoreApplication):
         win32gui.UnregisterDeviceNotification(self.h_notify)
         return super().uninstall(app)

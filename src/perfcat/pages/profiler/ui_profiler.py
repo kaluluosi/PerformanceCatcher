@@ -16,8 +16,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
-    QHBoxLayout, QPushButton, QScrollArea, QSizePolicy,
-    QTabWidget, QToolButton, QVBoxLayout, QWidget)
+    QHBoxLayout, QHeaderView, QPushButton, QScrollArea,
+    QSizePolicy, QSplitter, QTabWidget, QTableWidget,
+    QTableWidgetItem, QToolButton, QVBoxLayout, QWidget)
 import asset_rc
 
 class Ui_Profiler(object):
@@ -539,6 +540,91 @@ class Ui_Profiler(object):
 "QTabBar::tab:!selected {\n"
 "    margin-top: 2px; /* make non-selected tabs look smaller */\n"
 "}\n"
+"\n"
+"QTableWidget{\n"
+"	background-color:#343b48;\n"
+"	padding:5"
+                        "px;\n"
+"gridline-color:#2c313c;\n"
+"}\n"
+"\n"
+"QTableWidget::item{\n"
+"border-color:none;\n"
+"padding-left:5px;\n"
+"padding-right:5px;\n"
+"gridline-color:rgb(44, 49, 60);\n"
+"border-bottom: 1px solid #3c4454;\n"
+"}\n"
+"\n"
+"QTableWidget::item:selected{\n"
+"	background-color: #568af2;\n"
+"}\n"
+"\n"
+"QTableWidget QLineEdit{\n"
+"	padding:2px;\n"
+"background-color:#568af2;\n"
+"}\n"
+"\n"
+"QHeaderView::section{\n"
+"	background-color: rgb(33, 37, 43);\n"
+"	max-width: 30px;\n"
+"	border: 1px solid rgb(44, 49, 58);\n"
+"	border-style: none;\n"
+"    border-bottom: 1px solid rgb(44, 49, 60);\n"
+"    border-right: 1px solid rgb(44, 49, 60);\n"
+"}\n"
+"\n"
+"QTableWidget::horizontalHeader {\n"
+"	background-color: rgb(33, 37, 43);\n"
+"}\n"
+"\n"
+"QTableWidget::verticalHeader{\n"
+"background-color: rgb(33, 37, 43);\n"
+"}\n"
+"\n"
+"QTableWidget QTableCornerButton::section {\n"
+"    border: none;\n"
+"	background-color: rgb(33, 37, 43);\n"
+"	padding: 3px;\n"
+"    border-top-left-radius: 8px;\n"
+"}\n"
+"\n"
+"QHeaderView::section:horizo"
+                        "ntal\n"
+"{\n"
+"\n"
+"	background-color: rgb(33, 37, 43);\n"
+"	padding: 3px;\n"
+"}\n"
+"\n"
+"QHeaderView::section:horizontal:first\n"
+"{\n"
+"\n"
+"	background-color: rgb(33, 37, 43);\n"
+"	padding: 3px;\n"
+"border-top-left-radius: 8px;\n"
+"}\n"
+"\n"
+"QHeaderView::section:horizontal:last\n"
+"{\n"
+"\n"
+"	background-color: rgb(33, 37, 43);\n"
+"	padding: 3px;\n"
+"border-top-right-radius: 8px;\n"
+"}\n"
+"\n"
+"QHeaderView::section:vertical\n"
+"{\n"
+"    border: none;\n"
+"	background-color: rgb(33, 37, 43);\n"
+"	padding-left: 5px;\n"
+"    padding-right: 5px;\n"
+"    border-bottom: 1px solid #3c4454;\n"
+"}\n"
+"\n"
+"QHeaderView {\n"
+"    background-color: #21252b;\n"
+"}\n"
 "")
         self.verticalLayout = QVBoxLayout(Profiler)
         self.verticalLayout.setSpacing(0)
@@ -579,6 +665,7 @@ class Ui_Profiler(object):
         self.cbx_app.setObjectName(u"cbx_app")
         self.cbx_app.setEnabled(True)
         self.cbx_app.setMinimumSize(QSize(0, 36))
+        self.cbx_app.setEditable(True)
 
         self.verticalLayout_3.addWidget(self.cbx_app)
 
@@ -615,6 +702,28 @@ class Ui_Profiler(object):
         self.tab_main.setObjectName(u"tab_main")
         self.tab = QWidget()
         self.tab.setObjectName(u"tab")
+        self.verticalLayout_7 = QVBoxLayout(self.tab)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_7.setContentsMargins(2, 2, 2, 2)
+        self.tb_device_info = QTableWidget(self.tab)
+        if (self.tb_device_info.columnCount() < 2):
+            self.tb_device_info.setColumnCount(2)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.tb_device_info.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.tb_device_info.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        self.tb_device_info.setObjectName(u"tb_device_info")
+        self.tb_device_info.setEnabled(True)
+        self.tb_device_info.setWordWrap(False)
+        self.tb_device_info.setCornerButtonEnabled(True)
+        self.tb_device_info.setColumnCount(2)
+        self.tb_device_info.horizontalHeader().setCascadingSectionResizes(False)
+        self.tb_device_info.horizontalHeader().setProperty("showSortIndicator", False)
+        self.tb_device_info.horizontalHeader().setStretchLastSection(True)
+        self.tb_device_info.verticalHeader().setVisible(False)
+
+        self.verticalLayout_7.addWidget(self.tb_device_info)
+
         icon3 = QIcon()
         icon3.addFile(u":/icon_w/svg_white/mobile2.svg", QSize(), QIcon.Normal, QIcon.Off)
         icon3.addFile(u":/icon_b/svg_blue/mobile2.svg", QSize(), QIcon.Normal, QIcon.On)
@@ -635,7 +744,11 @@ class Ui_Profiler(object):
         self.verticalLayout_4 = QVBoxLayout(self.right)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.frame_4 = QFrame(self.right)
+        self.splitter = QSplitter(self.right)
+        self.splitter.setObjectName(u"splitter")
+        self.splitter.setOrientation(Qt.Vertical)
+        self.splitter.setHandleWidth(1)
+        self.frame_4 = QFrame(self.splitter)
         self.frame_4.setObjectName(u"frame_4")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -697,13 +810,11 @@ class Ui_Profiler(object):
 
         self.verticalLayout_5.addWidget(self.scrollArea)
 
-
-        self.verticalLayout_4.addWidget(self.frame_4)
-
-        self.frame_3 = QFrame(self.right)
+        self.splitter.addWidget(self.frame_4)
+        self.frame_3 = QFrame(self.splitter)
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setMinimumSize(QSize(0, 0))
-        self.frame_3.setMaximumSize(QSize(16777215, 240))
+        self.frame_3.setMaximumSize(QSize(16777215, 16777215))
         self.frame_3.setFrameShape(QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QFrame.Raised)
         self.gridLayout = QGridLayout(self.frame_3)
@@ -728,8 +839,9 @@ class Ui_Profiler(object):
 
         self.gridLayout.addWidget(self.tab_console, 0, 0, 1, 1)
 
+        self.splitter.addWidget(self.frame_3)
 
-        self.verticalLayout_4.addWidget(self.frame_3)
+        self.verticalLayout_4.addWidget(self.splitter)
 
 
         self.horizontalLayout.addWidget(self.right)
@@ -741,7 +853,7 @@ class Ui_Profiler(object):
         self.retranslateUi(Profiler)
 
         self.tab_main.setCurrentIndex(0)
-        self.tab_console.setCurrentIndex(0)
+        self.tab_console.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Profiler)
@@ -752,9 +864,15 @@ class Ui_Profiler(object):
 #if QT_CONFIG(tooltip)
         Profiler.setToolTip(QCoreApplication.translate("Profiler", u"\u5b89\u5353\u6027\u80fd\u6d4b\u8bd5\u8f85\u52a9\u5de5\u5177", None))
 #endif // QT_CONFIG(tooltip)
+        self.cbx_device.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u8bf7\u9009\u62e9\u8bbe\u5907", None))
+        self.cbx_app.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u9009\u62e9APP", None))
         self.btn_connect.setText(QCoreApplication.translate("Profiler", u"\u8fde\u63a5", None))
         self.btn_record.setText(QCoreApplication.translate("Profiler", u"...", None))
         self.btn_record.setProperty("style", QCoreApplication.translate("Profiler", u"danger", None))
+        ___qtablewidgetitem = self.tb_device_info.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Profiler", u"\u5c5e\u6027", None));
+        ___qtablewidgetitem1 = self.tb_device_info.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Profiler", u"\u503c", None));
         self.tab_main.setTabText(self.tab_main.indexOf(self.tab), QCoreApplication.translate("Profiler", u"\u8bbe\u5907", None))
         self.pushButton_2.setText(QCoreApplication.translate("Profiler", u"PushButton", None))
         self.pushButton_4.setText(QCoreApplication.translate("Profiler", u"PushButton", None))
