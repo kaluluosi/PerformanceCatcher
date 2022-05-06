@@ -23,7 +23,7 @@ import logging
 import csv
 from ppadb.client import Client as adb
 from ppadb.device import Device
-from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication
+from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication, QMessageBox
 from perfcat.ui.constant import ButtonStyle
 from perfcat.ui.page import Page
 from PySide6.QtCore import Qt, Signal, SignalInstance, QThread
@@ -131,12 +131,7 @@ class Profiler(Page, Ui_Profiler):
                 dev_info = self._device_info = {}
 
             # 清空数据
-            self.tb_device_info.clear()
-            # 重新设置表头
-            prop_header = QTableWidgetItem("属性")
-            value_header = QTableWidgetItem("值")
-            self.tb_device_info.setHorizontalHeaderItem(0, prop_header)
-            self.tb_device_info.setHorizontalHeaderItem(1, value_header)
+            self.tb_device_info.clearContents()
 
             if not dev_info:
                 self.btn_copy_info.setEnabled(False)
@@ -214,6 +209,8 @@ class Profiler(Page, Ui_Profiler):
     def hideEvent(self, event: PySide6.QtGui.QHideEvent) -> None:
         HotPlugWatcher.device_added.disconnect(self._on_device_add)
         HotPlugWatcher.device_removed.disconnect(self._on_device_removed)
+
+        self._connect_device(False)
         return super().hideEvent(event)
 
     def _on_device_add(self):
@@ -232,7 +229,9 @@ class Profiler(Page, Ui_Profiler):
 
     def stop_tick(self):
         log.debug("停止tick定时器 停止采集")
-        self.killTimer(self.tick_timer_id)
+        if self.tick_timer_id != -1:
+            self.killTimer(self.tick_timer_id)
+            self.tick_timer_id = -1
 
     def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
 
