@@ -857,6 +857,16 @@ QHeaderView {
                   </column>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QPushButton" name="btn_copy_info">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>复制信息</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </widget>

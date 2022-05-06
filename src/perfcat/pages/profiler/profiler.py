@@ -17,11 +17,13 @@ todo:
 # here put the import lib
 
 
+import io
 import PySide6
 import logging
+import csv
 from ppadb.client import Client as adb
 from ppadb.device import Device
-from PySide6.QtWidgets import QCompleter, QTableWidgetItem
+from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication
 from perfcat.ui.constant import ButtonStyle
 from perfcat.ui.page import Page
 from PySide6.QtCore import Qt, Signal, SignalInstance, QThread
@@ -50,6 +52,7 @@ class Profiler(Page, Ui_Profiler):
 
         self.adb = adb()
         self.tick_timer_id = -1
+        self._device_info = {}
 
         self.btn_connect.toggled.connect(self._connect_device)
 
@@ -57,9 +60,14 @@ class Profiler(Page, Ui_Profiler):
         self.btn_connect.setEnabled(False)
         self.btn_record.setEnabled(False)
 
+        # 复制设备信息
+        self.btn_copy_info.clicked.connect(self._copy_info)
+
         # 档设备选择改变的时候更新连接按钮状态
         self.cbx_device.currentIndexChanged.connect(self._update_btn_status)  # 设备切换时更新
-        self.cbx_device.currentIndexChanged.connect(self._update_device_info)
+        self.cbx_device.currentIndexChanged.connect(
+            self._update_device_info
+        )  # 读取显示设备信息
         self.cbx_app.currentIndexChanged.connect(self._update_btn_status)  # app切换时更新
         self.cbx_app.editTextChanged.connect(self._update_btn_status)  # app名修改的时候更新
 
@@ -80,7 +88,7 @@ class Profiler(Page, Ui_Profiler):
         if self.current_device is None:
             return {}
 
-        return device_info(self.current_device)
+        return self._device_info
 
     def _update_btn_status(self):
         valid_device = self.cbx_device.currentIndex() > -1
@@ -91,12 +99,53 @@ class Profiler(Page, Ui_Profiler):
         log.debug(f"更新按钮状态 valid_device:{valid_device} valid_app:{valid_app}")
         self.btn_connect.setEnabled(valid_device and valid_app)
 
+    def _copy_info(self):
+        """
+        把设备信息复制到剪贴板
+
+        """
+        if self.current_device:
+            device_info = self._device_info
+            clipboard = QApplication.clipboard()
+            output = io.StringIO()
+            writer = csv.writer(output, csv.get_dialect("excel-tab"))
+            for k, v in device_info.items():
+                writer.writerow([k, v])
+            text = output.getvalue()
+            clipboard.setText(text)
+            self.notify("复制设备信息到剪贴板", ButtonStyle.success)
+
     def _update_device_info(self):
+        """
+        更新设备信息
+
+        _extended_summary_
+        """
         thread = QThread(self)
 
         def run():
-            dev_info = self.device_info
+            # 缓存到成员变量里免得每次都重新获取阻塞UI
+            if self.current_device:
+                dev_info = self._device_info = device_info(self.current_device)
+            else:
+                dev_info = self._device_info = {}
+
+            # 清空数据
+            self.tb_device_info.clear()
+            # 重新设置表头
+            prop_header = QTableWidgetItem("属性")
+            value_header = QTableWidgetItem("值")
+            self.tb_device_info.setHorizontalHeaderItem(0, prop_header)
+            self.tb_device_info.setHorizontalHeaderItem(1, value_header)
+
+            if not dev_info:
+                self.btn_copy_info.setEnabled(False)
+                return
+
+            # 设置行数
             self.tb_device_info.setRowCount(len(dev_info))
+
+            # 填写数据
             index = 0
             for prop, value in dev_info.items():
                 prop_item = QTableWidgetItem(prop)
@@ -107,6 +156,7 @@ class Profiler(Page, Ui_Profiler):
                 value_item.setFlags(prop_item.flags() ^ Qt.ItemIsEditable)
                 self.tb_device_info.setItem(index, 1, value_item)
                 index += 1
+            self.btn_copy_info.setEnabled(True)
 
         thread.run = run
         thread.start()
@@ -125,7 +175,6 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_app.setCompleter(completer)
 
     def _update_devices_list(self):
-        log.debug("你好啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊")
         devices: list[Device] = self.adb.devices()
         pre_selected = self.cbx_device.currentText()
         self.cbx_device.clear()

@@ -724,6 +724,12 @@ class Ui_Profiler(object):
 
         self.verticalLayout_7.addWidget(self.tb_device_info)
 
+        self.btn_copy_info = QPushButton(self.tab)
+        self.btn_copy_info.setObjectName(u"btn_copy_info")
+        self.btn_copy_info.setEnabled(False)
+
+        self.verticalLayout_7.addWidget(self.btn_copy_info)
+
         icon3 = QIcon()
         icon3.addFile(u":/icon_w/svg_white/mobile2.svg", QSize(), QIcon.Normal, QIcon.Off)
         icon3.addFile(u":/icon_b/svg_blue/mobile2.svg", QSize(), QIcon.Normal, QIcon.On)
@@ -873,6 +879,7 @@ class Ui_Profiler(object):
         ___qtablewidgetitem.setText(QCoreApplication.translate("Profiler", u"\u5c5e\u6027", None));
         ___qtablewidgetitem1 = self.tb_device_info.horizontalHeaderItem(1)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("Profiler", u"\u503c", None));
+        self.btn_copy_info.setText(QCoreApplication.translate("Profiler", u"\u590d\u5236\u4fe1\u606f", None))
         self.tab_main.setTabText(self.tab_main.indexOf(self.tab), QCoreApplication.translate("Profiler", u"\u8bbe\u5907", None))
         self.pushButton_2.setText(QCoreApplication.translate("Profiler", u"PushButton", None))
         self.pushButton_4.setText(QCoreApplication.translate("Profiler", u"PushButton", None))
