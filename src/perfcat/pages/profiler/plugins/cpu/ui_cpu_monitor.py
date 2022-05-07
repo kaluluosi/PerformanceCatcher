@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_profiler.ui'
+## Form generated from reading UI file 'ui_cpu_monitor.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.3.0
 ##
@@ -15,22 +15,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
-    QHBoxLayout, QHeaderView, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QTabWidget, QTableWidget,
-    QTableWidgetItem, QToolButton, QVBoxLayout, QWidget)
-import asset_rc
+from PySide6.QtWidgets import (QApplication, QFrame, QSizePolicy, QVBoxLayout,
+    QWidget)
 
-class Ui_Profiler(object):
-    def setupUi(self, Profiler):
-        if not Profiler.objectName():
-            Profiler.setObjectName(u"Profiler")
-        Profiler.resize(1113, 795)
-        icon = QIcon()
-        icon.addFile(u":/icon_w/svg_white/android.svg", QSize(), QIcon.Normal, QIcon.Off)
-        icon.addFile(u":/icon_b/svg_blue/android.svg", QSize(), QIcon.Normal, QIcon.On)
-        Profiler.setWindowIcon(icon)
-        Profiler.setStyleSheet(u"*{\n"
+class Ui_CPUMonitor(object):
+    def setupUi(self, CPUMonitor):
+        if not CPUMonitor.objectName():
+            CPUMonitor.setObjectName(u"CPUMonitor")
+        CPUMonitor.resize(824, 240)
+        CPUMonitor.setMinimumSize(QSize(0, 240))
+        CPUMonitor.setMaximumSize(QSize(16777215, 16777215))
+        CPUMonitor.setStyleSheet(u"*{\n"
 "    border-radius:8;\n"
 "    color:#6c7c96;\n"
 "}\n"
@@ -626,241 +621,25 @@ class Ui_Profiler(object):
 "    background-color: #21252b;\n"
 "}\n"
 "")
-        self.verticalLayout = QVBoxLayout(Profiler)
-        self.verticalLayout.setSpacing(0)
+        self.verticalLayout = QVBoxLayout(CPUMonitor)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.frame = QFrame(Profiler)
+        self.frame = QFrame(CPUMonitor)
         self.frame.setObjectName(u"frame")
-        self.frame.setStyleSheet(u"")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout = QHBoxLayout(self.frame)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(9, 9, 9, 9)
-        self.left = QFrame(self.frame)
-        self.left.setObjectName(u"left")
-        self.left.setMaximumSize(QSize(240, 16777215))
-        self.left.setFrameShape(QFrame.StyledPanel)
-        self.left.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_2 = QVBoxLayout(self.left)
-        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2 = QVBoxLayout(self.frame)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.frame_2 = QFrame(self.left)
-        self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_3 = QVBoxLayout(self.frame_2)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.cbx_device = QComboBox(self.frame_2)
-        self.cbx_device.setObjectName(u"cbx_device")
-        self.cbx_device.setEnabled(True)
-        self.cbx_device.setMinimumSize(QSize(0, 36))
-
-        self.verticalLayout_3.addWidget(self.cbx_device)
-
-        self.cbx_app = QComboBox(self.frame_2)
-        self.cbx_app.setObjectName(u"cbx_app")
-        self.cbx_app.setEnabled(True)
-        self.cbx_app.setMinimumSize(QSize(0, 36))
-        self.cbx_app.setEditable(True)
-
-        self.verticalLayout_3.addWidget(self.cbx_app)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.btn_connect = QPushButton(self.frame_2)
-        self.btn_connect.setObjectName(u"btn_connect")
-        self.btn_connect.setMaximumSize(QSize(16777215, 36))
-        self.btn_connect.setStyleSheet(u"\\")
-        icon1 = QIcon()
-        icon1.addFile(u":/icon_w/svg_white/power-cord.svg", QSize(), QIcon.Normal, QIcon.Off)
-        icon1.addFile(u":/icon/svg/power-cord.svg", QSize(), QIcon.Normal, QIcon.On)
-        self.btn_connect.setIcon(icon1)
-        self.btn_connect.setCheckable(True)
-
-        self.horizontalLayout_2.addWidget(self.btn_connect)
-
-        self.btn_record = QToolButton(self.frame_2)
-        self.btn_record.setObjectName(u"btn_record")
-        self.btn_record.setMaximumSize(QSize(36, 36))
-        icon2 = QIcon()
-        icon2.addFile(u":/icon_w/svg_white/play2.svg", QSize(), QIcon.Normal, QIcon.Off)
-        icon2.addFile(u":/icon_b/svg_blue/stop.svg", QSize(), QIcon.Normal, QIcon.On)
-        self.btn_record.setIcon(icon2)
-        self.btn_record.setIconSize(QSize(24, 24))
-        self.btn_record.setCheckable(True)
-
-        self.horizontalLayout_2.addWidget(self.btn_record)
-
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
-
-        self.tab_main = QTabWidget(self.frame_2)
-        self.tab_main.setObjectName(u"tab_main")
-        self.tab = QWidget()
-        self.tab.setObjectName(u"tab")
-        self.verticalLayout_7 = QVBoxLayout(self.tab)
-        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.verticalLayout_7.setContentsMargins(2, 2, 2, 2)
-        self.tb_device_info = QTableWidget(self.tab)
-        if (self.tb_device_info.columnCount() < 2):
-            self.tb_device_info.setColumnCount(2)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.tb_device_info.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.tb_device_info.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        self.tb_device_info.setObjectName(u"tb_device_info")
-        self.tb_device_info.setEnabled(True)
-        self.tb_device_info.setWordWrap(False)
-        self.tb_device_info.setCornerButtonEnabled(True)
-        self.tb_device_info.setColumnCount(2)
-        self.tb_device_info.horizontalHeader().setCascadingSectionResizes(False)
-        self.tb_device_info.horizontalHeader().setProperty("showSortIndicator", False)
-        self.tb_device_info.horizontalHeader().setStretchLastSection(True)
-        self.tb_device_info.verticalHeader().setVisible(False)
-
-        self.verticalLayout_7.addWidget(self.tb_device_info)
-
-        self.btn_copy_info = QPushButton(self.tab)
-        self.btn_copy_info.setObjectName(u"btn_copy_info")
-        self.btn_copy_info.setEnabled(False)
-
-        self.verticalLayout_7.addWidget(self.btn_copy_info)
-
-        icon3 = QIcon()
-        icon3.addFile(u":/icon_w/svg_white/mobile2.svg", QSize(), QIcon.Normal, QIcon.Off)
-        icon3.addFile(u":/icon_b/svg_blue/mobile2.svg", QSize(), QIcon.Normal, QIcon.On)
-        self.tab_main.addTab(self.tab, icon3, "")
-
-        self.verticalLayout_3.addWidget(self.tab_main)
-
-
-        self.verticalLayout_2.addWidget(self.frame_2)
-
-
-        self.horizontalLayout.addWidget(self.left)
-
-        self.right = QFrame(self.frame)
-        self.right.setObjectName(u"right")
-        self.right.setFrameShape(QFrame.StyledPanel)
-        self.right.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_4 = QVBoxLayout(self.right)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.splitter = QSplitter(self.right)
-        self.splitter.setObjectName(u"splitter")
-        self.splitter.setOrientation(Qt.Vertical)
-        self.splitter.setHandleWidth(1)
-        self.frame_4 = QFrame(self.splitter)
-        self.frame_4.setObjectName(u"frame_4")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_4.sizePolicy().hasHeightForWidth())
-        self.frame_4.setSizePolicy(sizePolicy)
-        self.frame_4.setStyleSheet(u"")
-        self.frame_4.setFrameShape(QFrame.StyledPanel)
-        self.frame_4.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_5 = QVBoxLayout(self.frame_4)
-        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.monitor_scollarea = QScrollArea(self.frame_4)
-        self.monitor_scollarea.setObjectName(u"monitor_scollarea")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(100)
-        sizePolicy1.setHeightForWidth(self.monitor_scollarea.sizePolicy().hasHeightForWidth())
-        self.monitor_scollarea.setSizePolicy(sizePolicy1)
-        self.monitor_scollarea.setLayoutDirection(Qt.LeftToRight)
-        self.monitor_scollarea.setStyleSheet(u"")
-        self.monitor_scollarea.setWidgetResizable(True)
-        self.monitor_scollarea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 672))
-        self.scrollAreaWidgetContents.setLayoutDirection(Qt.LeftToRight)
-        self.scrollAreaWidgetContents.setStyleSheet(u"#scrollAreaWidgetContents{\n"
-"margin-right:5px;\n"
-"}")
-        self.verticalLayout_6 = QVBoxLayout(self.scrollAreaWidgetContents)
-        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.monitor_scollarea.setWidget(self.scrollAreaWidgetContents)
-
-        self.verticalLayout_5.addWidget(self.monitor_scollarea)
-
-        self.splitter.addWidget(self.frame_4)
-        self.frame_3 = QFrame(self.splitter)
-        self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setMinimumSize(QSize(0, 0))
-        self.frame_3.setMaximumSize(QSize(16777215, 16777215))
-        self.frame_3.setFrameShape(QFrame.StyledPanel)
-        self.frame_3.setFrameShadow(QFrame.Raised)
-        self.gridLayout = QGridLayout(self.frame_3)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.tab_console = QTabWidget(self.frame_3)
-        self.tab_console.setObjectName(u"tab_console")
-        self.tab_console.setElideMode(Qt.ElideLeft)
-        self.tab_3 = QWidget()
-        self.tab_3.setObjectName(u"tab_3")
-        icon4 = QIcon()
-        icon4.addFile(u":/icon_w/svg_white/notification.svg", QSize(), QIcon.Normal, QIcon.Off)
-        icon4.addFile(u":/icon_b/svg_blue/notification.svg", QSize(), QIcon.Normal, QIcon.On)
-        self.tab_console.addTab(self.tab_3, icon4, "")
-        self.tab_4 = QWidget()
-        self.tab_4.setObjectName(u"tab_4")
-        icon5 = QIcon()
-        icon5.addFile(u":/icon_w/svg_white/terminal.svg", QSize(), QIcon.Normal, QIcon.Off)
-        icon5.addFile(u":/icon_b/svg_blue/terminal.svg", QSize(), QIcon.Normal, QIcon.On)
-        icon5.addFile(u":/icon_w/svg_white/terminal.svg", QSize(), QIcon.Disabled, QIcon.Off)
-        self.tab_console.addTab(self.tab_4, icon5, "")
-
-        self.gridLayout.addWidget(self.tab_console, 0, 0, 1, 1)
-
-        self.splitter.addWidget(self.frame_3)
-
-        self.verticalLayout_4.addWidget(self.splitter)
-
-
-        self.horizontalLayout.addWidget(self.right)
-
 
         self.verticalLayout.addWidget(self.frame)
 
 
-        self.retranslateUi(Profiler)
+        self.retranslateUi(CPUMonitor)
 
-        self.tab_main.setCurrentIndex(0)
-        self.tab_console.setCurrentIndex(1)
-
-
-        QMetaObject.connectSlotsByName(Profiler)
+        QMetaObject.connectSlotsByName(CPUMonitor)
     # setupUi
 
-    def retranslateUi(self, Profiler):
-        Profiler.setWindowTitle(QCoreApplication.translate("Profiler", u"\u5b89\u5353\u6027\u80fd", None))
-#if QT_CONFIG(tooltip)
-        Profiler.setToolTip(QCoreApplication.translate("Profiler", u"\u5b89\u5353\u6027\u80fd\u6d4b\u8bd5\u8f85\u52a9\u5de5\u5177", None))
-#endif // QT_CONFIG(tooltip)
-        self.cbx_device.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u8bf7\u9009\u62e9\u8bbe\u5907", None))
-        self.cbx_app.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u9009\u62e9APP", None))
-        self.btn_connect.setText(QCoreApplication.translate("Profiler", u"\u8fde\u63a5", None))
-        self.btn_record.setText(QCoreApplication.translate("Profiler", u"...", None))
-        self.btn_record.setProperty("style", QCoreApplication.translate("Profiler", u"danger", None))
-        ___qtablewidgetitem = self.tb_device_info.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Profiler", u"\u5c5e\u6027", None));
-        ___qtablewidgetitem1 = self.tb_device_info.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Profiler", u"\u503c", None));
-        self.btn_copy_info.setText(QCoreApplication.translate("Profiler", u"\u590d\u5236\u4fe1\u606f", None))
-        self.tab_main.setTabText(self.tab_main.indexOf(self.tab), QCoreApplication.translate("Profiler", u"\u8bbe\u5907", None))
-#if QT_CONFIG(tooltip)
-        self.tab_console.setToolTip(QCoreApplication.translate("Profiler", u"\u53cc\u51fb\u6807\u7b7e\u9690\u85cf", None))
-#endif // QT_CONFIG(tooltip)
-        self.tab_console.setTabText(self.tab_console.indexOf(self.tab_3), QCoreApplication.translate("Profiler", u"LogCat", None))
-        self.tab_console.setTabText(self.tab_console.indexOf(self.tab_4), QCoreApplication.translate("Profiler", u"Cmd", None))
+    def retranslateUi(self, CPUMonitor):
+        CPUMonitor.setWindowTitle(QCoreApplication.translate("CPUMonitor", u"Form", None))
     # retranslateUi
 

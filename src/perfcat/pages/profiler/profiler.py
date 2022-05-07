@@ -21,6 +21,7 @@ import io
 import PySide6
 import logging
 import csv
+from . import plugins
 from ppadb.client import Client as adb
 from ppadb.device import Device
 from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication, QMessageBox
@@ -32,6 +33,7 @@ from perfcat.modules.hot_plug import HotPlugWatcher
 
 from .ui_profiler import Ui_Profiler
 from .util import device_info
+from perfcat.ui.layout import util as ui_util
 
 log = logging.getLogger(__name__)
 
@@ -72,6 +74,13 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_app.editTextChanged.connect(self._update_btn_status)  # app名修改的时候更新
 
         self.cbx_device.currentIndexChanged.connect(self._update_app_list)
+
+        self._init_plugins()
+
+    def _init_plugins(self):
+        for plugin in plugins.register:
+            p = plugin(self)
+            self.scrollAreaWidgetContents.layout().addWidget(p)
 
     @property
     def current_device(self) -> Device:

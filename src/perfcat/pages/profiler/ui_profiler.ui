@@ -14,7 +14,7 @@
    <string>安卓性能</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../assets/asset.qrc">
+   <iconset>
     <normaloff>:/icon_w/svg_white/android.svg</normaloff>
     <normalon>:/icon_b/svg_blue/android.svg</normalon>:/icon_w/svg_white/android.svg</iconset>
   </property>
@@ -751,7 +751,7 @@ QHeaderView {
                  <string>连接</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../assets/asset.qrc">
+                 <iconset>
                   <normaloff>:/icon_w/svg_white/power-cord.svg</normaloff>
                   <normalon>:/icon/svg/power-cord.svg</normalon>:/icon_w/svg_white/power-cord.svg</iconset>
                 </property>
@@ -772,7 +772,7 @@ QHeaderView {
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../assets/asset.qrc">
+                 <iconset>
                   <normaloff>:/icon_w/svg_white/play2.svg</normaloff>
                   <normalon>:/icon_b/svg_blue/stop.svg</normalon>:/icon_w/svg_white/play2.svg</iconset>
                 </property>
@@ -799,7 +799,7 @@ QHeaderView {
               </property>
               <widget class="QWidget" name="tab">
                <attribute name="icon">
-                <iconset resource="../../assets/asset.qrc">
+                <iconset>
                  <normaloff>:/icon_w/svg_white/mobile2.svg</normaloff>
                  <normalon>:/icon_b/svg_blue/mobile2.svg</normalon>:/icon_w/svg_white/mobile2.svg</iconset>
                </attribute>
@@ -936,7 +936,7 @@ QHeaderView {
               <number>0</number>
              </property>
              <item>
-              <widget class="QScrollArea" name="scrollArea">
+              <widget class="QScrollArea" name="monitor_scollarea">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
@@ -960,8 +960,8 @@ QHeaderView {
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>841</width>
-                  <height>978</height>
+                  <width>849</width>
+                  <height>672</height>
                  </rect>
                 </property>
                 <property name="layoutDirection">
@@ -985,58 +985,6 @@ margin-right:5px;
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_2">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>240</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>PushButton</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_4">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>240</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>PushButton</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_3">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>240</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>PushButton</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_5">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>240</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>PushButton</string>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </widget>
               </widget>
@@ -1088,7 +1036,7 @@ margin-right:5px;
                </property>
                <widget class="QWidget" name="tab_3">
                 <attribute name="icon">
-                 <iconset resource="../../assets/asset.qrc">
+                 <iconset>
                   <normaloff>:/icon_w/svg_white/notification.svg</normaloff>
                   <normalon>:/icon_b/svg_blue/notification.svg</normalon>:/icon_w/svg_white/notification.svg</iconset>
                 </attribute>
@@ -1098,7 +1046,7 @@ margin-right:5px;
                </widget>
                <widget class="QWidget" name="tab_4">
                 <attribute name="icon">
-                 <iconset resource="../../assets/asset.qrc">
+                 <iconset>
                   <normaloff>:/icon_w/svg_white/terminal.svg</normaloff>
                   <normalon>:/icon_b/svg_blue/terminal.svg</normalon>
                   <disabledoff>:/icon_w/svg_white/terminal.svg</disabledoff>:/icon_w/svg_white/terminal.svg</iconset>
