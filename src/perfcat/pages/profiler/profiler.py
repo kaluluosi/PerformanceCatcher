@@ -21,13 +21,15 @@ import io
 import PySide6
 import logging
 import csv
+
+from perfcat.pages.profiler.plugins.base.chart import MonitorChart
 from . import plugins
 from ppadb.client import Client as adb
 from ppadb.device import Device
 from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication, QMessageBox
 from perfcat.ui.constant import ButtonStyle
 from perfcat.ui.page import Page
-from PySide6.QtCore import Qt, Signal, SignalInstance, QThread
+from PySide6.QtCore import Qt, Signal, SignalInstance, QThread, QTimer
 from perfcat.modules.hot_plug import HotPlugWatcher
 
 
@@ -56,6 +58,10 @@ class Profiler(Page, Ui_Profiler):
         self.tick_timer_id = -1
         self._device_info = {}
 
+        self.plugins = []
+
+        self.tick_count = 0
+
         self.btn_connect.toggled.connect(self._connect_device)
 
         # 默认是没选中任何设备和app，此时连接和录制置灰
@@ -78,9 +84,15 @@ class Profiler(Page, Ui_Profiler):
         self._init_plugins()
 
     def _init_plugins(self):
-        for plugin in plugins.register:
-            p = plugin(self)
-            self.scrollAreaWidgetContents.layout().addWidget(p)
+        from .plugins.cpu_monitor import CpuMonitor
+
+        cpu = CpuMonitor(self)
+        # cpu2 = CpuMonitor(self)
+        self.scrollAreaWidgetContents.layout().addWidget(cpu)
+        # self.scrollAreaWidgetContents.layout().addWidget(cpu2)
+
+        self.plugins.append(cpu)
+        # self.plugins.append(cpu2)
 
     @property
     def current_device(self) -> Device:
@@ -232,24 +244,30 @@ class Profiler(Page, Ui_Profiler):
         # todo: 移除旧设备item，如果旧设备的serial正好是当前连接中设备，那么就置空currentIndex
         self._update_devices_list()
 
+    def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
+
+        thread = QThread(self)
+
+        def _run():
+            for p in self.plugins:
+                p.tick(self.tick_count, self.current_device, self.cbx_app.currentText())
+
+        thread.run = _run
+        thread.start()
+        self.tick_count += 1
+
+        return super().timerEvent(event)
+
     def start_tick(self):
         log.debug("开启tick定时器 开始采集")
         self.tick_timer_id = self.startTimer(1000, Qt.VeryCoarseTimer)
+        self.tick_count = 0
 
     def stop_tick(self):
         log.debug("停止tick定时器 停止采集")
         if self.tick_timer_id != -1:
             self.killTimer(self.tick_timer_id)
             self.tick_timer_id = -1
-
-    def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
-
-        try:
-            log.info(f"cpu:{self.current_device.cpu_percent()}")
-        except Exception as e:
-            log.warning(e)
-
-        return super().timerEvent(event)
 
     def _connect_device(self, enable: bool = True):
         """
@@ -269,8 +287,8 @@ class Profiler(Page, Ui_Profiler):
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
                 self.notify(f"断开设备 {self.current_device.serial}", ButtonStyle.warning)
-            else:
-                self.notify(f"当前设备异常断开，可能被直接拔了！", ButtonStyle.danger)
+            # else:
+            #     self.notify(f"当前设备异常断开，可能被直接拔了！", ButtonStyle.danger)
 
             self.stop_tick()
 

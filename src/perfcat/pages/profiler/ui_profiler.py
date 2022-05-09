@@ -17,8 +17,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
     QHBoxLayout, QHeaderView, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QTabWidget, QTableWidget,
-    QTableWidgetItem, QToolButton, QVBoxLayout, QWidget)
+    QScrollBar, QSizePolicy, QSplitter, QTabWidget,
+    QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout,
+    QWidget)
 import asset_rc
 
 class Ui_Profiler(object):
@@ -780,7 +781,7 @@ class Ui_Profiler(object):
         self.monitor_scollarea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 672))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 445))
         self.scrollAreaWidgetContents.setLayoutDirection(Qt.LeftToRight)
         self.scrollAreaWidgetContents.setStyleSheet(u"#scrollAreaWidgetContents{\n"
 "margin-right:5px;\n"
@@ -792,9 +793,16 @@ class Ui_Profiler(object):
 
         self.verticalLayout_5.addWidget(self.monitor_scollarea)
 
+        self.horizontalScrollBar = QScrollBar(self.frame_4)
+        self.horizontalScrollBar.setObjectName(u"horizontalScrollBar")
+        self.horizontalScrollBar.setOrientation(Qt.Horizontal)
+
+        self.verticalLayout_5.addWidget(self.horizontalScrollBar)
+
         self.splitter.addWidget(self.frame_4)
         self.frame_3 = QFrame(self.splitter)
         self.frame_3.setObjectName(u"frame_3")
+        self.frame_3.setEnabled(True)
         self.frame_3.setMinimumSize(QSize(0, 0))
         self.frame_3.setMaximumSize(QSize(16777215, 16777215))
         self.frame_3.setFrameShape(QFrame.StyledPanel)

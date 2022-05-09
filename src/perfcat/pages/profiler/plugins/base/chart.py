@@ -1,59 +1,115 @@
-import logging
-from typing import Union
-import PySide6
-import math
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+"""
+@File    :   Chart.py
+@Time    :   2022/05/07 16:18:16
+@Author  :   Calros Teng 
+@Version :   1.0
+@Contact :   303359166@qq.com
+@License :   (C)Copyright 2017-2018, Xin Yuan Studio
+@Desc    :   
 
+[1] 画出每个系列的最大值水位线
+"""
+
+# here put the import lib
+
+
+import logging
+import math
+import PySide6
+
+from typing import Union
+from ppadb.device import Device
 from PySide6.QtCharts import (
     QChart,
-    QLineSeries,
-    QLegendMarker,
     QChartView,
-    QValueAxis,
     QDateTimeAxis,
+    QLegendMarker,
+    QLineSeries,
+    QValueAxis,
+    QAbstractSeries,
 )
-from PySide6.QtCore import Qt, QDateTime, QPoint, QRectF, QRect, QPointF
-from PySide6.QtGui import QPainter, QMouseEvent, QPen, QBrush, QColor, QTextItem
+from PySide6.QtCore import (
+    QDateTime,
+    QPoint,
+    QPointF,
+    QRect,
+    QRectF,
+    Qt,
+    Signal,
+    SignalInstance,
+)
+from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QWheelEvent
+from PySide6.QtWidgets import QScrollBar
+
 
 log = logging.getLogger(__name__)
 
 
 class MonitorChart(QChartView):
-    def __init__(self, series_names: list[str] = [], parent=None):
+
+    series_changed: SignalInstance = Signal()
+    x_offset_changed: SignalInstance = Signal(int)
+    axis_range_size_changed: SignalInstance = Signal(int)
+    mark_line_changed: SignalInstance = Signal(QPoint)
+
+    def __init__(
+        self,
+        series_names: list[str] = [],
+        formatter: dict = {},
+        y_axis_name="%",
+        parent=None,
+    ):
         super().__init__(parent)
 
+        self.setMaximumHeight(300)
+        self.setStyleSheet("background-color:transparent;")
+
         _chart: QChart = QChart()
-        self.series: dict[str, QLineSeries] = {}
-        self.series_value_format: dict[str, str] = {}  # 值格式化
+        _chart.layout().setContentsMargins(0, 0, 4, 0)
+
+        self.series_map: dict[str, QLineSeries] = {}
+        self.formatter: dict[str, str] = formatter  # 值格式化
         self._mark_line: QPoint = QPoint()  # 标线坐标
-        self._show_mark_line = True
+
+        self.total_x = 0  # x轴序列最大值
+        self._axis_range_size = 30  # 区间大小
+        self._x_offset = 0  # 区间整体偏移
 
         _chart.setTheme(QChart.ChartThemeDark)
-        # self.chart.setBackgroundVisible(False)
         _chart.legend().setAlignment(Qt.AlignRight)
-        _chart.setAnimationOptions(QChart.SeriesAnimations)
+        # self.setRubberBand(QChartView.HorizontalRubberBand)
+        # _chart.setAnimationOptions(QChart.SeriesAnimations)
 
         self.setRenderHint(QPainter.Antialiasing)
 
         # 时间轴坐标用一个比较笨的方法去实现
         # 开始时间直接选择0时间戳时间，也就是1970年8:00:00
         # 之后采集到的数据以这个时间为基准+秒
-        start_time = self._base_time()
-        end_time = QDateTime(start_time).addSecs(60)
         self.axis_x = QDateTimeAxis(self)
-        self.axis_x.setRange(start_time, end_time)
+        self.update_range()
         self.axis_x.setFormat("mm:ss")
         _chart.addAxis(self.axis_x, Qt.AlignBottom)
 
         self.axis_y = QValueAxis(self)
-        self.axis_y.setRange(0, 150)
+        self.axis_y.setRange(0, 100)
+        self.axis_y.setTitleText(y_axis_name)
         _chart.addAxis(self.axis_y, Qt.AlignLeft)
+
+        self.axis_x.rangeChanged.connect(self.update_x_offset)
 
         # 创建并装载系列
         for s_name in series_names:
             series = QLineSeries(self)
             series.setName(s_name)
-            self.series[s_name] = series
+            self.series_map[s_name] = series
             _chart.addSeries(series)
+
+            pen = series.pen()
+            pen.setWidth(1)
+            series.setPen(pen)
+
             _chart.setAxisX(self.axis_x, series)
             _chart.setAxisY(self.axis_y, series)
 
@@ -62,8 +118,63 @@ class MonitorChart(QChartView):
         for mk in _chart.legend().markers():
             mk.clicked.connect(self._on_marker_clicked)
 
+    def clear_series_data(self):
+        """
+        清空系列数据
+        """
+        for s in self.series_map.values():
+            s.clear()
+            self.updateScene()
+
+    def tick(self, sec: int, device: Device, package_name:str):
+        """每一tick更新数据，自己实现，然后通过addpoint添加数据点"""
+        raise NotImplementedError
+
     def _base_time(self) -> QDateTime:
         return QDateTime.fromMSecsSinceEpoch(0)
+
+    def update_x_offset(self, min_d: QDateTime, max_d: QDateTime):
+        offset = min_d.toSecsSinceEpoch() - self._base_time().toSecsSinceEpoch()
+        self._x_offset = max(offset, 0)
+        self._axis_range_size = max_d.toSecsSinceEpoch() - min_d.toSecsSinceEpoch()
+        self.update_range()
+
+    def axis_x_min(self):
+        return self._base_time().addSecs(self._x_offset)
+
+    def axis_x_max(self):
+        return self.axis_x_min().addSecs(self._axis_range_size)
+
+    def x_max_offset(self):
+        return self.total_x - self._axis_range_size
+
+    @property
+    def axis_range_size(self):
+        """
+        这个值是区间范围，每次缩放的时候会改变
+        """
+        return self._axis_range_size
+
+    @axis_range_size.setter
+    def axis_range_size(self, value):
+        self._axis_range_size = max(30, value)
+        self.update_range()
+
+    @property
+    def x_offset(self):
+        return self._x_offset
+
+    @x_offset.setter
+    def x_offset(self, value):
+        """
+        通过修改这个值平移
+        """
+        self._x_offset = value
+        self.update_range()
+        self.x_offset_changed.emit(value)
+
+    def update_range(self):
+        self.axis_x.setRange(self.axis_x_min(), self.axis_x_max())
 
     @property
     def mark_line(self) -> QPoint:
@@ -89,7 +200,7 @@ class MonitorChart(QChartView):
             < value_at_position.x()
             < self.axis_x.max().toMSecsSinceEpoch()
         ):
-            self._mark_line = scene_position
+            self._mark_line = scene_position.toPoint()
             self.scene().update()
 
     def _on_marker_clicked(self):
@@ -123,11 +234,28 @@ class MonitorChart(QChartView):
         brush.setColor(color)
         mk.setPen(brush)
 
+    def add_point(self, s_name: str, x: float, y: float):
+        """
+        加数据点
+        """
+        series: QLineSeries = self.series_map.get(s_name)
+        time = self._base_time().addSecs(x)
+        series.append(time.toMSecsSinceEpoch(), y)
+
+        self.total_x = max(self.total_x, x)
+
+        y_max = max(self.axis_y.max(), y)
+        self.axis_y.setMax(y_max)
+
     def drawForeground(
         self,
         painter: QPainter,
         rect: Union[QRectF, QRect],
     ) -> None:
+
+        if self.mark_line.x() == 0:
+            return
+
         painter.save()
 
         # 绘制标线
@@ -148,7 +276,7 @@ class MonitorChart(QChartView):
         points = {}
 
         # 绘制值点
-        for name, series in self.series.items():
+        for name, series in self.series_map.items():
             pen2 = QPen(series.color())
             pen2.setWidth(10)
             painter.setPen(pen2)
@@ -216,65 +344,119 @@ class MonitorChart(QChartView):
         time = self._base_time().addMSecs(int(value_at_position.x()))
         lines.append(time.toString("mm:ss"))
         for name, point in points.items():
-            if not self.series[name].isVisible():
+            if not self.series_map[name].isVisible():
                 continue
-            format = self.series_value_format.get(name, lambda v: v)
+            format = self.formatter.get(name, lambda v: v)
             lines.append(f"{name}: {format(point.y())}")
         text = "\n".join(lines)
 
         painter.drawText(text_rect, Qt.AlignLeft, text)
-
         painter.restore()
 
         return super().drawForeground(painter, rect)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         self.mark_line = event.pos()
+        self.mark_line_changed.emit(event.pos())
         return super().mouseMoveEvent(event)
 
-    def paintEvent(self, event: PySide6.QtGui.QPaintEvent) -> None:
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        sign = int(math.copysign(1, event.angleDelta().y()))
+        self.axis_range_size += sign * 10
+        self.axis_range_size_changed.emit(self.axis_range_size)
 
-        return super().paintEvent(event)
+        # 莫名其妙的会上下滚动，找不到原因，暂时屏蔽掉基类的滚动
+        # return super().wheelEvent(event)
 
-    def wheelEvent(self, event: PySide6.QtGui.QWheelEvent) -> None:
-        print("滚轮事件")
-        return super().wheelEvent(event)
+
+class MonitorChartScrollbar(QScrollBar):
+    def __init__(self):
+        super().__init__(Qt.Horizontal)
+
+    def attach(self, chart_view: MonitorChart):
+        pass
+
+    def update_range(self, min: QDateTime, max: QDateTime):
+        pass
 
 
 if __name__ == "__main__":
+    import random
     import sys
 
+    from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
+    from PySide6.QtCore import Qt, QThread, QTimer, Signal, SignalInstance
+    from PySide6.QtGui import QPainter
     from PySide6.QtWidgets import (
         QApplication,
+        QHBoxLayout,
         QMainWindow,
         QPushButton,
-        QVBoxLayout,
-        QHBoxLayout,
-        QWidget,
         QSlider,
+        QScrollBar,
+        QVBoxLayout,
+        QWidget,
     )
-    from PySide6.QtCore import Qt, QThread, Signal, SignalInstance, QTimer
-    from PySide6.QtGui import QPainter
-    from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis
-    import random
+
+    class Win(QWidget):
+        def __init__(self, parent=None) -> None:
+            super().__init__(parent)
+            self.setStyleSheet("background-color:red")
+
+            self.chart_view1 = MonitorChart(["CPU"], parent=self)
+            self.chart_view1.setObjectName("c1")
+            self.chart_view2 = MonitorChart(["GPU"], parent=self)
+            self.chart_view2.setObjectName("c2")
+            self.chart_views = [self.chart_view1, self.chart_view2]
+            self.layout = QVBoxLayout(self)
+            self.layout.setContentsMargins(0, 0, 0, 0)
+            self.layout.addWidget(self.chart_view1)
+            self.layout.addWidget(self.chart_view2)
+
+            for i in range(1000):
+                self.chart_view1.add_point("CPU", i, random.randrange(150))
+            for i in range(1000):
+                self.chart_view2.add_point("GPU", i, random.randrange(150))
+
+            self.h_scrollbar = QScrollBar(Qt.Horizontal, self)
+            self.h_scrollbar.setMaximum(self.chart_view1.x_max_offset())
+            self.layout.addWidget(self.h_scrollbar)
+
+            self.v = 0
+
+            self.h_scrollbar.valueChanged.connect(self.scroll_changed)
+            for c in self.chart_views:
+                c.axis_range_size_changed.connect(self.range_size_changed)
+                c.mark_line_changed.connect(self.on_mark_line_changed)
+            self.startTimer(1000)
+
+        def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
+            self.h_scrollbar.setValue(self.h_scrollbar.value() + 100)
+            return super().timerEvent(event)
+
+        def on_mark_line_changed(self, point):
+            sender = self.sender()
+            for chartview in self.chart_views:
+                if chartview == sender:
+                    continue
+                chartview.mark_line = sender.mark_line
+                print(chartview.objectName(), chartview.mark_line)
+
+        def range_size_changed(self, size):
+            sender = self.sender()
+            for chartview in self.chart_views:
+                if chartview == sender:
+                    continue
+                chartview.axis_range_size = size
+
+        def scroll_changed(self, v):
+            self.chart_view1.x_offset = v
+            self.chart_view2.x_offset = v
 
     app = QApplication(sys.argv)
 
-    chart = MonitorChart(["CPU", "AppCpu"])
+    widget = Win()
 
-    s = chart.series["CPU"]
-    chart.series_value_format["CPU"] = lambda v: f"{v}%"
-    for i in range(200):
-        bt = chart._base_time()
-        bt = bt.addSecs(i)
-        s.append(bt.toMSecsSinceEpoch(), random.randrange(1, 150))  # 必须用毫秒来做x轴
-
-    s = chart.series["AppCpu"]
-    for i in range(200):
-        bt = chart._base_time()
-        bt = bt.addSecs(i)
-        s.append(bt.toMSecsSinceEpoch(), random.randrange(1, 150))  # 必须用毫秒来做x轴
-
-    chart.resize(800, 400)
-    chart.show()
+    widget.resize(800, 400)
+    widget.show()
     sys.exit(app.exec())
