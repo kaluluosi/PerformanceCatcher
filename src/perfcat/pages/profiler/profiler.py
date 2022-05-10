@@ -22,7 +22,7 @@ import PySide6
 import logging
 import csv
 
-from perfcat.pages.profiler.plugins.base.chart import MonitorChart
+from perfcat.pages.profiler.plugins.base import MonitorChart
 from . import plugins
 from ppadb.client import Client as adb
 from ppadb.device import Device
@@ -32,10 +32,9 @@ from perfcat.ui.page import Page
 from PySide6.QtCore import Qt, Signal, SignalInstance, QThread, QTimer
 from perfcat.modules.hot_plug import HotPlugWatcher
 
-
+from .plugins import register
 from .ui_profiler import Ui_Profiler
 from .utils.device import device_info
-from perfcat.ui.layout import util as ui_util
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ class Profiler(Page, Ui_Profiler):
         self.tick_timer_id = -1
         self._device_info = {}
 
-        self.plugins = []
+        self.plugins: list[MonitorChart] = []
 
         self.tick_count = 0
 
@@ -84,15 +83,11 @@ class Profiler(Page, Ui_Profiler):
         self._init_plugins()
 
     def _init_plugins(self):
-        from .plugins.cpu_monitor import CpuMonitor
+        for plugin_cls in register:
+            cpu: MonitorChart = plugin_cls(self)
+            self.scrollAreaWidgetContents.layout().addWidget(cpu)
 
-        cpu = CpuMonitor(self)
-        # cpu2 = CpuMonitor(self)
-        self.scrollAreaWidgetContents.layout().addWidget(cpu)
-        # self.scrollAreaWidgetContents.layout().addWidget(cpu2)
-
-        self.plugins.append(cpu)
-        # self.plugins.append(cpu2)
+            self.plugins.append(cpu)
 
     def clear_all_data(self):
         for p in self.plugins:

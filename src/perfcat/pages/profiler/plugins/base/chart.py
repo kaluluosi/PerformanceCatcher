@@ -15,6 +15,7 @@
 # here put the import lib
 
 
+from argparse import ArgumentError
 import logging
 import math
 import PySide6
@@ -367,16 +368,42 @@ class MonitorChart(QChartView):
         # 莫名其妙的会上下滚动，找不到原因，暂时屏蔽掉基类的滚动
         # return super().wheelEvent(event)
 
+    def to_dict(self) -> dict:
+        """
+        series 转字典
 
-class MonitorChartScrollbar(QScrollBar):
-    def __init__(self):
-        super().__init__(Qt.Horizontal)
+        _extended_summary_
 
-    def attach(self, chart_view: MonitorChart):
-        pass
+        Returns:
+            dict: _description_
+        """
+        data = {}
 
-    def update_range(self, min: QDateTime, max: QDateTime):
-        pass
+        for s_name, s in self.series_map.items():
+            if s_name not in data:
+                data[s_name] = []
+
+            for p in s.points():
+                data[s_name].append((p.x(), p.y()))
+
+        return data
+
+    def from_dict(self, data: dict):
+        """
+        把字典的值读取转series
+
+        _extended_summary_
+
+        Args:
+            value (_type_): _description_
+        """
+        for s_name, s in self.series_map.items():
+            if s_name not in data:
+                log.error(f"data里没有 {s_name}系列的数据")
+                continue
+
+            for p in data[s_name]:
+                s.append(p[0], p[1])
 
 
 if __name__ == "__main__":

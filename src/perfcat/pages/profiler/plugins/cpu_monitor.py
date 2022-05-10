@@ -123,4 +123,4 @@ class CpuMonitor(MonitorChart):
                 pid_diff = cur_pid_cpu - self.last_pid_cpu
                 pid_cpu = 100 * pid_diff.total() / cpu_diff.total()
                 self.last_pid_cpu = cur_pid_cpu
-        self.add_point("AppCPU", sec, pid_cpu * factor)
+            self.add_point("AppCPU", sec, pid_cpu * factor)
