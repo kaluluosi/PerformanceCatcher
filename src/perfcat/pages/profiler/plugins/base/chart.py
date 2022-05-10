@@ -124,9 +124,8 @@ class MonitorChart(QChartView):
         """
         for s in self.series_map.values():
             s.clear()
-            self.updateScene()
 
-    def tick(self, sec: int, device: Device, package_name:str):
+    def tick(self, sec: int, device: Device, package_name: str):
         """每一tick更新数据，自己实现，然后通过addpoint添加数据点"""
         raise NotImplementedError
 

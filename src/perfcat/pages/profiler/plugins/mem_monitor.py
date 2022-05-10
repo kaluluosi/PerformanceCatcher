@@ -1,6 +1,6 @@
 from ppadb.device import Device
 from .base.chart import MonitorChart
-from .top_util import top_to_dict
+from ..utils.topparser import top_to_dict
 from .cpu_normalize import normalize
 
 

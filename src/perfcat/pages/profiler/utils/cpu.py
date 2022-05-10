@@ -1,8 +1,27 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+"""
+@File    :   cpu.py
+@Time    :   2022/05/10 10:33:37
+@Author  :   Calros Teng 
+@Version :   1.0
+@Contact :   303359166@qq.com
+@License :   (C)Copyright 2017-2018, Xin Yuan Studio
+@Desc    :   emm...
+参考：
+    [1] https://blog.gamebench.net/measuring-cpu-usage-in-mobile-devices
+    [2] https://github.com/alipay/SoloPi/blob/master/src/shared/src/main/cpp/cpu_usage.c
+"""
+
+# here put the import lib
+
+
 from ppadb.device import Device
+from ppadb.plugins.device.cpustat import TotalCPUStat
 from ppadb.client import Client
 
 
-def __cpu_max_freq(dev: Device) -> list:
+def get_all_cpu_max_freq(dev: Device) -> list:
     count = dev.cpu_count()
     freq = []
     for index in range(count):
@@ -17,7 +36,7 @@ def __cpu_max_freq(dev: Device) -> list:
 def normalize(device: Device):
 
     # 合计所有CPU最大频率
-    max_freq = __cpu_max_freq(device)
+    max_freq = get_all_cpu_max_freq(device)
     total_max_freq = sum(max_freq)
 
     # 找出所有在在线的CPU
@@ -35,9 +54,3 @@ def normalize(device: Device):
         cur_freq_sum += int(cur_freq)
 
     return cur_freq_sum / total_max_freq
-
-
-if __name__ == "__main__":
-    adb = Client()
-    dev: Device = adb.devices()[0]
-    print(normalize(0.5, dev))

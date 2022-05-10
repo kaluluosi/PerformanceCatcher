@@ -19,8 +19,8 @@ def device_info(dev: Device) -> dict:
     info["CPU名称"] = __cpu_name(dev)
     info["CPU架构"] = prop["ro.product.cpu.abi"]  # CPU架构
     info["CPU核心"] = str(dev.cpu_count())
-    cpu_freq = __cpu_min_max_freq(dev)[0]
-    info["CPU频率"] = f"{cpu_freq['min']/1000}MHZ - {cpu_freq['max']/1000}MHZ"
+    freq = cpu_freq(dev)[0]
+    info["CPU频率"] = f"{freq['min']/1000}MHZ - {freq['max']/1000}MHZ"
 
     gpu_info = __gpu_info(dev)
     info["GPU型号"] = f"{gpu_info['manufactor']} {gpu_info['name']}"
@@ -64,14 +64,15 @@ def __gpu_info(dev: Device) -> dict:
     }
 
 
-def __cpu_min_max_freq(dev: Device) -> list:
+def cpu_freq(dev: Device) -> list:
     count = dev.cpu_count()
     freq = []
     for index in range(count):
         cmd_root = f"cat /sys/devices/system/cpu/cpu{index}/cpufreq"
         min = dev.shell(f"{cmd_root}/cpuinfo_min_freq")
+        cur = dev.shell(f"{cmd_root}/scaling_cur_freq")
         max = dev.shell(f"{cmd_root}/cpuinfo_max_freq")
 
-        freq.append({"min": int(min), "max": int(max)})
+        freq.append({"min": int(min), "max": int(max), "cur": int(cur)})
 
     return freq

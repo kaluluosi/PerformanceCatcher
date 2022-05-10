@@ -34,7 +34,7 @@ from perfcat.modules.hot_plug import HotPlugWatcher
 
 
 from .ui_profiler import Ui_Profiler
-from .util import device_info
+from .utils.device import device_info
 from perfcat.ui.layout import util as ui_util
 
 log = logging.getLogger(__name__)
@@ -93,6 +93,10 @@ class Profiler(Page, Ui_Profiler):
 
         self.plugins.append(cpu)
         # self.plugins.append(cpu2)
+
+    def clear_all_data(self):
+        for p in self.plugins:
+            p.clear_series_data()
 
     @property
     def current_device(self) -> Device:
@@ -282,6 +286,7 @@ class Profiler(Page, Ui_Profiler):
         if enable:
             log.debug(f"连接设备 {self.current_device.serial}")
             self.notify(f"连接设备 {self.current_device.serial}", ButtonStyle.success)
+            self.clear_all_data()
             self.start_tick()
         else:
             if self.current_device:  # current_device非none就是还连着usb

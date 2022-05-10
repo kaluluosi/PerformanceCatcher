@@ -22,8 +22,44 @@
 
 from ppadb.device import Device
 from .base.chart import MonitorChart
-from .top_util import top_to_dict
-from .cpu_normalize import normalize
+
+from ppadb.device import Device
+from ppadb.client import Client
+
+
+def __cpu_max_freq(dev: Device) -> list:
+    count = dev.cpu_count()
+    freq = []
+    for index in range(count):
+        cmd_root = f"cat /sys/devices/system/cpu/cpu{index}/cpufreq"
+        max = dev.shell(f"{cmd_root}/cpuinfo_max_freq")
+
+        freq.append(int(max))
+
+    return freq
+
+
+def normalize(device: Device):
+
+    # 合计所有CPU最大频率
+    max_freq = __cpu_max_freq(device)
+    total_max_freq = sum(max_freq)
+
+    # 找出所有在在线的CPU
+    online_cmd = "cat /sys/devices/system/cpu/online"
+    online = device.shell(online_cmd)
+    count = int(online.strip().split("-")[1])
+
+    # 合计所有在线CPU的当前频率
+    cur_freq_sum = 0
+    for index in range(count):
+        cmd_cur_freq = (
+            f"cat /sys/devices/system/cpu/cpu{index}/cpufreq/scaling_cur_freq"
+        )
+        cur_freq = device.shell(cmd_cur_freq)
+        cur_freq_sum += int(cur_freq)
+
+    return cur_freq_sum / total_max_freq
 
 
 class CpuMonitor(MonitorChart):
@@ -37,6 +73,12 @@ class CpuMonitor(MonitorChart):
         self.pid = None
         self.last_total_cpu = None
         self.last_pid_cpu = None
+
+    def clear_series_data(self):
+        self.pid = None
+        self.last_total_cpu = None
+        self.last_pid_cpu = None
+        return super().clear_series_data()
 
     def tick(self, sec: int, device: Device, package_name: str):
         # 我们直接取top的数据，因此cpu占用是未规范化的
@@ -81,5 +123,4 @@ class CpuMonitor(MonitorChart):
                 pid_diff = cur_pid_cpu - self.last_pid_cpu
                 pid_cpu = 100 * pid_diff.total() / cpu_diff.total()
                 self.last_pid_cpu = cur_pid_cpu
-
-            self.add_point("AppCPU", sec, pid_cpu)
+        self.add_point("AppCPU", sec, pid_cpu * factor)
