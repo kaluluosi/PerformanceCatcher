@@ -15,7 +15,6 @@
 # here put the import lib
 
 
-from argparse import ArgumentError
 import logging
 import math
 import PySide6
