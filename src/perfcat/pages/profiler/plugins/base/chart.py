@@ -62,6 +62,7 @@ class MonitorChart(QChartView):
         parent=None,
     ):
         super().__init__(parent)
+        self.setToolTip("")
 
         self.setMaximumHeight(300)
         self.setStyleSheet("background-color:transparent;")
@@ -335,8 +336,9 @@ class MonitorChart(QChartView):
 
         # 绘制信息label
         painter.setPen(QPen(QColor("white")))
+        scene_rect = self.sceneRect()
         text_rect = QRectF(
-            p1.x() + 10, p1.y() + 10, area_rect.width(), area_rect.height()
+            p1.x() + 10, p1.y() + 10, scene_rect.width(), scene_rect.height()
         )
 
         lines = []
