@@ -104,15 +104,49 @@ class Profiler(Page, Ui_Profiler):
         self._init_plugins()
 
     def _init_plugins(self):
+        self.reset_h_scrollbar()
         for plugin_cls in register:
-            cpu: MonitorChart = plugin_cls(self)
-            self.scrollAreaWidgetContents.layout().addWidget(cpu)
+            plugin: MonitorChart = plugin_cls(self)
+            self.scrollAreaWidgetContents.layout().addWidget(plugin)
 
-            self.plugins.append(cpu)
+            self.plugins.append(plugin)
+
+            self.horizontalScrollBar.valueChanged.connect(plugin.set_x_offset)  # 水平滚动同步
+            plugin.axis_range_size_changed.connect(self._sync_plugin_range_size)  # 缩放同步
+            plugin.mark_line_changed.connect(self._sync_mark_line) # 标线位置同步
+            plugin.x_max_offset_changed.connect(self._sync_scroll_max) # 滚动条同步最大x轴
+
+    def reset_h_scrollbar(self):
+        self.horizontalScrollBar.setMaximum(0)
+        self.horizontalScrollBar.setValue(0)
+
+    def _sync_mark_line(self, pos):
+        sender: MonitorChart = self.sender()
+        for p in self.plugins:
+            if p == sender:
+                continue
+            p.mark_line = sender.mark_line
+
+    def _sync_plugin_range_size(self):
+        sender: MonitorChart = self.sender()
+        axis_range_size = sender.axis_range_size
+        for p in self.plugins:
+            if p == sender:
+                continue
+            p.axis_range_size = axis_range_size
+
+    def _sync_scroll_max(self, value):
+        if self.horizontalScrollBar.value() == self.horizontalScrollBar.maximum():
+            self.horizontalScrollBar.setMaximum(value)
+            self.horizontalScrollBar.setValue(value)
+        else:
+            self.horizontalScrollBar.setMaximum(value)
 
     def clear_all_data(self):
         for p in self.plugins:
             p.clear_series_data()
+
+        self.reset_h_scrollbar()
 
     @property
     def current_device(self) -> Device:

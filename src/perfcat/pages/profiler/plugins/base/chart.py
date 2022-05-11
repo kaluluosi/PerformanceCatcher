@@ -53,8 +53,11 @@ class MonitorChart(QChartView):
 
     series_changed: SignalInstance = Signal()
     x_offset_changed: SignalInstance = Signal(int)
+    x_max_offset_changed: SignalInstance = Signal(int)
     axis_range_size_changed: SignalInstance = Signal(int)
     mark_line_changed: SignalInstance = Signal(QPoint)
+
+    INIT_RANGE_SIZE = 30
 
     def __init__(
         self,
@@ -83,7 +86,7 @@ class MonitorChart(QChartView):
         self._mark_line: QPoint = QPoint()  # 标线坐标
 
         self.total_x = 0  # x轴序列最大值
-        self._axis_range_size = 30  # 区间大小
+        self._axis_range_size = self.INIT_RANGE_SIZE  # 区间大小
         self._x_offset = 0  # 区间整体偏移
 
         _chart.setTheme(QChart.ChartThemeDark)
@@ -148,6 +151,7 @@ class MonitorChart(QChartView):
             self.series_map[s_name].append(*p)
         self.sample_points.clear()
         self.update()
+        self.series_changed.emit()
 
     def _base_time(self) -> QDateTime:
         return QDateTime.fromMSecsSinceEpoch(0)
@@ -165,7 +169,7 @@ class MonitorChart(QChartView):
         return self.axis_x_min().addSecs(self._axis_range_size)
 
     def x_max_offset(self):
-        return self.total_x - self._axis_range_size
+        return max(0, self.total_x - self._axis_range_size)
 
     @property
     def axis_range_size(self):
@@ -176,7 +180,7 @@ class MonitorChart(QChartView):
 
     @axis_range_size.setter
     def axis_range_size(self, value):
-        self._axis_range_size = max(30, value)
+        self._axis_range_size = max(self.INIT_RANGE_SIZE, value)
         self.update_range()
 
     @property
@@ -191,6 +195,9 @@ class MonitorChart(QChartView):
         self._x_offset = value
         self.update_range()
         self.x_offset_changed.emit(value)
+
+    def set_x_offset(self, value):
+        self.x_offset = value
 
     def update_range(self):
         self.axis_x.setRange(self.axis_x_min(), self.axis_x_max())
@@ -220,7 +227,8 @@ class MonitorChart(QChartView):
             < self.axis_x.max().toMSecsSinceEpoch()
         ):
             self._mark_line = scene_position.toPoint()
-            self.scene().update()
+
+        self.update()
 
     def _on_marker_clicked(self):
         mk: QLegendMarker = self.sender()
@@ -262,7 +270,10 @@ class MonitorChart(QChartView):
         time = self._base_time().addSecs(x)
         # series.append(time.toMSecsSinceEpoch(), y)
 
+        pre_total_x = self.total_x
         self.total_x = max(self.total_x, x)
+        if pre_total_x != self.total_x:
+            self.x_max_offset_changed.emit(self.x_max_offset())
 
         y_max = max(self.axis_y.max(), y)
         self.axis_y.setMax(y_max)
@@ -480,7 +491,6 @@ if __name__ == "__main__":
             self.startTimer(1000)
 
         def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
-            self.h_scrollbar.setValue(self.h_scrollbar.value() + 100)
             return super().timerEvent(event)
 
         def on_mark_line_changed(self, point):
@@ -499,8 +509,8 @@ if __name__ == "__main__":
                 chartview.axis_range_size = size
 
         def scroll_changed(self, v):
-            self.chart_view1.x_offset = v
-            self.chart_view2.x_offset = v
+            self.chart_view1.set_x_offset = v
+            self.chart_view2.set_x_offset = v
 
     app = QApplication(sys.argv)
 
