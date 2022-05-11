@@ -27,6 +27,7 @@ from PySide6.QtCore import Qt
 
 from perfcat.pages.home.home import Page
 from perfcat.ui.widgets.notification import Notification
+from perfcat.settings import settings
 
 from . import util
 from .ui_mainwindow import Ui_MainWindow
@@ -34,6 +35,7 @@ from .ui_mainwindow import Ui_MainWindow
 from .left_menu import LeftMenu
 from .title_bar import TitleBar
 from .left_column import LeftColumn
+
 
 log = logging.getLogger(__name__)
 
@@ -76,8 +78,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # 添加左面板栏
         self._setup_left_column()
-        
-        
 
     # region 页面相关
     def add_page(self, page: Page):
@@ -232,3 +232,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.title_bar.btn_setting.setChecked(checked)
 
+    def closeEvent(self, event: PySide6.QtGui.QCloseEvent) -> None:
+        settings.setValue("mainwindow/geometry", self.saveGeometry())
+        settings.setValue("mainwindow/state", self.saveState())
+        return super().closeEvent(event)
+
+    def showEvent(self, event: PySide6.QtGui.QShowEvent) -> None:
+        geometry = settings.value("mainwindow/geometry")
+        state = settings.value("mainwindow/state")
+        self.restoreGeometry(geometry)
+        self.restoreState(state)
+        return super().showEvent(event)
