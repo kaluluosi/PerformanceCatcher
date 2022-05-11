@@ -27,7 +27,7 @@ class MemMonitor(MonitorChart):
             parent=parent,
         )
 
-    def tick(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str):
 
         mem_info = device.get_meminfo(package_name)
 

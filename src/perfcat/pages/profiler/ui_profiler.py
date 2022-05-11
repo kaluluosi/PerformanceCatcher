@@ -852,7 +852,7 @@ class Ui_Profiler(object):
     def retranslateUi(self, Profiler):
         Profiler.setWindowTitle(QCoreApplication.translate("Profiler", u"\u5b89\u5353\u6027\u80fd", None))
 #if QT_CONFIG(tooltip)
-        Profiler.setToolTip(QCoreApplication.translate("Profiler", u"\u5b89\u5353\u6027\u80fd\u6d4b\u8bd5\u8f85\u52a9\u5de5\u5177", None))
+        Profiler.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.cbx_device.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u8bf7\u9009\u62e9\u8bbe\u5907", None))
         self.cbx_app.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u9009\u62e9APP", None))

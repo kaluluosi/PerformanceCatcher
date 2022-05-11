@@ -17,6 +17,7 @@ todo:
 # here put the import lib
 
 
+import functools
 import io
 import PySide6
 import logging
@@ -29,7 +30,16 @@ from ppadb.device import Device
 from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication, QMessageBox
 from perfcat.ui.constant import ButtonStyle
 from perfcat.ui.page import Page
-from PySide6.QtCore import Qt, Signal, SignalInstance, QThread, QTimer
+from PySide6.QtCore import (
+    Qt,
+    Signal,
+    QRunnable,
+    SignalInstance,
+    QThread,
+    QTimer,
+    QElapsedTimer,
+    QThreadPool,
+)
 from perfcat.modules.hot_plug import HotPlugWatcher
 
 from .plugins import register
@@ -37,6 +47,17 @@ from .ui_profiler import Ui_Profiler
 from .utils.device import device_info
 
 log = logging.getLogger(__name__)
+
+
+class Worker(QRunnable):
+    def __init__(self, func, *args, **kwargs) -> None:
+        super().__init__()
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def run(self):
+        self.func(*self.args, **self.kwargs)
 
 
 class Profiler(Page, Ui_Profiler):
@@ -54,11 +75,11 @@ class Profiler(Page, Ui_Profiler):
         self.verticalLayout_6.setAlignment(Qt.AlignTop)
 
         self.adb = adb()
-        self.tick_timer_id = -1
         self._device_info = {}
 
         self.plugins: list[MonitorChart] = []
 
+        self.sample_thread: QThread = QThread(self)
         self.tick_count = 0
 
         self.btn_connect.toggled.connect(self._connect_device)
@@ -122,7 +143,6 @@ class Profiler(Page, Ui_Profiler):
     def _copy_info(self):
         """
         把设备信息复制到剪贴板
-
         """
         if self.current_device:
             device_info = self._device_info
@@ -244,29 +264,62 @@ class Profiler(Page, Ui_Profiler):
         self._update_devices_list()
 
     def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
-
-        thread = QThread(self)
-
-        def _run():
-            for p in self.plugins:
-                p.tick(self.tick_count, self.current_device, self.cbx_app.currentText())
-
-        thread.run = _run
-        thread.start()
-        self.tick_count += 1
-
         return super().timerEvent(event)
 
     def start_tick(self):
-        log.debug("开启tick定时器 开始采集")
-        self.tick_timer_id = self.startTimer(1000, Qt.VeryCoarseTimer)
+        log.debug("开始采样")
         self.tick_count = 0
 
+        def _run():
+            # 先采样缓存采样点，然后再统一刷入可以保证多个monitor同步刷新
+            # 统一采样
+            pool = QThreadPool.globalInstance()
+            while not self.sample_thread.isInterruptionRequested():
+
+                time_counter = QElapsedTimer()
+                time_counter.start()
+
+                for p in self.plugins:
+                    # 用线程池来启动每一个monitor的采样方法
+                    # 测试发现 adb的每次命令调用耗时大概0.01ms
+                    # 如果采样的实现方式有多次命令调用，那么采样耗时会累积的很高
+                    # 如果每个monitor的采样采用遍历切同步的方式去处理就会很容易累计超过1s采样间隔
+                    # 导致采样间隔不固定
+                    # 现在改为用线程池开worker去并发处理每个monitor的sample
+                    # 然后线程池等待所有worker结束再进入下一轮采样
+                    workder = Worker(
+                        p.sample,
+                        self.tick_count,
+                        self.current_device,
+                        self.cbx_app.currentText(),
+                    )
+
+                    pool.start(workder)
+
+                pool.waitForDone()
+
+                # 统一刷入系列，让图标绘制折线
+                for p in self.plugins:
+                    p.flush()
+
+                take_sec = time_counter.elapsed()
+                if take_sec < 1000:
+                    self.sample_thread.msleep(1000 - take_sec)
+                self.tick_count += 1
+            log.debug("采样线程退出")
+
+        self.sample_thread.run = _run
+        self.sample_thread.start()
+
     def stop_tick(self):
-        log.debug("停止tick定时器 停止采集")
-        if self.tick_timer_id != -1:
-            self.killTimer(self.tick_timer_id)
-            self.tick_timer_id = -1
+        log.debug("停止采样")
+        if self.sample_thread.isRunning():
+            self.sample_thread.requestInterruption()  # 中断线程
+            self.sample_thread.wait()  # 主线程同步等待线程退出
+
+    def destroy(self, destroyWindow: bool = ..., destroySubWindows: bool = ...) -> None:
+        self.stop_tick()
+        return super().destroy(destroyWindow, destroySubWindows)
 
     def _connect_device(self, enable: bool = True):
         """
@@ -287,8 +340,6 @@ class Profiler(Page, Ui_Profiler):
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
                 self.notify(f"断开设备 {self.current_device.serial}", ButtonStyle.warning)
-            # else:
-            #     self.notify(f"当前设备异常断开，可能被直接拔了！", ButtonStyle.danger)
 
             self.stop_tick()
 

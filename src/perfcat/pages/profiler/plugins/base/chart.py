@@ -39,6 +39,8 @@ from PySide6.QtCore import (
     Qt,
     Signal,
     SignalInstance,
+    QTimer,
+    QThread,
 )
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QWheelEvent
 from PySide6.QtWidgets import QScrollBar
@@ -69,6 +71,12 @@ class MonitorChart(QChartView):
 
         _chart: QChart = QChart()
         _chart.layout().setContentsMargins(0, 0, 4, 0)
+        _chart.legend().setMinimumWidth(150)
+        _chart.legend().setMaximumWidth(150)
+
+        self.device = None
+        self.package_name = None
+        self.sample_points = {}
 
         self.series_map: dict[str, QLineSeries] = {}
         self.formatter: dict[str, str] = formatter  # 值格式化
@@ -126,9 +134,20 @@ class MonitorChart(QChartView):
         for s in self.series_map.values():
             s.clear()
 
-    def tick(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str):
         """每一tick更新数据，自己实现，然后通过addpoint添加数据点"""
         raise NotImplementedError
+
+    def flush(self):
+        """
+        刷入采样数据
+
+        _extended_summary_
+        """
+        for s_name, p in self.sample_points.items():
+            self.series_map[s_name].append(*p)
+        self.sample_points.clear()
+        self.update()
 
     def _base_time(self) -> QDateTime:
         return QDateTime.fromMSecsSinceEpoch(0)
@@ -238,14 +257,17 @@ class MonitorChart(QChartView):
         """
         加数据点
         """
-        series: QLineSeries = self.series_map.get(s_name)
+
+        # series: QLineSeries = self.series_map.get(s_name)
         time = self._base_time().addSecs(x)
-        series.append(time.toMSecsSinceEpoch(), y)
+        # series.append(time.toMSecsSinceEpoch(), y)
 
         self.total_x = max(self.total_x, x)
 
         y_max = max(self.axis_y.max(), y)
         self.axis_y.setMax(y_max)
+
+        self.sample_points[s_name] = (time.toMSecsSinceEpoch(), y)
 
     def drawForeground(
         self,

@@ -12,10 +12,14 @@
 
 # here put the import lib
 import sys
-from . import logger
 from .app import PerfcatApplication
 
 from PySide6.QtGui import QWindow
 
-app = PerfcatApplication(sys.argv)
-sys.exit(app.exec())
+
+def main():
+    app = PerfcatApplication(sys.argv)
+    return app.exec()
+
+
+sys.exit(main())

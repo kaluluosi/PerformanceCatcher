@@ -21,10 +21,15 @@
 
 
 from ppadb.device import Device
+from perfcat.logger.get_time import get_time
 from .base.chart import MonitorChart
 
 from ppadb.device import Device
 from ppadb.client import Client
+import time
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def __cpu_max_freq(dev: Device) -> list:
@@ -80,7 +85,7 @@ class CpuMonitor(MonitorChart):
         self.last_pid_cpu = None
         return super().clear_series_data()
 
-    def tick(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str):
         # 我们直接取top的数据，因此cpu占用是未规范化的
         # 为规范化的CPU占用值会导致一个问题：
         # 当你在A设备上测试采集到的峰值，跟B设备上测试采集到的峰值不一致。

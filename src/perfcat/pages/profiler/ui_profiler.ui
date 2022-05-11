@@ -19,7 +19,7 @@
     <normalon>:/icon_b/svg_blue/android.svg</normalon>:/icon_w/svg_white/android.svg</iconset>
   </property>
   <property name="toolTip">
-   <string>安卓性能测试辅助工具</string>
+   <string/>
   </property>
   <property name="styleSheet">
    <string notr="true">*{
