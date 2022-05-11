@@ -14,8 +14,6 @@
 import sys
 from .app import PerfcatApplication
 
-from PySide6.QtGui import QWindow
-
 
 def main():
     app = PerfcatApplication(sys.argv)

@@ -9,44 +9,22 @@
 @License :   (C)Copyright 2017-2018, Xin Yuan Studio
 @Desc    :   app全局对象
 """
-# app 关于信息
 
 
 # here put the import lib
 import logging
-from typing import Optional, Tuple, Union
-import PySide6
+
 import pkg_resources
-from ctypes.wintypes import MSG
-import win32con
-from .ui.layout import MainWindow
-from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtCore import (
-    QAbstractNativeEventFilter,
-    SignalInstance,
-    Signal,
-    QObject,
-    QEvent,
-)
+from PySide6.QtWidgets import QApplication
 
-from . import __version__, __author__, __author_email__
+from . import __author__, __author_email__, __version__, pages
 from .modules.hot_plug import HotPlugWatcher
-from . import pages
-
+from .ui.layout import MainWindow
 
 log = logging.getLogger(__name__)
 
-
-__doc__ = f"""
-# Perfcat
-**ver {__version__}**
-
-### Meta
-
-作者: {__author__}
-
-邮件: {__author_email__}
-"""
+about_txt: str = pkg_resources.resource_string(__package__, "ABOUT.md").decode("utf-8")
+__doc__ = about_txt.format_map(locals())
 
 
 class PerfcatApplication(QApplication):
