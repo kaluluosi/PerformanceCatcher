@@ -83,6 +83,11 @@ class LeftMenu(QWidget, Ui_LeftMenu):
     def expand(self, checked):
         log.debug(f"展开关闭导航菜单 {checked}")
         settings.setValue("left_menu/expanded", checked)
+
+        self.btn_toggle.blockSignals(True)
+        self.btn_toggle.setChecked(checked)
+        self.btn_toggle.blockSignals(False)
+
         util.set_h_expand_anim(
             self.parentWidget(), checked, self.MAX_WIDTH, self.MIN_WIDTH
         )
