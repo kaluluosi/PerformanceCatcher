@@ -70,6 +70,7 @@ class MonitorChart(QChartView):
         self.setToolTip("")
 
         self.setMaximumHeight(300)
+        self.setMinimumHeight(240)
         self.setStyleSheet("background-color:transparent;")
 
         _chart: QChart = QChart()
@@ -395,12 +396,15 @@ class MonitorChart(QChartView):
         return super().mouseMoveEvent(event)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        sign = int(math.copysign(1, event.angleDelta().y()))
-        self.axis_range_size += sign * 10
-        self.axis_range_size_changed.emit(self.axis_range_size)
-
-        # 莫名其妙的会上下滚动，找不到原因，暂时屏蔽掉基类的滚动
-        # return super().wheelEvent(event)
+        if self.chart().plotArea().contains(event.position()):
+            sign = int(math.copysign(1, event.angleDelta().y()))
+            self.axis_range_size += sign * 10
+            self.axis_range_size_changed.emit(self.axis_range_size)
+            self.x_max_offset_changed.emit(self.x_max_offset())
+        else:
+            # 莫名其妙的会上下滚动，找不到原因，暂时屏蔽掉基类的滚动
+            # return super().wheelEvent(event)
+            event.ignore()  #  event传进来的时候默认是setaccept(True)的，因此我们要ignore掉让其传递到父widget去处理，比如滚动
 
     def to_dict(self) -> dict:
         """
