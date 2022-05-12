@@ -13,3 +13,20 @@
 """
 
 # here put the import lib
+from ppadb.device import Device
+from .base.chart import MonitorChart
+
+
+class TempMonitor(MonitorChart):
+    def __init__(
+        self,
+        parent=None,
+    ):
+        super().__init__(
+            series_names=["CPU温度"], formatter={}, y_axis_name="℃", parent=parent
+        )
+
+    def sample(self, sec: int, device: Device, package_name: str):
+
+        c_temp = int(device.shell("cat /sys/class/thermal/thermal_zone0/temp")) / 1000
+        self.add_point("CPU温度", sec, c_temp)
