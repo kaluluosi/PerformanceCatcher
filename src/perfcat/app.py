@@ -23,7 +23,9 @@ from .ui.layout import MainWindow
 
 log = logging.getLogger(__name__)
 
-about_txt: str = pkg_resources.resource_string(__package__, "ABOUT.md").decode("utf-8")
+about_txt: str = pkg_resources.resource_string(__package__, "assets/ABOUT.md").decode(
+    "utf-8"
+)
 __doc__ = about_txt.format_map(locals())
 
 

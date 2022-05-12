@@ -20,7 +20,7 @@
    <string/>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../assets/asset.qrc">
+   <iconset>
     <normaloff>:/icon_b/svg_blue/xing.svg</normaloff>:/icon_b/svg_blue/xing.svg</iconset>
   </property>
   <property name="windowOpacity">
@@ -879,7 +879,7 @@ QSlider::handle:vertical{
   </widget>
  </widget>
  <resources>
-  <include location="../../assets/asset.qrc"/>
+  <include location="../../asset.qrc"/>
  </resources>
  <connections/>
 </ui>

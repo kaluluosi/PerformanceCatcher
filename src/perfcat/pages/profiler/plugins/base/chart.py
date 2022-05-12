@@ -29,6 +29,7 @@ from PySide6.QtCharts import (
     QLineSeries,
     QValueAxis,
     QAbstractSeries,
+    QAreaSeries,
 )
 from PySide6.QtCore import (
     QDateTime,
@@ -323,6 +324,7 @@ class MonitorChart(QChartView):
             nearest_right = None
             exact_point = None
             last_diff = 0  # 上次的差值
+
             for p in series.pointsVector():
 
                 if nearest_left is None:

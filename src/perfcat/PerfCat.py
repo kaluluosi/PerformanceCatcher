@@ -12,4 +12,15 @@
 
 # here put the import lib
 
-from . import PerfCat
+import sys
+from perfcat.app import PerfcatApplication
+
+from perfcat import asset_rc
+
+
+def main():
+    app = PerfcatApplication(sys.argv)
+    return app.exec()
+
+
+sys.exit(main())

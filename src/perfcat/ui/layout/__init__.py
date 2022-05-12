@@ -16,6 +16,7 @@
 
 # here put the import lib
 import logging
+from re import L
 from typing import Tuple, Union
 import PySide6
 import markdown
@@ -238,8 +239,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return super().closeEvent(event)
 
     def showEvent(self, event: PySide6.QtGui.QShowEvent) -> None:
-        geometry = settings.value("mainwindow/geometry")
-        state = settings.value("mainwindow/state")
-        self.restoreGeometry(geometry)
-        self.restoreState(state)
+        geometry = settings.value("mainwindow/geometry", None)
+        state = settings.value("mainwindow/state", None)
+        if geometry and state:
+            self.restoreGeometry(geometry)
+            self.restoreState(state)
         return super().showEvent(event)
