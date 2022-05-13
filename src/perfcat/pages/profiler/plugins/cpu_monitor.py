@@ -79,11 +79,11 @@ class CpuMonitor(MonitorChart):
         self.last_total_cpu = None
         self.last_pid_cpu = None
 
-    def clear_series_data(self):
+    def reset_series_data(self):
         self.pid = None
         self.last_total_cpu = None
         self.last_pid_cpu = None
-        return super().clear_series_data()
+        return super().reset_series_data()
 
     def sample(self, sec: int, device: Device, package_name: str):
         # 我们直接取top的数据，因此cpu占用是未规范化的

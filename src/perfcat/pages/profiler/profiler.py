@@ -113,8 +113,8 @@ class Profiler(Page, Ui_Profiler):
 
             self.horizontalScrollBar.valueChanged.connect(plugin.set_x_offset)  # 水平滚动同步
             plugin.axis_range_size_changed.connect(self._sync_plugin_range_size)  # 缩放同步
-            plugin.mark_line_changed.connect(self._sync_mark_line) # 标线位置同步
-            plugin.x_max_offset_changed.connect(self._sync_scroll_max) # 滚动条同步最大x轴
+            plugin.mark_line_changed.connect(self._sync_mark_line)  # 标线位置同步
+            plugin.x_max_offset_changed.connect(self._sync_scroll_max)  # 滚动条同步最大x轴
 
     def reset_h_scrollbar(self):
         self.horizontalScrollBar.setMaximum(0)
@@ -144,7 +144,7 @@ class Profiler(Page, Ui_Profiler):
 
     def clear_all_data(self):
         for p in self.plugins:
-            p.clear_series_data()
+            p.reset_series_data()
 
         self.reset_h_scrollbar()
 

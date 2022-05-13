@@ -132,7 +132,7 @@ class MonitorChart(QChartView):
         for mk in _chart.legend().markers():
             mk.clicked.connect(self._on_marker_clicked)
 
-    def clear_series_data(self):
+    def reset_series_data(self):
         """
         清空系列数据
         """
