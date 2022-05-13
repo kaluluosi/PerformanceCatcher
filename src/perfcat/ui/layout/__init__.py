@@ -16,18 +16,15 @@
 
 # here put the import lib
 import logging
-from re import L
-from typing import Tuple, Union
 import PySide6
 import markdown
 import textwrap
 from unittest.case import doModuleCleanups
 
-from PySide6.QtWidgets import QMainWindow, QPushButton, QAbstractButton, QWidget
+from PySide6.QtWidgets import QMainWindow, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
 from perfcat.pages.home.home import Page
-from perfcat.ui.widgets.notification import Notification
 from perfcat.settings import settings
 
 from . import util
