@@ -17,16 +17,24 @@ import logging
 import pkg_resources
 from PySide6.QtWidgets import QApplication
 
-from . import __author__, __author_email__, __version__, pages
+from . import __version__, __author__, __author_email__, pages
 from .modules.hot_plug import HotPlugWatcher
 from .ui.layout import MainWindow
 
 log = logging.getLogger(__name__)
 
-about_txt: str = pkg_resources.resource_string(__package__, "assets/ABOUT.md").decode(
-    "utf-8"
-)
-__doc__ = about_txt.format_map(locals())
+
+def about_content():
+    about_txt: str = pkg_resources.resource_string(
+        __package__, "assets/ABOUT.md"
+    ).decode("utf-8")
+
+    doc = about_txt.format(
+        __version__=__version__,
+        __author__=__author__,
+        __author_email__=__author_email__,
+    )
+    return doc
 
 
 class PerfcatApplication(QApplication):
@@ -44,9 +52,8 @@ class PerfcatApplication(QApplication):
         super().__init__(*args)
 
         self.load_stylesheet()
-
         self.main_win = MainWindow()
-        self.main_win.set_about_info(__doc__)
+        self.main_win.set_about_info(about_content())
         self.main_win.show()
 
         self._install_pages()

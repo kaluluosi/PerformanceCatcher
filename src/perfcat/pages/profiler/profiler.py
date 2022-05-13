@@ -289,14 +289,20 @@ class Profiler(Page, Ui_Profiler):
         return super().hideEvent(event)
 
     def _on_device_add(self):
-        self.notify("发现新设备！", ButtonStyle.success)
-        # todo: 添加新设备item
-        self._update_devices_list()
+        devices: list[Device] = self.adb.devices()
+        count =len(devices)
+        if self.cbx_device.count() != count:
+            self.notify("发现新设备！", ButtonStyle.success)
+            # todo: 添加新设备item
+            self._update_devices_list()
 
     def _on_device_removed(self):
-        self.notify("设备被移除！", ButtonStyle.warning)
-        # todo: 移除旧设备item，如果旧设备的serial正好是当前连接中设备，那么就置空currentIndex
-        self._update_devices_list()
+        devices: list[Device] = self.adb.devices()
+        count =len(devices)
+        if self.cbx_device.count() != count:
+            self.notify("设备被移除！", ButtonStyle.warning)
+            # todo: 移除旧设备item，如果旧设备的serial正好是当前连接中设备，那么就置空currentIndex
+            self._update_devices_list()
 
     def timerEvent(self, event: PySide6.QtCore.QTimerEvent) -> None:
         return super().timerEvent(event)

@@ -13,8 +13,14 @@
 # here put the import lib
 
 # 把asset/放到搜索目录里，这样.ui文件里 import asset_rc 才能正常导入asset_rc
+import logging
 import sys
 import pkg_resources
+from email import message_from_string
+from importlib.metadata import metadata
+from webob.multidict import MultiDict
+
+log = logging.getLogger(__name__)
 
 asset_dir = pkg_resources.resource_filename(__package__, ".")
 sys.path.append(asset_dir)
@@ -26,14 +32,17 @@ except ModuleNotFoundError:
     import importlib_metadata
 
 # 读取和设置包的元信息
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 __author__ = "dengxuan"
 __author_email__ = "303359166@qq.com"
+__meta__ = {}
 
 try:
-    metadata = importlib_metadata.metadata(__package__)
-    __version__ = pkg_resources.get_distribution(__package__).version
-    __author__ = metadata["Author"]
-    __author_email__ = metadata["Author-email"]
-except Exception:
-    pass
+    METADATA = pkg_resources.get_distribution("perfcat").get_metadata("METADATA")
+    msg = message_from_string(METADATA)
+    __meta__ = MultiDict(msg)
+    __version__ = __meta__["Version"]
+    __author__ = __meta__["Author"]
+    __author_email__ = __meta__["Author-email"]
+except Exception as e:
+    log.exception(e)
