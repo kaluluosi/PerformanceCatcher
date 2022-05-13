@@ -2,7 +2,7 @@ from ppadb.client import Client
 from ppadb.device import Device
 
 
-class TempUtil:
+class DefaultCpuTemp:
 
     TEMP_FILE_PATHS = [
         "/sys/devices/system/cpu/cpu0/cpufreq/cpu_temp",
@@ -61,12 +61,100 @@ class TempUtil:
         return -30 <= value <= 250
 
 
+class MarkTemp:
+
+    CPU_MARKS = ["mtktscpu", "tsens_tz_sensor", "exynos", "cpu-0-0-us", "soc_thermal"]
+    BATTERY_MARKS = ["battery", "Battery"]
+    NPU_MARKS = ["npu-usr", "npu"]
+    GPU_MARKS = ["gpuss-0-us", "gpu"]
+
+    SENSOR_LIST_CMD = "cat /sys/devices/virtual/thermal/thermal_zone*/type"
+    SENSOR_FILE_LIST_CMD = "cd /sys/devices/virtual/thermal/ && ls|grep thermal_zone"
+    SENSOR_TEMP_LIST_CMD = "cat /sys/devices/virtual/thermal/thermal_zone*/temp"
+    TEMP_CMD = "cat /sys/devices/virtual/thermal/{filename}/temp"
+
+    def __init__(self, device: Device) -> None:
+        self.device = device
+        self._sensor_list = self.get_sensor_list()
+        self._sensor_filename_list = self.get_sensor_filename_list()
+
+    def get_sensor_list(self):
+        list_str: str = self.device.shell(self.SENSOR_LIST_CMD)
+        return list_str.split("\n")
+
+    def get_sensor_filename_list(self):
+        list_str: str = self.device.shell(self.SENSOR_FILE_LIST_CMD)
+        return list_str.split("\n")
+
+    def get_sensor_temp_list(self):
+        list_str: str = self.device.shell(self.SENSOR_TEMP_LIST_CMD)
+        return list_str.split("\n")
+
+    def get_senser_index(self, marks):
+        mark = None
+        sensor_list: list[str] = self._sensor_list
+        for mark in marks:
+            result = list(filter(lambda s: s.startswith(mark), sensor_list))
+            if result:
+                break
+
+        for index in range(len(self._sensor_list)):
+            if sensor_list[index].startswith(mark):
+                return index
+
+    def is_temp_valid(self, value):
+        return -30 <= value <= 250
+
+    def get_temp(self):
+        cpu_temp_index = self.get_senser_index(self.CPU_MARKS)
+        gpu_temp_index = self.get_senser_index(self.GPU_MARKS)
+        npu_temp_index = self.get_senser_index(self.NPU_MARKS)
+        battery_temp_index = self.get_senser_index(self.BATTERY_MARKS)
+
+        temp_list = self.get_sensor_temp_list()
+        cpu_temp = (
+            self.str_to_temp(temp_list[cpu_temp_index])
+            if cpu_temp_index is not None
+            else 0
+        )
+        gpu_temp = (
+            self.str_to_temp(temp_list[gpu_temp_index])
+            if gpu_temp_index is not None
+            else 0
+        )
+        npu_temp = (
+            self.str_to_temp(temp_list[npu_temp_index])
+            if npu_temp_index is not None
+            else 0
+        )
+        battery_temp = (
+            self.str_to_temp(temp_list[battery_temp_index])
+            if battery_temp_index is not None
+            else 0
+        )
+
+        return {
+            "cpu": cpu_temp,
+            "gpu": gpu_temp,
+            "npu": npu_temp,
+            "battery": battery_temp,
+        }
+
+    def str_to_temp(self, txt: str):
+        temp = float(txt)
+        if self.is_temp_valid(temp):
+            return temp
+        elif self.is_temp_valid(temp / 1000):
+            return temp / 1000
+        return 0
+
+
 if __name__ == "__main__":
     from ppadb.client import Client
 
     adb = Client()
     dev = adb.devices()[0]
 
-    util = TempUtil(dev)
-    print("第一次", util.cpu_temp())
-    print("第二次", util.cpu_temp())
+    util = MarkTemp(dev)
+    print(util.get_senser_index(util.CPU_MARKS))
+    print("all", util.get_temp())

@@ -5,7 +5,7 @@ description = ""
 authors = ["dengxuan <303359166@qq.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.11"
+python = ">=3.9,<3.11"
 pyside6 = "^6.3.0"
 icespringpysidestubs-pyside6 = "^1.3.1"
 markdown = "^3.3.6"

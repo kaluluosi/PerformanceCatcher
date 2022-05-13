@@ -14,6 +14,7 @@
 
 # here put the import lib
 from ppadb.device import Device
+from perfcat.modules.profiler.temp import MarkTemp
 from .base.chart import MonitorChart
 
 
@@ -23,10 +24,31 @@ class TempMonitor(MonitorChart):
         parent=None,
     ):
         super().__init__(
-            series_names=["CPU温度"], formatter={}, y_axis_name="℃", parent=parent
+            series_names=["CPU温度", "GPU温度", "NPU温度", "电池温度"],
+            formatter={
+                "CPU温度": lambda v: f"{v}℃",
+                "GPU温度": lambda v: f"{v}℃",
+                "NPU温度": lambda v: f"{v}℃",
+                "电池温度": lambda v: f"{v}℃",
+            },
+            y_axis_name="℃",
+            parent=parent,
         )
+
+        self.mark_temp = None
 
     def sample(self, sec: int, device: Device, package_name: str):
 
-        c_temp = int(device.shell("cat /sys/class/thermal/thermal_zone0/temp")) / 1000
-        self.add_point("CPU温度", sec, c_temp)
+        if self.mark_temp is None:
+            self.mark_temp = MarkTemp(device)
+
+        temp_data = self.mark_temp.get_temp()
+
+        self.add_point("CPU温度", sec, temp_data["cpu"])
+        self.add_point("GPU温度", sec, temp_data["gpu"])
+        self.add_point("NPU温度", sec, temp_data["npu"])
+        self.add_point("电池温度", sec, temp_data["battery"])
+
+    def reset_series_data(self):
+        self.mark_temp = None
+        return super().reset_series_data()
