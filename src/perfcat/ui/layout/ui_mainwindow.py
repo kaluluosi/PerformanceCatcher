@@ -509,7 +509,7 @@ class Ui_MainWindow(object):
         self.left_menu_frame.setLineWidth(1)
         self.verticalLayout_3 = QVBoxLayout(self.left_menu_frame)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_3.setContentsMargins(2, 2, 2, 2)
 
         self.horizontalLayout.addWidget(self.left_menu_frame)
 

@@ -135,6 +135,18 @@ border-left: 2px solid #4f9fee;
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QFrame" name="top">
         <property name="maximumSize">
@@ -189,7 +201,7 @@ border-left: 2px solid #4f9fee;
             <string>    隐藏菜单</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../assets/asset.qrc">
+            <iconset>
              <normaloff>:/icon_w/svg_white/menu.svg</normaloff>
              <normalon>:/icon_b/svg_blue/circle-left.svg</normalon>:/icon_w/svg_white/menu.svg</iconset>
            </property>
@@ -220,8 +232,8 @@ border-left: 2px solid #4f9fee;
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>220</width>
-           <height>553</height>
+           <width>238</width>
+           <height>571</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -273,7 +285,7 @@ border-left: 2px solid #4f9fee;
                 <string>    首页</string>
                </property>
                <property name="icon">
-                <iconset resource="../../../assets/asset.qrc">
+                <iconset>
                  <normaloff>:/icon_w/svg_white/home.svg</normaloff>
                  <normalon>:/icon_b/svg_blue/home.svg</normalon>:/icon_w/svg_white/home.svg</iconset>
                </property>
@@ -338,7 +350,7 @@ border-left: 2px solid #4f9fee;
             <string>    关于</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../assets/asset.qrc">
+            <iconset>
              <normaloff>:/icon_w/svg_white/info.svg</normaloff>
              <normalon>:/icon_b/svg_blue/info.svg</normalon>:/icon_w/svg_white/info.svg</iconset>
            </property>
@@ -356,7 +368,7 @@ border-left: 2px solid #4f9fee;
             <string>    设置</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../assets/asset.qrc">
+            <iconset>
              <normaloff>:/icon_w/svg_white/wrench.svg</normaloff>
              <normalon>:/icon_b/svg_blue/wrench.svg</normalon>:/icon_w/svg_white/wrench.svg</iconset>
            </property>
@@ -377,7 +389,7 @@ border-left: 2px solid #4f9fee;
   </layout>
  </widget>
  <resources>
-  <include location="../../../assets/asset.qrc"/>
+  <include location="../../../asset.qrc"/>
  </resources>
  <connections/>
  <slots>
