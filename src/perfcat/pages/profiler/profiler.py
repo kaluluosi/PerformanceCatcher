@@ -28,8 +28,6 @@ from . import plugins
 from ppadb.client import Client as adb
 from ppadb.device import Device
 from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication, QMessageBox
-from perfcat.ui.constant import ButtonStyle
-from perfcat.ui.page import Page
 from PySide6.QtCore import (
     Qt,
     Signal,
@@ -42,9 +40,11 @@ from PySide6.QtCore import (
 )
 from perfcat.modules.hot_plug import HotPlugWatcher
 
+from ...ui.constant import ButtonStyle
+from ...ui.page import Page
 from .plugins import register
 from .ui_profiler import Ui_Profiler
-from .utils.device import device_info
+from ...modules.profiler.device import device_info
 
 log = logging.getLogger(__name__)
 
@@ -249,7 +249,8 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_device.clear()
         for dev in devices:
             model = dev.get_properties()["ro.product.model"]
-            self.cbx_device.addItem(f"[{dev.serial}] {model}", dev)
+            name = dev.get_properties()["ro.product.name"]
+            self.cbx_device.addItem(f"[{dev.serial}] {model}-{name}", dev)
 
         self.cbx_device.setCurrentText(pre_selected)
         # 这一段检查当前选中的设备是不是断开了
