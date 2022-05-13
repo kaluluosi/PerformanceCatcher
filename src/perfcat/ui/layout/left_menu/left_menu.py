@@ -76,6 +76,7 @@ class LeftMenu(QWidget, Ui_LeftMenu):
             btn_menu.setChecked(True)
 
     def bottom_btn_group_reset(self):
+        self.bottom_btn_group.setExclusive(False)
         for btn in self.bottom_btn_group.buttons():
             btn.setChecked(False)
         self.bottom_btn_group.setExclusive(True)
