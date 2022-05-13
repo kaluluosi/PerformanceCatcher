@@ -62,10 +62,10 @@ class MonitorChart(QChartView):
 
     def __init__(
         self,
+        parent,
         series_names: list[str] = [],
         formatter: dict = {},
         y_axis_name="%",
-        parent=None,
     ):
         super().__init__(parent)
         self.setToolTip("")
