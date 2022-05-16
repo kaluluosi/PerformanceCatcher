@@ -139,6 +139,8 @@ class MonitorChart(QChartView):
         for s in self.series_map.values():
             s.clear()
 
+        self.total_x = 0
+
     def sample(self, sec: int, device: Device, package_name: str):
         """每一tick更新数据，自己实现，然后通过addpoint添加数据点"""
         raise NotImplementedError
