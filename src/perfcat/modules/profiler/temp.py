@@ -1,5 +1,8 @@
+import logging
 from ppadb.client import Client
 from ppadb.device import Device
+
+log = logging.getLogger(__name__)
 
 
 class DefaultCpuTemp:
@@ -63,8 +66,16 @@ class DefaultCpuTemp:
 
 class MarkTemp:
 
-    CPU_MARKS = ["mtktscpu", "tsens_tz_sensor", "exynos", "cpu-0-0-us", "soc_thermal"]
-    BATTERY_MARKS = ["battery", "Battery"]
+    CPU_MARKS = [
+        "mtktscpu",  # 联发科
+        "tsens_tz_sensor",  # 高通
+        "exynos",  # 三星
+        "sdm-therm",  # 高通晓龙
+        "cpu-0-0-us",  # 通用
+        "soc_thermal",  # 通用
+        "cpu",  # 通用
+    ]
+    BATTERY_MARKS = ["battery"]
     NPU_MARKS = ["npu-usr", "npu"]
     GPU_MARKS = ["gpuss-0-us", "gpu"]
 
@@ -77,6 +88,7 @@ class MarkTemp:
         self.device = device
         self._sensor_list = self.get_sensor_list()
         self._sensor_filename_list = self.get_sensor_filename_list()
+        self.prop = self.device.get_properties()
 
     def get_sensor_list(self):
         list_str: str = self.device.shell(self.SENSOR_LIST_CMD)
@@ -86,21 +98,30 @@ class MarkTemp:
         list_str: str = self.device.shell(self.SENSOR_FILE_LIST_CMD)
         return list_str.split("\n")
 
-    def get_sensor_temp_list(self):
-        list_str: str = self.device.shell(self.SENSOR_TEMP_LIST_CMD)
-        return list_str.split("\n")
+    def get_sensor_temp(self, index: int):
+
+        file_name = self._sensor_filename_list[index]
+        temp_value = self.device.shell(self.TEMP_CMD.format(filename=file_name)) or "0"
+        temp_value = self.str_to_temp(temp_value)
+
+        return temp_value
 
     def get_senser_index(self, marks):
         mark = None
         sensor_list: list[str] = self._sensor_list
         for mark in marks:
-            result = list(filter(lambda s: s.startswith(mark), sensor_list))
+            result = list(filter(lambda s: s.lower().startswith(mark), sensor_list))
             if result:
                 break
 
         for index in range(len(self._sensor_list)):
             if sensor_list[index].startswith(mark):
                 return index
+
+        manufacturer = self.prop["ro.product.manufacturer"]  # 制造商
+        model = self.prop["ro.product.model"]  # 型号
+        log.warning(f"{manufacturer}-{model} 没有匹配到{marks} 无法获得其温度，改用整体温度表示")
+        return 0
 
     def is_temp_valid(self, value):
         return -30 <= value <= 250
@@ -111,24 +132,17 @@ class MarkTemp:
         npu_temp_index = self.get_senser_index(self.NPU_MARKS)
         battery_temp_index = self.get_senser_index(self.BATTERY_MARKS)
 
-        temp_list = self.get_sensor_temp_list()
         cpu_temp = (
-            self.str_to_temp(temp_list[cpu_temp_index])
-            if cpu_temp_index is not None
-            else 0
+            self.get_sensor_temp(cpu_temp_index) if cpu_temp_index is not None else 0
         )
         gpu_temp = (
-            self.str_to_temp(temp_list[gpu_temp_index])
-            if gpu_temp_index is not None
-            else 0
+            self.get_sensor_temp(gpu_temp_index) if gpu_temp_index is not None else 0
         )
         npu_temp = (
-            self.str_to_temp(temp_list[npu_temp_index])
-            if npu_temp_index is not None
-            else 0
+            self.get_sensor_temp(npu_temp_index) if npu_temp_index is not None else 0
         )
         battery_temp = (
-            self.str_to_temp(temp_list[battery_temp_index])
+            self.get_sensor_temp(battery_temp_index)
             if battery_temp_index is not None
             else 0
         )
@@ -141,12 +155,15 @@ class MarkTemp:
         }
 
     def str_to_temp(self, txt: str):
-        temp = float(txt)
-        if self.is_temp_valid(temp):
-            return temp
-        elif self.is_temp_valid(temp / 1000):
-            return temp / 1000
-        return 0
+        try:
+            temp = float(txt)
+            if self.is_temp_valid(temp):
+                return temp
+            elif self.is_temp_valid(temp / 1000):
+                return temp / 1000
+            return 0
+        except Exception:
+            return -1
 
 
 if __name__ == "__main__":
