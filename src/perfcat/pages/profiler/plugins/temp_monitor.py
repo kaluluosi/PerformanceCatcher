@@ -14,8 +14,8 @@
 
 # here put the import lib
 from ppadb.device import Device
-from perfcat.modules.profiler.temp import MarkTemp
 from .base.chart import MonitorChart
+from perfcat.modules.profiler.temp import MarkTempSampler
 
 
 class TempMonitor(MonitorChart):
@@ -41,7 +41,7 @@ class TempMonitor(MonitorChart):
     def sample(self, sec: int, device: Device, package_name: str):
 
         if self.mark_temp is None:
-            self.mark_temp = MarkTemp(device)
+            self.mark_temp = MarkTempSampler(device)
 
         temp_data = self.mark_temp.get_temp()
 

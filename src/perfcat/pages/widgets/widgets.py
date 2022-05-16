@@ -8,6 +8,7 @@ from perfcat.ui.widgets.notification import Notification
 
 log = logging.getLogger(__name__)
 
+
 class Widgets(Page, Ui_Widgets):
     def __init__(self, parent) -> None:
         super().__init__(parent)
@@ -18,7 +19,7 @@ class Widgets(Page, Ui_Widgets):
         self.comboBox.addItem("x10")
 
         self.btn_reload.clicked.connect(self.reload_stylesheet)
-        
+
         self.btn_notify.clicked.connect(self.notify)
         self.btn_notify_2.clicked.connect(self.notify_2)
 

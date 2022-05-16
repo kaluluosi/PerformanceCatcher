@@ -64,7 +64,7 @@ class DefaultCpuTemp:
         return -30 <= value <= 250
 
 
-class MarkTemp:
+class MarkTempSampler:
 
     CPU_MARKS = [
         "mtktscpu",  # 联发科
@@ -176,6 +176,6 @@ if __name__ == "__main__":
     adb = Client()
     dev = adb.devices()[0]
 
-    util = MarkTemp(dev)
+    util = MarkTempSampler(dev)
     print(util.get_senser_index(util.CPU_MARKS))
     print("all", util.get_temp())
