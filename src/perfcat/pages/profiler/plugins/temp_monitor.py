@@ -24,8 +24,9 @@ class TempMonitor(MonitorChart):
         parent=None,
     ):
         super().__init__(
-            series_names=["CPU温度", "GPU温度", "NPU温度", "电池温度"],
+            series_names=["整体温度", "CPU温度", "GPU温度", "NPU温度", "电池温度"],
             formatter={
+                "整体温度": lambda v: f"{v}℃",
                 "CPU温度": lambda v: f"{v}℃",
                 "GPU温度": lambda v: f"{v}℃",
                 "NPU温度": lambda v: f"{v}℃",
@@ -44,6 +45,7 @@ class TempMonitor(MonitorChart):
 
         temp_data = self.mark_temp.get_temp()
 
+        self.add_point("整体温度", sec, temp_data["total"])
         self.add_point("CPU温度", sec, temp_data["cpu"])
         self.add_point("GPU温度", sec, temp_data["gpu"])
         self.add_point("NPU温度", sec, temp_data["npu"])

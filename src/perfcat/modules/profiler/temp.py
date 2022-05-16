@@ -75,7 +75,7 @@ class MarkTemp:
         "soc_thermal",  # 通用
         "cpu",  # 通用
     ]
-    BATTERY_MARKS = ["battery"]
+    BATTERY_MARKS = ["battery", "Battery"]
     NPU_MARKS = ["npu-usr", "npu"]
     GPU_MARKS = ["gpuss-0-us", "gpu"]
 
@@ -107,16 +107,11 @@ class MarkTemp:
         return temp_value
 
     def get_senser_index(self, marks):
-        mark = None
         sensor_list: list[str] = self._sensor_list
         for mark in marks:
-            result = list(filter(lambda s: s.lower().startswith(mark), sensor_list))
-            if result:
-                break
-
-        for index in range(len(self._sensor_list)):
-            if sensor_list[index].startswith(mark):
-                return index
+            for index, sensor_name in enumerate(sensor_list):
+                if sensor_name.lower().startswith(mark):
+                    return index
 
         manufacturer = self.prop["ro.product.manufacturer"]  # 制造商
         model = self.prop["ro.product.model"]  # 型号
@@ -127,11 +122,17 @@ class MarkTemp:
         return -30 <= value <= 250
 
     def get_temp(self):
+        total_temp_index = 0
         cpu_temp_index = self.get_senser_index(self.CPU_MARKS)
         gpu_temp_index = self.get_senser_index(self.GPU_MARKS)
         npu_temp_index = self.get_senser_index(self.NPU_MARKS)
         battery_temp_index = self.get_senser_index(self.BATTERY_MARKS)
 
+        total_temp = (
+            self.get_sensor_temp(total_temp_index)
+            if total_temp_index is not None
+            else 0
+        )
         cpu_temp = (
             self.get_sensor_temp(cpu_temp_index) if cpu_temp_index is not None else 0
         )
@@ -148,6 +149,7 @@ class MarkTemp:
         )
 
         return {
+            "total": total_temp,
             "cpu": cpu_temp,
             "gpu": gpu_temp,
             "npu": npu_temp,
@@ -159,6 +161,8 @@ class MarkTemp:
             temp = float(txt)
             if self.is_temp_valid(temp):
                 return temp
+            elif self.is_temp_valid(temp / 10):
+                return temp / 10
             elif self.is_temp_valid(temp / 1000):
                 return temp / 1000
             return 0
