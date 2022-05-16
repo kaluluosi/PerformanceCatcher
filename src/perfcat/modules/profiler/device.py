@@ -14,7 +14,7 @@ def device_info(dev: Device) -> dict:
     info["SDK版本"] = prop["ro.build.version.sdk"]  # SDK版本
     info["首选SDK版本"] = prop["ro.product.first_api_level"]  # 首选SDK版本
 
-    info["主板平台"] = prop["ro.board.platform"]
+    info["CPU平台"] = prop["ro.board.platform"]
 
     info["CPU名称"] = __cpu_name(dev)
     info["CPU架构"] = prop["ro.product.cpu.abi"]  # CPU架构
@@ -48,8 +48,11 @@ def __ram_info(dev: Device) -> float:
 
 
 def __cpu_name(dev: Device) -> str:
-    text: str = dev.shell("cat /proc/cpuinfo|grep Hardware")
-    name = text.split(":")[1].lstrip()
+    try:
+        text: str = dev.shell("cat /proc/cpuinfo|grep Hardware")
+        name = text.split(":")[1].lstrip()
+    except:
+        name = "未知"
     return name
 
 
