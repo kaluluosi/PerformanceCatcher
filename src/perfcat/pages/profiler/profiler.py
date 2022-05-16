@@ -244,7 +244,7 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_app.setCompleter(completer)
 
     def _update_devices_list(self):
-        devices: list[Device] = self.adb.devices()
+        devices: list[Device] = self.adb.devices(state="device")
         pre_selected = self.cbx_device.currentText()
         self.cbx_device.clear()
         for dev in devices:
@@ -271,7 +271,7 @@ class Profiler(Page, Ui_Profiler):
             HotPlugWatcher.device_added.connect(self._on_device_add)
             HotPlugWatcher.device_removed.connect(self._on_device_removed)
 
-            self.devices = set(self.adb.devices())
+            self.devices = set(self.adb.devices(state="device"))
 
             self._update_devices_list()
             log.debug(f"刷新设备列表 {self.devices}")
@@ -289,16 +289,16 @@ class Profiler(Page, Ui_Profiler):
         return super().hideEvent(event)
 
     def _on_device_add(self):
-        devices: list[Device] = self.adb.devices()
-        count =len(devices)
+        devices: list[Device] = self.adb.devices(state="device")
+        count = len(devices)
         if self.cbx_device.count() != count:
             self.notify("发现新设备！", ButtonStyle.success)
             # todo: 添加新设备item
             self._update_devices_list()
 
     def _on_device_removed(self):
-        devices: list[Device] = self.adb.devices()
-        count =len(devices)
+        devices: list[Device] = self.adb.devices(state="device")
+        count = len(devices)
         if self.cbx_device.count() != count:
             self.notify("设备被移除！", ButtonStyle.warning)
             # todo: 移除旧设备item，如果旧设备的serial正好是当前连接中设备，那么就置空currentIndex
