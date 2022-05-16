@@ -17,12 +17,11 @@ class FpsSampler:
 
     @property
     def surface_name(self):
-        if self._surface_name is None:
-            result = self.device.shell(
-                f"dumpsys SurfaceFlinger --list|grep ^{self._package_name}.*#"
-            )
-            self._surface_name = result
-        return self._surface_name
+        result = self.device.shell(
+            f"dumpsys SurfaceFlinger --list|grep ^{self._package_name}.*#"
+        )
+        # log.debug(f"找surface：{result}")
+        return result
 
     @property
     def data(self) -> dict:
@@ -33,7 +32,7 @@ class FpsSampler:
         """
         data = {"fps": -1, "jank": -1, "big_jank": -1, "frametime": -1}
 
-        if self.surface_name is None:
+        if not self.surface_name:
             log.warning("没有找到surface")
             return data
 
