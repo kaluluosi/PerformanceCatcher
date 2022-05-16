@@ -14,6 +14,7 @@ fps采样
 # here put the import lib
 from ppadb.device import Device
 from .base.chart import MonitorChart
+from PySide6.QtCharts import QScatterSeries
 from perfcat.modules.profiler.fps import FpsSampler
 
 
@@ -28,6 +29,33 @@ class FpsMonitor(MonitorChart):
             },
             y_axis_name="FPS",
         )
+        self.chart().removeSeries(self.series_map["Jank-卡顿"])
+        self.chart().removeSeries(self.series_map["BigJank-大卡顿"])
+
+        series = QScatterSeries(self)
+        series.setName("Jank-卡顿")
+        self.series_map["Jank-卡顿"] = series
+        self.chart().addSeries(series)
+
+        pen = series.pen()
+        pen.setWidth(1)
+        series.setPen(pen)
+
+        self.chart().setAxisX(self.axis_x, series)
+        self.chart().setAxisY(self.axis_y, series)
+
+        series = QScatterSeries(self)
+        series.setName("BigJank-大卡顿")
+        self.series_map["BigJank-大卡顿"] = series
+        self.chart().addSeries(series)
+
+        pen = series.pen()
+        pen.setWidth(1)
+        series.setPen(pen)
+
+        self.chart().setAxisX(self.axis_x, series)
+        self.chart().setAxisY(self.axis_y, series)
+
         self.fps_sampler = None
 
     def sample(self, sec: int, device: Device, package_name: str):
@@ -35,8 +63,11 @@ class FpsMonitor(MonitorChart):
             self.fps_sampler = FpsSampler(device, package_name)
         data = self.fps_sampler.data
         self.add_point("FPS", sec, data["fps"])
-        self.add_point("Jank-卡顿", sec, data["jank"])
-        self.add_point("BigJank-大卡顿", sec, data["big_jank"])
+        if data["jank"] > 0:
+            self.add_point("Jank-卡顿", sec, data["jank"])
+
+        if data["big_jank"] > 0:
+            self.add_point("BigJank-大卡顿", sec, data["big_jank"])
 
     def reset_series_data(self):
         self.fps_sampler = None
