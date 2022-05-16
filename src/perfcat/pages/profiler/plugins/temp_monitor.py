@@ -35,7 +35,7 @@ class TempMonitor(MonitorChart):
             y_axis_name="℃",
             parent=parent,
         )
-
+        self.setToolTip("不少设备无法获得温度，会显示为-1")
         self.mark_temp = None
 
     def sample(self, sec: int, device: Device, package_name: str):
