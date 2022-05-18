@@ -419,10 +419,13 @@ class Profiler(Page, Ui_Profiler):
         if checked:
             self.record_range[0] = self.tick_count
             self.notify("开始记录", ButtonStyle.info)
+            # 遍历插件开启记录线绘制（就是画条线来显示从哪到哪是记录的）
+            # 记录的截取则是在这里加工处理，插件不负责截取区间数据
             for p in self.plugins:
                 p.record_enable(True)
         else:
             self.record_range[1] = self.tick_count
+            # 遍历插件关闭记录线绘制（就是画条线来显示从哪到哪是记录的）
             for p in self.plugins:
                 p.record_enable(False)
             log.debug(f"结束录制，录制的时间范围是 {self.record_range}")
