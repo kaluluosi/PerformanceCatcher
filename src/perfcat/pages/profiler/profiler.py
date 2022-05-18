@@ -81,6 +81,7 @@ class Profiler(Page, Ui_Profiler):
 
         self.sample_thread: QThread = QThread(self)
         self.tick_count = 0
+        self.record_range = [0, 0]
 
         self.btn_connect.toggled.connect(self._connect_device)
 
@@ -100,6 +101,10 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_app.editTextChanged.connect(self._update_btn_status)  # app名修改的时候更新
 
         self.cbx_device.currentIndexChanged.connect(self._update_app_list)
+
+        # 按钮处理
+        self.btn_save.clicked.connect(self._save_data)
+        self.btn_record.toggled.connect(self._on_toggled_record)
 
         self._init_plugins()
 
@@ -383,6 +388,7 @@ class Profiler(Page, Ui_Profiler):
                 self.notify(f"断开设备 {self.current_device.serial}", ButtonStyle.warning)
 
             self.stop_tick()
+            self.btn_record.setChecked(False)
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)
@@ -393,3 +399,23 @@ class Profiler(Page, Ui_Profiler):
         self.btn_connect.blockSignals(False)
 
         self.btn_record.setEnabled(enable)
+
+    def _save_data(self):
+        import json
+
+        data = {"data": []}
+
+        for plugin in self.plugins:
+            data["data"].append(plugin.to_dict())
+
+        with open("./record.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
+
+    def _on_toggled_record(self, checked: bool):
+        if checked:
+            self.record_range[0] = self.tick_count
+            self.notify("开始记录",ButtonStyle.info)
+        else:
+            self.record_range[1] = self.tick_count
+            log.debug(f"结束录制，录制的时间范围是 {self.record_range}")
+            self.notify("结束记录",ButtonStyle.info)

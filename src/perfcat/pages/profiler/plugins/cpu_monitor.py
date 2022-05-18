@@ -75,6 +75,7 @@ class CpuMonitor(MonitorChart):
             y_axis_name="%",
             parent=parent,
         )
+        self.setObjectName("CPU")
         self.pid = None
         self.last_total_cpu = None
         self.last_pid_cpu = None

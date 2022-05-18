@@ -29,6 +29,7 @@ class FpsMonitor(MonitorChart):
             },
             y_axis_name="FPS",
         )
+        self.setObjectName("FPS")
         self.chart().removeSeries(self.series_map["Jank-卡顿"])
         self.chart().removeSeries(self.series_map["BigJank-大卡顿"])
 

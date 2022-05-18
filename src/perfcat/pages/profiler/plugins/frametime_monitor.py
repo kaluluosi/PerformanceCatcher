@@ -12,6 +12,7 @@ class FrameTimeMonitor(MonitorChart):
             formatter={"FrameTime": lambda v: f"{v}ms"},
             y_axis_name="FrameTime",
         )
+        self.setObjectName("FrameTime")
         self.fps_sampler = None
 
     def sample(self, sec: int, device: Device, package_name: str):

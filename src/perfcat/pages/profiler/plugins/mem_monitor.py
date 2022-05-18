@@ -26,6 +26,7 @@ class MemMonitor(MonitorChart):
             y_axis_name="MEM",
             parent=parent,
         )
+        self.setObjectName("Memory")
 
     def sample(self, sec: int, device: Device, package_name: str):
 
