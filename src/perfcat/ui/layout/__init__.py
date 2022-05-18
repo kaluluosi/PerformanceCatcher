@@ -22,7 +22,8 @@ import textwrap
 from unittest.case import doModuleCleanups
 
 from PySide6.QtWidgets import QMainWindow, QPushButton, QWidget
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPoint, QRect
+from PySide6.QtGui import QMouseEvent, QHoverEvent
 
 from perfcat.pages.home.home import Page
 from perfcat.settings import settings
@@ -40,6 +41,8 @@ log = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
+    BORDER_LIMIT = 10
+
     LEFT_COLUMN_MAXWIDTH = 240
     LEFT_COLUMN_MINWIDTH = 0
 
@@ -56,6 +59,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 隐藏窗体边框
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
+
+        # 缩放
+        # todo
+        self.installEventFilter(self)
+        self._resizing = False
+        self._resize_mode = None
 
         # 设置阴影（很淡……几乎看不见，有点感觉就行）
         util.set_shadow_effect(self)
@@ -242,3 +251,104 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.restoreGeometry(geometry)
             self.restoreState(state)
         return super().showEvent(event)
+
+    def eventFilter(
+        self, watched: PySide6.QtCore.QObject, event: PySide6.QtCore.QEvent
+    ) -> bool:
+        if isinstance(event, QHoverEvent) and not self._resizing:
+
+            mouse_pos = event.pos()
+            rect = self.rect()
+            top_area = QRect(rect)
+            top_area.setHeight(self.BORDER_LIMIT)
+
+            bottom_area = QRect(rect)
+            bottom_area.setTop(rect.top() + rect.height() - self.BORDER_LIMIT)
+            bottom_area.setHeight(self.BORDER_LIMIT)
+
+            left_area = QRect(rect)
+            left_area.setWidth(self.BORDER_LIMIT)
+
+            right_area = QRect(rect)
+            right_area.setLeft(rect.left() + rect.width() - self.BORDER_LIMIT)
+
+            on_top = top_area.contains(mouse_pos)
+            on_bottom = bottom_area.contains(mouse_pos)
+            on_left = left_area.contains(mouse_pos)
+            on_right = right_area.contains(mouse_pos)
+            on_lefttop_corner = on_top and on_left
+            on_righttop_corner = on_top and on_right
+            on_leftbottom_corner = on_left and on_bottom
+            on_rightbottom_corner = on_right and on_bottom
+
+            # print(on_top, on_bottom, on_left, on_right)
+            if on_lefttop_corner:
+                self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+                self._resize_mode = Qt.LeftEdge | Qt.TopEdge
+            elif on_righttop_corner:
+                self.setCursor(Qt.CursorShape.SizeBDiagCursor)
+                self._resize_mode = Qt.RightEdge | Qt.TopEdge
+            elif on_leftbottom_corner:
+                self.setCursor(Qt.CursorShape.SizeBDiagCursor)
+                self._resize_mode = Qt.LeftEdge | Qt.BottomEdge
+            elif on_rightbottom_corner:
+                self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+                self._resize_mode = Qt.RightEdge | Qt.BottomEdge
+            elif on_top or on_bottom:
+                self.setCursor(Qt.SizeVerCursor)
+                if on_top:
+                    self._resize_mode = Qt.TopEdge
+                elif on_bottom:
+                    self._resize_mode = Qt.BottomEdge
+            elif on_left or on_right:
+                self.setCursor(Qt.SizeHorCursor)
+                if on_left:
+                    self._resize_mode = Qt.LeftEdge
+                elif on_right:
+                    self._resize_mode = Qt.RightEdge
+            else:
+                self.setCursor(Qt.ArrowCursor)
+                self._resize_mode = None
+
+        return super().eventFilter(watched, event)
+
+    def mousePressEvent(self, event: PySide6.QtGui.QMouseEvent) -> None:
+
+        self._resizing = True
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event: PySide6.QtGui.QMouseEvent) -> None:
+        self._resizing = False
+        return super().mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+
+        if self._resizing:
+
+            if self._resize_mode:
+                global_pos = event.globalPos()
+                geometry = self.geometry()
+                if self._resize_mode == Qt.TopEdge:
+                    geometry.setTop(global_pos.y())
+                elif self._resize_mode == Qt.BottomEdge:
+                    geometry.setBottom(global_pos.y())
+                elif self._resize_mode == Qt.LeftEdge:
+                    geometry.setLeft(global_pos.x())
+                elif self._resize_mode == Qt.RightEdge:
+                    geometry.setRight(global_pos.x())
+                elif self._resize_mode == Qt.TopEdge | Qt.LeftEdge:
+                    geometry.setTopLeft(global_pos)
+                elif self._resize_mode == Qt.TopEdge | Qt.RightEdge:
+                    geometry.setTopRight(global_pos)
+                elif self._resize_mode == Qt.BottomEdge | Qt.LeftEdge:
+                    geometry.setBottomLeft(global_pos)
+                elif self._resize_mode == Qt.BottomEdge | Qt.RightEdge:
+                    geometry.setBottomRight(global_pos)
+
+                if (
+                    geometry.width() > self.minimumWidth()
+                    and geometry.height() > self.minimumHeight()
+                ):
+                    self.setGeometry(geometry)
+
+        return super().mouseMoveEvent(event)
