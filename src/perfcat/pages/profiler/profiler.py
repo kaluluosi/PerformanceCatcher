@@ -418,7 +418,7 @@ class Profiler(Page, Ui_Profiler):
         result = QMessageBox.question(
             self,
             "保存全部?",
-            "是，保存全部数据，否，仅保存录制的那部分",
+            "是:保存全部数据\n否:仅保存录制的那部分",
             QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
             QMessageBox.Yes,
         )
