@@ -22,12 +22,20 @@ import io
 import PySide6
 import logging
 import csv
+import time
+import json
 
 from perfcat.pages.profiler.plugins.base import MonitorChart
 from . import plugins
 from ppadb.client import Client as adb
 from ppadb.device import Device
-from PySide6.QtWidgets import QCompleter, QTableWidgetItem, QApplication, QMessageBox
+from PySide6.QtWidgets import (
+    QCompleter,
+    QTableWidgetItem,
+    QApplication,
+    QMessageBox,
+    QFileDialog,
+)
 from PySide6.QtCore import (
     Qt,
     Signal,
@@ -107,6 +115,7 @@ class Profiler(Page, Ui_Profiler):
         self.btn_record.toggled.connect(self._on_toggled_record)
 
         self._init_plugins()
+        self._update_btn_status()
 
     def _init_plugins(self):
         self.reset_h_scrollbar()
@@ -178,6 +187,7 @@ class Profiler(Page, Ui_Profiler):
 
         log.debug(f"更新按钮状态 valid_device:{valid_device} valid_app:{valid_app}")
         self.btn_connect.setEnabled(valid_device and valid_app)
+        self.btn_save.setEnabled(valid_device and valid_app)
 
     def _copy_info(self):
         """
@@ -402,18 +412,47 @@ class Profiler(Page, Ui_Profiler):
 
     def _save_data(self):
 
-        self.notify("暂未支持")
-        return
+        device_name = self._device_info["型号"]
+        app_name = self.cbx_app.currentText()
 
-        import json
+        result = QMessageBox.question(
+            self,
+            "保存全部?",
+            "是，保存全部数据，否，仅保存录制的那部分",
+            QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+            QMessageBox.Yes,
+        )
+        if result == QMessageBox.Cancel:
+            return
 
+        if result == QMessageBox.Yes:
+            data = self._get_data()
+        elif result == QMessageBox.No:
+            data = self._get_data(False)
+
+        date_str = time.strftime("%Y-%m_%H-%M-%S")
+        file_name = QFileDialog.getSaveFileName(
+            self, "保存记录", f"{device_name}_{app_name}_{date_str}.pc", "perfcat(*.pc)"
+        )
+        if file_name[0]:
+            with open(file_name[0], "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+                self.notify(f"保存到 {file_name[0]}", ButtonStyle.success)
+
+            self.btn_record.setChecked(False)
+            self.update()
+
+    def _get_data(self, all: bool = True):
         data = {"data": []}
-
         for plugin in self.plugins:
-            data["data"].append(plugin.to_dict())
+            if all:
+                _p_data = plugin.to_dict()
+            elif not all:
+                # todo: 根据record切割数据
+                _p_data = plugin.to_dict(False)
 
-        with open("./record.json", "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False)
+            data["data"].append(_p_data)
+        return data
 
     def _on_toggled_record(self, checked: bool):
         if checked:
@@ -422,7 +461,7 @@ class Profiler(Page, Ui_Profiler):
             # 遍历插件开启记录线绘制（就是画条线来显示从哪到哪是记录的）
             # 记录的截取则是在这里加工处理，插件不负责截取区间数据
             for p in self.plugins:
-                p.record_enable(True)
+                p.record_enable(True, self.tick_count)
         else:
             self.record_range[1] = self.tick_count
             # 遍历插件关闭记录线绘制（就是画条线来显示从哪到哪是记录的）
@@ -430,3 +469,4 @@ class Profiler(Page, Ui_Profiler):
                 p.record_enable(False)
             log.debug(f"结束录制，录制的时间范围是 {self.record_range}")
             self.notify("结束记录", ButtonStyle.info)
+            # todo: 结束记录后要做什么，比如直接复制剪贴板？保存报告？可以在这后面处理

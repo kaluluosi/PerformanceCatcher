@@ -440,7 +440,7 @@ class MonitorChart(QChartView):
             # return super().wheelEvent(event)
             event.ignore()  #  event传进来的时候默认是setaccept(True)的，因此我们要ignore掉让其传递到父widget去处理，比如滚动
 
-    def to_dict(self) -> dict:
+    def to_dict(self, all: bool = True) -> dict:
         """
         series 转字典
 
@@ -456,7 +456,21 @@ class MonitorChart(QChartView):
                 data[s_name] = []
 
             for p in s.points():
-                data[s_name].append((p.x(), p.y()))
+                if all:
+                    data[s_name].append((p.x(), p.y()))
+                else:
+                    _start = (
+                        self._base_time()
+                        .addSecs(self.record_range[0])
+                        .toMSecsSinceEpoch()
+                    )
+                    _end = (
+                        self._base_time()
+                        .addSecs(self.record_range[1])
+                        .toMSecsSinceEpoch()
+                    )
+                    if _start <= p.x() <= _end:
+                        data[s_name].append((p.x(), p.y()))
 
         return data
 
@@ -477,10 +491,10 @@ class MonitorChart(QChartView):
             for p in data[s_name]:
                 s.append(p[0], p[1])
 
-    def record_enable(self, enable: bool):
+    def record_enable(self, enable: bool, tick_count=-1):
         self.recording = enable
         if enable:
-            self.record_range = [self.tick_count, self.tick_count]
+            self.record_range = [tick_count, tick_count]
 
 
 if __name__ == "__main__":

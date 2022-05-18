@@ -684,15 +684,15 @@ class Ui_Profiler(object):
 
         self.horizontalLayout_2.addWidget(self.btn_connect)
 
-        self.toolButton_2 = QToolButton(self.frame_2)
-        self.toolButton_2.setObjectName(u"toolButton_2")
-        self.toolButton_2.setMaximumSize(QSize(36, 36))
+        self.btn_open = QToolButton(self.frame_2)
+        self.btn_open.setObjectName(u"btn_open")
+        self.btn_open.setMaximumSize(QSize(36, 36))
         icon2 = QIcon()
         icon2.addFile(u":/icon_w/assets/svg_white/folder-open.svg", QSize(), QIcon.Normal, QIcon.Off)
         icon2.addFile(u":/icon_b/assets/svg_blue/folder-open.svg", QSize(), QIcon.Normal, QIcon.On)
-        self.toolButton_2.setIcon(icon2)
+        self.btn_open.setIcon(icon2)
 
-        self.horizontalLayout_2.addWidget(self.toolButton_2)
+        self.horizontalLayout_2.addWidget(self.btn_open)
 
         self.btn_save = QToolButton(self.frame_2)
         self.btn_save.setObjectName(u"btn_save")
@@ -877,7 +877,7 @@ class Ui_Profiler(object):
         self.cbx_device.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u8bf7\u9009\u62e9\u8bbe\u5907", None))
         self.cbx_app.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u9009\u62e9APP", None))
         self.btn_connect.setText(QCoreApplication.translate("Profiler", u"\u8fde\u63a5", None))
-        self.toolButton_2.setText(QCoreApplication.translate("Profiler", u"...", None))
+        self.btn_open.setText(QCoreApplication.translate("Profiler", u"...", None))
         self.btn_save.setText(QCoreApplication.translate("Profiler", u"...", None))
         self.btn_record.setText(QCoreApplication.translate("Profiler", u"...", None))
         self.btn_record.setProperty("style", QCoreApplication.translate("Profiler", u"danger", None))

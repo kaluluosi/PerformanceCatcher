@@ -1,0 +1,1 @@
+{"data": [{"CPU": [], "AppCPU": []}, {"pss": [], "private dirty": [], "private clean": [], "swapped dirty": [], "heap size": [], "heap alloc": [], "heap free": []}, {"FPS": [], "Jank-卡顿": [], "BigJank-大卡顿": []}, {"FrameTime": []}, {"整体温度": [], "CPU温度": [], "GPU温度": [], "NPU温度": [], "电池温度": []}]}

@@ -761,7 +761,7 @@ QHeaderView {
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="toolButton_2">
+               <widget class="QToolButton" name="btn_open">
                 <property name="maximumSize">
                  <size>
                   <width>36</width>
