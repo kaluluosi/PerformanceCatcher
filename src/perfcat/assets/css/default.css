@@ -250,7 +250,7 @@ QCheckBox::indicator{
 
 QCheckBox::indicator:checked{
     border:2px solid black;
-    image: url(:/icon/svg/checkmark.svg);
+    image: url(:/icon/assets/svg/checkmark.svg);
 }
 
 QRadioButton::indicator{
@@ -469,7 +469,7 @@ QComboBox::drop-down:hover{
 }
 
 QComboBox::down-arrow{
-    image:url(:/icon_w/svg_white/circle-down.svg);
+    image:url(:/icon_w/assets/svg_white/circle-down.svg);
     width: 18px;
     height:18px;
 }

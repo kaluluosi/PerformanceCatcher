@@ -14,9 +14,9 @@
    <string>首页</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../assets/asset.qrc">
-    <normaloff>:/icon_w/svg_white/home.svg</normaloff>
-    <normalon>:/icon_b/svg_blue/home.svg</normalon>:/icon_w/svg_white/home.svg</iconset>
+   <iconset resource="../../asset.qrc">
+    <normaloff>:/icon_w/assets/svg_white/home.svg</normaloff>
+    <normalon>:/icon_b/assets/svg_blue/home.svg</normalon>:/icon_w/assets/svg_white/home.svg</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -26,7 +26,7 @@
     <widget class="QFrame" name="frame">
      <property name="styleSheet">
       <string notr="true">
-background-image: url(:/images/images/logo_sws_10.png);
+background-image: url(:/iamges/assets/imagesimages/logo_sws_10.png);
 background-repeat: no;
 background-position:center;</string>
      </property>
@@ -41,7 +41,7 @@ background-position:center;</string>
   </layout>
  </widget>
  <resources>
-  <include location="../../assets/asset.qrc"/>
+  <include location="../../asset.qrc"/>
  </resources>
  <connections/>
 </ui>
