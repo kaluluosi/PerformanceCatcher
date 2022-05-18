@@ -66,10 +66,15 @@ class BaseTitleBar(QWidget, Ui_TitleBar):
             self.btn_max.setChecked(True)
             super(QMainWindow, main_win).showMaximized()
 
+        def resizeEvent(event):
+            self.btn_max.setChecked(main_win.isMaximized())
+
         main_win.showNormal = showNormal
         main_win.showMaximized = showMaximized
+        main_win.resizeEvent = resizeEvent
 
         self.btn_max.toggled.connect(self._toggle_maximized)
+        self.window().installEventFilter(self)
 
     def _toggle_maximized(self, checked):
         if checked:
