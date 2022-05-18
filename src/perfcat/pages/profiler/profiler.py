@@ -401,6 +401,10 @@ class Profiler(Page, Ui_Profiler):
         self.btn_record.setEnabled(enable)
 
     def _save_data(self):
+
+        self.notify("暂未支持")
+        return
+
         import json
 
         data = {"data": []}
@@ -414,8 +418,12 @@ class Profiler(Page, Ui_Profiler):
     def _on_toggled_record(self, checked: bool):
         if checked:
             self.record_range[0] = self.tick_count
-            self.notify("开始记录",ButtonStyle.info)
+            self.notify("开始记录", ButtonStyle.info)
+            for p in self.plugins:
+                p.record_enable(True)
         else:
             self.record_range[1] = self.tick_count
+            for p in self.plugins:
+                p.record_enable(False)
             log.debug(f"结束录制，录制的时间范围是 {self.record_range}")
-            self.notify("结束记录",ButtonStyle.info)
+            self.notify("结束记录", ButtonStyle.info)

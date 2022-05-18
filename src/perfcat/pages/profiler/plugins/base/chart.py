@@ -87,9 +87,14 @@ class MonitorChart(QChartView):
         self.formatter: dict[str, str] = formatter  # 值格式化
         self._mark_line: QPoint = QPoint()  # 标线坐标
 
+        self.tick_count = 0
+
         self.total_x = 0  # x轴序列最大值
         self._axis_range_size = self.INIT_RANGE_SIZE  # 区间大小
         self._x_offset = 0  # 区间整体偏移
+
+        self.recording = False
+        self.record_range = [-1, -1]
 
         _chart.setTheme(QChart.ChartThemeDark)
         _chart.legend().setAlignment(Qt.AlignRight)
@@ -140,6 +145,7 @@ class MonitorChart(QChartView):
             s.clear()
 
         self.total_x = 0
+        self.record_range = [-1, -1]
 
     def sample(self, sec: int, device: Device, package_name: str):
         """每一tick更新数据，自己实现，然后通过addpoint添加数据点"""
@@ -284,16 +290,40 @@ class MonitorChart(QChartView):
 
         self.sample_points[s_name] = (time.toMSecsSinceEpoch(), y)
 
+        self.tick_count = x
+
+        if self.recording:
+            self.record_range[1] = self.tick_count
+
     def drawForeground(
         self,
         painter: QPainter,
         rect: Union[QRectF, QRect],
     ) -> None:
+        painter.save()
+
+        # 绘制标线
+        _start = self._base_time().addSecs(self.record_range[0])
+        _end = self._base_time().addSecs(self.record_range[1])
+
+        _start: QDateTime = max(self.axis_x_min(), min(_start, self.axis_x_max()))
+        _end: QDateTime = max(self.axis_x_min(), min(_end, self.axis_x_max()))
+
+        start = (
+            self.chart().mapToPosition(QPointF(_start.toMSecsSinceEpoch(), 0)).toPoint()
+        )
+        end = self.chart().mapToPosition(QPointF(_end.toMSecsSinceEpoch(), 0)).toPoint()
+        color = QColor("#007acc")
+        color.setAlphaF(0.8)
+        pen = QPen(color)
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.setBrush(QBrush(color, Qt.SolidPattern))
+        painter.drawRect(start.x(), start.y() + 1, end.x() - start.x(), 3)
 
         if self.mark_line.x() == 0:
+            painter.restore()
             return
-
-        painter.save()
 
         # 绘制标线
         pen = QPen(QColor("white"))
@@ -390,8 +420,8 @@ class MonitorChart(QChartView):
         text = "\n".join(lines)
 
         painter.drawText(text_rect, Qt.AlignLeft, text)
-        painter.restore()
 
+        painter.restore()
         return super().drawForeground(painter, rect)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
@@ -447,6 +477,11 @@ class MonitorChart(QChartView):
             for p in data[s_name]:
                 s.append(p[0], p[1])
 
+    def record_enable(self, enable: bool):
+        self.recording = enable
+        if enable:
+            self.record_range = [self.tick_count, self.tick_count]
+
 
 if __name__ == "__main__":
     import random
@@ -469,11 +504,11 @@ if __name__ == "__main__":
     class Win(QWidget):
         def __init__(self, parent=None) -> None:
             super().__init__(parent)
-            self.setStyleSheet("background-color:red")
+            # self.setStyleSheet("background-color:red")
 
-            self.chart_view1 = MonitorChart(["CPU"], parent=self)
+            self.chart_view1 = MonitorChart(parent, ["CPU"])
             self.chart_view1.setObjectName("c1")
-            self.chart_view2 = MonitorChart(["GPU"], parent=self)
+            self.chart_view2 = MonitorChart(parent, ["GPU"])
             self.chart_view2.setObjectName("c2")
             self.chart_views = [self.chart_view1, self.chart_view2]
             self.layout = QVBoxLayout(self)
