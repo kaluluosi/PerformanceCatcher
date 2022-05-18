@@ -15,7 +15,7 @@
 import logging
 
 from PySide6.QtWidgets import QWidget, QMainWindow, QGraphicsDropShadowEffect
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QEvent
 from PySide6.QtGui import QMouseEvent, QCursor, QColor
 from .ui_title_bar import Ui_TitleBar
 
@@ -66,12 +66,16 @@ class BaseTitleBar(QWidget, Ui_TitleBar):
             self.btn_max.setChecked(True)
             super(QMainWindow, main_win).showMaximized()
 
-        def resizeEvent(event):
-            self.btn_max.setChecked(main_win.isMaximized())
+        def changeEvent(event):
+            log.debug(f"窗口大小变化 {event.type()} {main_win.isMaximized()}")
+            if event.type() == QEvent.WindowStateChange:
+                self.btn_max.blockSignals(True)
+                self.btn_max.setChecked(main_win.isMaximized())
+                self.btn_max.blockSignals(False)
 
         main_win.showNormal = showNormal
         main_win.showMaximized = showMaximized
-        main_win.resizeEvent = resizeEvent
+        main_win.changeEvent = changeEvent
 
         self.btn_max.toggled.connect(self._toggle_maximized)
         self.window().installEventFilter(self)
