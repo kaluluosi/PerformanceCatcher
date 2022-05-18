@@ -66,7 +66,7 @@ class BaseTitleBar(QWidget, Ui_TitleBar):
             self.btn_max.setChecked(True)
             super(QMainWindow, main_win).showMaximized()
 
-        def changeEvent(event):
+        def changeEvent(event:QEvent):
             if event.type() == QEvent.WindowStateChange:
                 self.btn_max.blockSignals(True)
                 self.btn_max.setChecked(main_win.isMaximized())
