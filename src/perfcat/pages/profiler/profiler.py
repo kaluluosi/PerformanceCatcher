@@ -477,6 +477,7 @@ class Profiler(Page, Ui_Profiler):
                 _p_data = plugin.to_dict(False)
 
             data["data"][plugin.objectName()] = _p_data
+        data["device_info"] = self.device_info
         return data
 
     def _on_toggled_record(self, checked: bool):
