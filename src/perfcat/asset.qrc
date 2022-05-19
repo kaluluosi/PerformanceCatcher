@@ -3,6 +3,7 @@
     <file>assets/images/logo_sws_10.png</file>
   </qresource>
   <qresource prefix="icon">
+    <file>assets/svg/save.svg</file>
     <file>assets/svg/500px.svg</file>
     <file>assets/svg/accessibility.svg</file>
     <file>assets/svg/address-book.svg</file>
@@ -496,6 +497,7 @@
     <file>assets/svg/zoom-out.svg</file>
   </qresource>
   <qresource prefix="icon_b">
+    <file>assets/svg_blue/save.svg</file>
     <file>assets/svg_blue/500px.svg</file>
     <file>assets/svg_blue/accessibility.svg</file>
     <file>assets/svg_blue/address-book.svg</file>
@@ -989,6 +991,7 @@
     <file>assets/svg_blue/zoom-out.svg</file>
   </qresource>
   <qresource prefix="icon_w">
+    <file>assets/svg_white/save.svg</file>
     <file>assets/svg_white/500px.svg</file>
     <file>assets/svg_white/accessibility.svg</file>
     <file>assets/svg_white/address-book.svg</file>

@@ -17,6 +17,7 @@ todo:
 # here put the import lib
 
 
+from fileinput import filename
 import functools
 import io
 import PySide6
@@ -111,7 +112,8 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_device.currentIndexChanged.connect(self._update_app_list)
 
         # 按钮处理
-        self.btn_save.clicked.connect(self._save_data)
+        self.btn_save.clicked.connect(self._save_file)
+        self.btn_open.clicked.connect(self._open_file)
         self.btn_record.toggled.connect(self._on_toggled_record)
 
         self._init_plugins()
@@ -392,6 +394,7 @@ class Profiler(Page, Ui_Profiler):
             self.notify(f"连接设备 {self.current_device.serial}", ButtonStyle.success)
             self.clear_all_data()
             self.start_tick()
+            self.btn_open.setEnabled(False)
         else:
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
@@ -399,6 +402,8 @@ class Profiler(Page, Ui_Profiler):
 
             self.stop_tick()
             self.btn_record.setChecked(False)
+            self.btn_open.setEnabled(True)
+            self.record_range = [0, 0]
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)
@@ -410,7 +415,7 @@ class Profiler(Page, Ui_Profiler):
 
         self.btn_record.setEnabled(enable)
 
-    def _save_data(self):
+    def _save_file(self):
 
         device_name = self._device_info["型号"]
         app_name = self.cbx_app.currentText()
@@ -442,8 +447,18 @@ class Profiler(Page, Ui_Profiler):
             self.btn_record.setChecked(False)
             self.update()
 
+    def _open_file(self):
+        file_name = QFileDialog.getOpenFileName(self, "保存记录", ".", "perfcat(*.pc)")
+        with open(file_name[0], "r", encoding="utf-8") as f:
+            data = json.load(f)
+            data = data["data"]
+
+            for plugin in self.plugins:
+                if plugin.objectName() in data:
+                    plugin.from_dict(data[plugin.objectName()])
+
     def _get_data(self, all: bool = True):
-        data = {"data": []}
+        data = {"data": {}}
         for plugin in self.plugins:
             if all:
                 _p_data = plugin.to_dict()
@@ -451,7 +466,7 @@ class Profiler(Page, Ui_Profiler):
                 # todo: 根据record切割数据
                 _p_data = plugin.to_dict(False)
 
-            data["data"].append(_p_data)
+            data["data"][plugin.objectName()] = _p_data
         return data
 
     def _on_toggled_record(self, checked: bool):

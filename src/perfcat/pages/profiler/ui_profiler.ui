@@ -768,6 +768,9 @@ QHeaderView {
                   <height>36</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>读取记录</string>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -786,13 +789,16 @@ QHeaderView {
                   <height>36</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>保存记录</string>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
                 <property name="icon">
                  <iconset resource="../../asset.qrc">
-                  <normaloff>:/icon_w/assets/svg_white/file-excel.svg</normaloff>
-                  <normalon>:/icon_b/assets/svg_blue/file-excel.svg</normalon>:/icon_w/assets/svg_white/file-excel.svg</iconset>
+                  <normaloff>:/icon_w/assets/svg_white/save.svg</normaloff>
+                  <normalon>:/icon_b/assets/svg_blue/save.svg</normalon>:/icon_w/assets/svg_white/save.svg</iconset>
                 </property>
                </widget>
               </item>

@@ -471,7 +471,6 @@ class MonitorChart(QChartView):
                     )
                     if _start <= p.x() <= _end:
                         data[s_name].append((p.x(), p.y()))
-
         return data
 
     def from_dict(self, data: dict):
@@ -483,6 +482,7 @@ class MonitorChart(QChartView):
         Args:
             value (_type_): _description_
         """
+        self.reset_series_data()
         for s_name, s in self.series_map.items():
             if s_name not in data:
                 log.error(f"data里没有 {s_name}系列的数据")
