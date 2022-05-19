@@ -769,7 +769,7 @@ QHeaderView {
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>读取记录</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;读取记录&lt;/p&gt;&lt;p&gt;只有断开连接的清空下才可以读取记录&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
                  <string>...</string>
@@ -1003,7 +1003,7 @@ QHeaderView {
                   <x>0</x>
                   <y>0</y>
                   <width>849</width>
-                  <height>445</height>
+                  <height>448</height>
                  </rect>
                 </property>
                 <property name="layoutDirection">

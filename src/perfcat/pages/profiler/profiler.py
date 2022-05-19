@@ -440,12 +440,14 @@ class Profiler(Page, Ui_Profiler):
             self, "保存记录", f"{device_name}_{app_name}_{date_str}.pc", "perfcat(*.pc)"
         )
         if file_name[0]:
+            self.btn_record.setChecked(False)
+            self.update()
             with open(file_name[0], "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
                 self.notify(f"保存到 {file_name[0]}", ButtonStyle.success)
 
-            self.btn_record.setChecked(False)
-            self.update()
+        else:
+            self.notify(f"文件不能存在", ButtonStyle.danger)
 
     def _open_file(self):
         file_name = QFileDialog.getOpenFileName(self, "保存记录", ".", "perfcat(*.pc)")
@@ -456,6 +458,8 @@ class Profiler(Page, Ui_Profiler):
             for plugin in self.plugins:
                 if plugin.objectName() in data:
                     plugin.from_dict(data[plugin.objectName()])
+
+            self.notify(f"打开:{file_name[0]}", ButtonStyle.success)
 
     def _get_data(self, all: bool = True):
         data = {"data": {}}

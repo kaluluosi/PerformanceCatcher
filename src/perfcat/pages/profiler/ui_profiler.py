@@ -801,7 +801,7 @@ class Ui_Profiler(object):
         self.monitor_scollarea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 445))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 448))
         self.scrollAreaWidgetContents.setLayoutDirection(Qt.LeftToRight)
         self.scrollAreaWidgetContents.setStyleSheet(u"#scrollAreaWidgetContents{\n"
 "margin-right:5px;\n"
@@ -878,7 +878,7 @@ class Ui_Profiler(object):
         self.cbx_app.setPlaceholderText(QCoreApplication.translate("Profiler", u"\u9009\u62e9APP", None))
         self.btn_connect.setText(QCoreApplication.translate("Profiler", u"\u8fde\u63a5", None))
 #if QT_CONFIG(tooltip)
-        self.btn_open.setToolTip(QCoreApplication.translate("Profiler", u"\u8bfb\u53d6\u8bb0\u5f55", None))
+        self.btn_open.setToolTip(QCoreApplication.translate("Profiler", u"<html><head/><body><p>\u8bfb\u53d6\u8bb0\u5f55</p><p>\u53ea\u6709\u65ad\u5f00\u8fde\u63a5\u7684\u6e05\u7a7a\u4e0b\u624d\u53ef\u4ee5\u8bfb\u53d6\u8bb0\u5f55</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.btn_open.setText(QCoreApplication.translate("Profiler", u"...", None))
 #if QT_CONFIG(tooltip)
