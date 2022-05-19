@@ -17,13 +17,6 @@ import pkg_resources
 from perfcat.app import PerfcatApplication
 from perfcat import asset_rc
 
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
-    import importlib_metadata
-
-__version__ = pkg_resources.get_distribution("perfcat").version
-
 
 def main():
     app = PerfcatApplication(sys.argv)
