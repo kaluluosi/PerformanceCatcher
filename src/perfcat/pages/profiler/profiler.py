@@ -17,14 +17,12 @@ todo:
 # here put the import lib
 
 
-from fileinput import filename
-import functools
-import io
 import PySide6
 import logging
 import csv
 import time
 import json
+import os
 
 from perfcat.pages.profiler.plugins.base import MonitorChart
 from . import plugins
@@ -48,6 +46,7 @@ from PySide6.QtCore import (
     QThreadPool,
 )
 from perfcat.modules.hot_plug import HotPlugWatcher
+from perfcat.settings import settings
 
 from ...ui.constant import ButtonStyle
 from ...ui.page import Page
@@ -436,8 +435,13 @@ class Profiler(Page, Ui_Profiler):
             data = self._get_data(False)
 
         date_str = time.strftime("%Y-%m_%H-%M-%S")
+        last_dir = settings.value("profiler/last_dir", "")
+
         file_name = QFileDialog.getSaveFileName(
-            self, "保存记录", f"{device_name}_{app_name}_{date_str}.pc", "perfcat(*.pc)"
+            self,
+            "保存记录",
+            os.path.join(last_dir, f"{device_name}_{app_name}_{date_str}.pc"),
+            "perfcat(*.pc)",
         )
         if file_name[0]:
             self.btn_record.setChecked(False)
@@ -445,21 +449,23 @@ class Profiler(Page, Ui_Profiler):
             with open(file_name[0], "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
                 self.notify(f"保存到 {file_name[0]}", ButtonStyle.success)
-
-        else:
-            self.notify(f"文件不能存在", ButtonStyle.danger)
+            last_dir = os.path.dirname(file_name[0])
+            settings.setValue("profiler/last_dir", last_dir)
 
     def _open_file(self):
-        file_name = QFileDialog.getOpenFileName(self, "保存记录", ".", "perfcat(*.pc)")
-        with open(file_name[0], "r", encoding="utf-8") as f:
-            data = json.load(f)
-            data = data["data"]
+        last_dir = settings.value("profiler/last_dir", "")
+        file_name = QFileDialog.getOpenFileName(self, "保存记录", last_dir, "perfcat(*.pc)")
 
-            for plugin in self.plugins:
-                if plugin.objectName() in data:
-                    plugin.from_dict(data[plugin.objectName()])
+        if file_name[0]:
+            with open(file_name[0], "r", encoding="utf-8") as f:
+                data = json.load(f)
+                data = data["data"]
 
-            self.notify(f"打开:{file_name[0]}", ButtonStyle.success)
+                for plugin in self.plugins:
+                    if plugin.objectName() in data:
+                        plugin.from_dict(data[plugin.objectName()])
+
+                self.notify(f"打开:{file_name[0]}", ButtonStyle.success)
 
     def _get_data(self, all: bool = True):
         data = {"data": {}}
