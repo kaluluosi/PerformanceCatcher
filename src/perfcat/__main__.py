@@ -12,4 +12,20 @@
 
 # here put the import lib
 
-from . import PerfCat
+# here put the import lib
+# 设置环境变量切换成生产模式
+import os
+
+os.environ["MODE"] = "development"
+
+import sys
+from perfcat.app import PerfcatApplication
+from perfcat import asset_rc
+
+
+def main():
+    app = PerfcatApplication(sys.argv)
+    return app.exec()
+
+
+sys.exit(main())
