@@ -2,5 +2,15 @@
     "python.formatting.provider": "black",
     "qtForPython.designer.path": "pyside6-designer",
     "qtForPython.uic.path": "pyside6-uic",
-    "qtForPython.rcc.path": "pyside6-rcc"
+    "qtForPython.rcc.path": "pyside6-rcc",
+    "qtForPython.uic.args": [
+        "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
+    ],
+    "qtForPython.rcc.args": [
+        "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
+    ],
+    "qtForPython.lupdate.args": [
+        "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
+    ],
+    "qtForPython.lupdate.liveExecution": true,
 }
