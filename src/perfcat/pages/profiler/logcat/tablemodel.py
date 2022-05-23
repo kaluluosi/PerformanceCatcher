@@ -1,19 +1,6 @@
 from PySide6.QtCore import *
 import time
 
-def time_calculate(func):
-    def wapple(*arge):
-        start_time = time.time()
-        if len(arge) == 1:
-            func(arge[0])
-        elif len(arge) == 2:
-            func(arge[0], arge[1])
-        elif len(arge) == 3:
-            func(arge[0], arge[1], arge[2])
-        end_time = time.time()
-        print("{}:{}".format(func.__name__, end_time - start_time))
-    return wapple
-
 class StringListModel(QAbstractTableModel):
 
     data_changed = Signal()

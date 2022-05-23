@@ -15,6 +15,7 @@ class WorkThread(QThread):
         super(WorkThread, self).__init__()
 
     def run(self):
+        os.system("adb logcat -c")
         self.process = subprocess.Popen(
             "adb -s {} logcat".format(self.serial),
             # shell=True,
@@ -28,7 +29,6 @@ class WorkThread(QThread):
         self.log_gain()
 
     def log_gain(self):
-        os.system("adb logcat -c")
         while self.process.poll() is None:
             if not self.fal:
                 break
@@ -109,6 +109,10 @@ class LogCat(QWidget, Ui_Logcat):
         self.tableView.setColumnWidth(3,45)
         self.tableView.setColumnWidth(4,45)
 
+        # 创建线程
+        self.threads = WorkThread(self)
+        self.threads.trigger.connect(self.update_text)  # 当信号接收到消息时，更新数据
+
         # self.tableView.horizontalHeader().setStretchLastSection(True)  # 占满表格可用的宽度（一般最后一行）
 
         self.search.textChanged.connect(self.on_tableview_content)
@@ -120,7 +124,7 @@ class LogCat(QWidget, Ui_Logcat):
         # 设置自动换行
         self.tableView.setWordWrap(True)
         # 隐藏行号
-        # self.tableView.verticalHeader().show()
+        self.tableView.verticalHeader().hide()
 
         # 点击标题时，发送一个信号
         self.horizontalHeader = self.tableView.horizontalHeader()
@@ -128,28 +132,16 @@ class LogCat(QWidget, Ui_Logcat):
 
     # 启动函数（跟随设备启动）
     def start_catch(self, serial):
-        self.threads = WorkThread(self)  # 自定义线程类
         self.threads.serial = serial
-        self.threads.trigger.connect(self.update_text)  # 当信号接收到消息时，更新数据
         self.threads.start()
+
     # 关闭日志（跟随设备）
     def stop_catch(self):
         self.threads.stop()
 
     def update_text(self, message):
-
         self.str_list += message
         self.threads.insert_data(self.model, message)
-            
-    def lxi(self):
-        print(self.model.rowCount())
-
-    # 重写关闭窗口事件（用于关闭窗口的时候顺带关闭子进程）
-    def closeEvent(self, event):
-        try:
-            self.threads.process.kill()
-        except Exception:
-            print("不存在子进程，或许已经关闭")
 
     # 重写键盘监听事件
     def keyPressEvent(self, event):
