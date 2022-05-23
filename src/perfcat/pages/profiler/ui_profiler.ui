@@ -1093,6 +1093,9 @@ margin-right:5px;
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
                 <attribute name="icon">
                  <iconset resource="../../asset.qrc">
                   <normaloff>:/icon_w/assets/svg_white/notification.svg</normaloff>
@@ -1101,7 +1104,20 @@ margin-right:5px;
                 <attribute name="title">
                  <string>LogCat</string>
                 </attribute>
-                <layout class="QVBoxLayout" name="verticalLayout_8"/>
+                <layout class="QVBoxLayout" name="verticalLayout_8">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                </layout>
                </widget>
                <widget class="QWidget" name="tab_4">
                 <attribute name="icon">
