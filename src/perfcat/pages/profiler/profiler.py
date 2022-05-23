@@ -53,6 +53,7 @@ from ...ui.page import Page
 from .plugins import register
 from .ui_profiler import Ui_Profiler
 from ...modules.profiler.device import device_info
+from .logcat.tablelogcat import LogCat
 
 log = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ class Profiler(Page, Ui_Profiler):
         # 复制设备信息
         self.btn_copy_info.clicked.connect(self._copy_info)
 
-        # 档设备选择改变的时候更新连接按钮状态
+        # 当设备选择改变的时候更新连接按钮状态
         self.cbx_device.currentIndexChanged.connect(self._update_btn_status)  # 设备切换时更新
         self.cbx_device.currentIndexChanged.connect(
             self._update_device_info
@@ -117,6 +118,11 @@ class Profiler(Page, Ui_Profiler):
 
         self._init_plugins()
         self._update_btn_status()
+
+        self.logcat = LogCat(self)
+        self.verticalLayout_8.addWidget(self.logcat)
+
+
 
     def _init_plugins(self):
         self.reset_h_scrollbar()
@@ -394,6 +400,8 @@ class Profiler(Page, Ui_Profiler):
             self.clear_all_data()
             self.start_tick()
             self.btn_open.setEnabled(False)
+            print(11111)
+            self.logcat.start_catch(self.current_device.serial)
         else:
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
@@ -403,6 +411,7 @@ class Profiler(Page, Ui_Profiler):
             self.btn_record.setChecked(False)
             self.btn_open.setEnabled(True)
             self.record_range = [0, 0]
+            self.logcat.stop_catch()
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)

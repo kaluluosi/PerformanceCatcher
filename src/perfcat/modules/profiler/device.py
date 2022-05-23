@@ -12,7 +12,7 @@ def device_info(dev: Device) -> dict:
     info["名称"] = prop["ro.product.name"]  # 名称
     info["系统版本"] = prop["ro.build.version.release"]  # 系统版本
     info["SDK版本"] = prop["ro.build.version.sdk"]  # SDK版本
-    info["首选SDK版本"] = prop["ro.product.first_api_level"]  # 首选SDK版本
+    info["首选SDK版本"] = prop.get("ro.product.first_api_level","未知")  # 首选SDK版本
 
     info["CPU平台"] = prop["ro.board.platform"]
 

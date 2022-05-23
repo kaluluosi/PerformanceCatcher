@@ -1003,7 +1003,7 @@ QHeaderView {
                   <x>0</x>
                   <y>0</y>
                   <width>849</width>
-                  <height>448</height>
+                  <height>445</height>
                  </rect>
                 </property>
                 <property name="layoutDirection">
@@ -1081,12 +1081,18 @@ margin-right:5px;
                 <string>双击标签隐藏</string>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <property name="elideMode">
                 <enum>Qt::ElideLeft</enum>
                </property>
                <widget class="QWidget" name="tab_3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <attribute name="icon">
                  <iconset resource="../../asset.qrc">
                   <normaloff>:/icon_w/assets/svg_white/notification.svg</normaloff>
@@ -1095,6 +1101,7 @@ margin-right:5px;
                 <attribute name="title">
                  <string>LogCat</string>
                 </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_8"/>
                </widget>
                <widget class="QWidget" name="tab_4">
                 <attribute name="icon">
