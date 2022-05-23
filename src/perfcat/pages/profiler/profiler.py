@@ -23,6 +23,7 @@ import csv
 import time
 import json
 import os
+import io
 
 from perfcat.pages.profiler.plugins.base import MonitorChart
 from . import plugins
