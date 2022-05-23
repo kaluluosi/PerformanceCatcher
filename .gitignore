@@ -147,8 +147,6 @@ log.html
 report.html
 output.xml
 
-# VSCode
-.vscode/
 
 
 # End of https://www.toptal.com/developers/gitignore/api/python
