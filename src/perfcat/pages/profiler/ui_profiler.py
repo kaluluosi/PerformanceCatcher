@@ -801,7 +801,7 @@ class Ui_Profiler(object):
         self.monitor_scollarea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 445))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 438))
         self.scrollAreaWidgetContents.setLayoutDirection(Qt.LeftToRight)
         self.scrollAreaWidgetContents.setStyleSheet(u"#scrollAreaWidgetContents{\n"
 "margin-right:5px;\n"
@@ -842,6 +842,7 @@ class Ui_Profiler(object):
         self.tab_3.setSizePolicy(sizePolicy2)
         self.verticalLayout_8 = QVBoxLayout(self.tab_3)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.verticalLayout_8.setContentsMargins(4, 4, 4, 4)
         icon6 = QIcon()
         icon6.addFile(u":/icon_w/assets/svg_white/notification.svg", QSize(), QIcon.Normal, QIcon.Off)
         icon6.addFile(u":/icon_b/assets/svg_blue/notification.svg", QSize(), QIcon.Normal, QIcon.On)
