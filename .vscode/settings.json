@@ -12,5 +12,5 @@
     "qtForPython.lupdate.args": [
         "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
     ],
-    "qtForPython.lupdate.liveExecution": true,
+    "qtForPython.lupdate.liveExecution": false,
 }
