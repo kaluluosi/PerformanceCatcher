@@ -18,7 +18,6 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
     QHeaderView, QLabel, QLineEdit, QPushButton,
     QSizePolicy, QTableView, QVBoxLayout, QWidget)
-import asset_rc
 
 class Ui_Logcat(object):
     def setupUi(self, Logcat):
@@ -905,7 +904,7 @@ class Ui_Logcat(object):
 #endif
         self.adaptive.setPalette(palette3)
         icon = QIcon()
-        icon.addFile(u":/icon_w/assets/svg_white/IE.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/icon_w/assets/svg_white/loop.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.adaptive.setIcon(icon)
 
         self.horizontalLayout.addWidget(self.adaptive)
@@ -957,6 +956,9 @@ class Ui_Logcat(object):
         palette4.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
         self.save.setPalette(palette4)
+        icon1 = QIcon()
+        icon1.addFile(u":/icon_w/assets/svg_white/floppy-disk.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.save.setIcon(icon1)
 
         self.horizontalLayout.addWidget(self.save)
 
@@ -1007,6 +1009,9 @@ class Ui_Logcat(object):
         palette5.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
         self.empty.setPalette(palette5)
+        icon2 = QIcon()
+        icon2.addFile(u":/icon_w/assets/svg_white/bin.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.empty.setIcon(icon2)
 
         self.horizontalLayout.addWidget(self.empty)
 
