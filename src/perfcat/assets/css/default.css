@@ -621,3 +621,8 @@ color:black;
 Monitor QFrame {
 background-color: #1b1e23;
 }
+
+
+Logcat #container {
+    background-color: #343b48;
+}
