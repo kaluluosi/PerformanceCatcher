@@ -1,9 +1,14 @@
 from PySide6.QtCore import *
-import time
+from PySide6.QtGui import QColor
 
 class StringListModel(QAbstractTableModel):
 
     data_changed = Signal()
+
+    COL_DATE = 0
+    COL_TIME = 1
+    COL_PRIORITY = 4
+    COL_TAG = 5
 
     def __init__(self, data, HEADERS):
         super(StringListModel, self).__init__()
@@ -46,8 +51,12 @@ class StringListModel(QAbstractTableModel):
     def data(self, index, role=None):
         if role == Qt.DisplayRole:
             return self._data[index.row()][index.column()]
-        # elif role == Qt.DecorationRole:
-        #     pass
+        elif role == Qt.EditRole:   # 编辑时
+            return self._data[index.row()][index.column()]
+        if role == Qt.ForegroundRole:
+            # if index.column() == self.COL_PRIORITY:
+            if "E" in self._data[index.row()]:
+                return QColor('#df7e6b')
  
     def rowCount(self, parent=None, *args, **kwargs):
         """
@@ -83,3 +92,20 @@ class StringListModel(QAbstractTableModel):
         self.beginResetModel()
         self._data = []
         self.endResetModel()
+
+    def setData(self, index, value, role):
+        '''
+        设置单元格数据
+        '''
+        if role == Qt.EditRole:
+            value = self._data[index.row()][index.column()]
+            return True
+        return False
+
+    def flags(self, index):
+        '''
+        单元格的可操作性标志位，如可编辑，可选中等
+        '''
+        # if index.isValid():
+        #     return Qt.NoItemFlags
+        return Qt.ItemIsEnabled|Qt.ItemIsEditable

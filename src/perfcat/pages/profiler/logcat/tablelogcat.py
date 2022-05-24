@@ -3,6 +3,7 @@ from PySide6.QtWidgets import *
 from perfcat.pages.profiler.logcat.tablemodel import StringListModel
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+from perfcat.pages.profiler.logcat.SortFilterProxyModel import SortFilterProxyModel
 import subprocess
 import os
 import re
@@ -44,8 +45,11 @@ class WorkThread(QThread):
                 self.trigger.emit(data)
     
     def stop(self):
-        self.fal = not self.fal
-        self.process.kill()
+        try:
+            self.fal = False
+            self.process.kill()
+        except Exception:
+            print("未启动就关闭的日志线程！")
 
     # 用正则取出对应的数据
     def filter_rule(self, message):
@@ -100,6 +104,7 @@ class LogCat(QWidget, Ui_Logcat):
         self.empty.clicked.connect(self.remove_content)
         self.save.clicked.connect(self.save_log)
         self.tag_box.currentTextChanged.connect(self._tag_filter)
+        self.tag_box.editTextChanged.connect(self._tag_filter)
         self.tag_box.currentIndexChanged.connect(self.on_tableview_tag)
 
         # 初始化列宽
@@ -142,6 +147,7 @@ class LogCat(QWidget, Ui_Logcat):
     def update_text(self, message):
         self.str_list += message
         self.threads.insert_data(self.model, message)
+        self.tableView.resizeRowToContents(self.model.rowCount() - 1)
 
     # 重写键盘监听事件
     def keyPressEvent(self, event):
@@ -177,7 +183,7 @@ class LogCat(QWidget, Ui_Logcat):
         _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
         _visible_total = self.tableView.verticalScrollBar().pageStep()  # 表格可见的行数范围
         # 滚动条在底部某个范围时才触发实时显示底部内容
-        if _visible_first + _visible_total >= self.tableView.model().rowCount() - 21:
+        if _visible_first + _visible_total >= self.tableView.model().rowCount() - 25:
             # 保持滚动条在底部
             self.tableView.scrollToBottom()
 
@@ -220,13 +226,12 @@ class LogCat(QWidget, Ui_Logcat):
         completer.setFilterMode(Qt.MatchContains)
         self.tag_box.setCompleter(completer)
 
-    @Slot(int)
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
         self.logicalIndex   = logicalIndex      # 标题所在的列号下标
-        if logicalIndex in [0, 1, 6]:
+        if logicalIndex in [0, 1, 5, 6]:
             return
         self.menuValues     = QMenu(self)
-        self.signalMapper   = QSignalMapper(self)  
+        self.signalMapper   = QSignalMapper(self)
 
         # 获取当前列所有的数据
         valuesUnique = self.model.column_menu(self.logicalIndex)
@@ -256,7 +261,6 @@ class LogCat(QWidget, Ui_Logcat):
         # 循环执行（点击标题的坐标弹出菜单）
         self.menuValues.exec(QPoint(posX, posY))
 
-    @Slot()
     def on_actionAll_triggered(self):
         filterColumn = self.logicalIndex
         # 过滤规则
@@ -265,10 +269,8 @@ class LogCat(QWidget, Ui_Logcat):
         self.proxy.setFilterRegularExpression(filterString)        # 传入过滤规则
         self.proxy.setFilterKeyColumn(filterColumn)     # 过滤规则生效的列数
 
-    @Slot(int)
     def on_signalMapper_mapped(self, i):
         stringAction = self.signalMapper.mapping(i).text()  # 获取对应菜单列号的列名称
-        print(111, i, stringAction)
         filterColumn = self.logicalIndex
         filterString = QRegularExpression(  stringAction
                                         # Qt.CaseSensitive
@@ -277,7 +279,6 @@ class LogCat(QWidget, Ui_Logcat):
         self.proxy.setFilterRegularExpression(filterString)   
         self.proxy.setFilterKeyColumn(filterColumn)
 
-    @Slot(str)
     def on_tableview_content(self, text):
         search = QRegularExpression(    text
                                     # Qt.CaseInsensitive
@@ -286,7 +287,6 @@ class LogCat(QWidget, Ui_Logcat):
         self.proxy.setFilterRegularExpression(search)
         self.proxy.setFilterKeyColumn(6)
 
-    @Slot(int)
     def on_tableview_tag(self, index):
         _tag = self.tag_box.itemText(index)
         if _tag == "ALL":
@@ -297,9 +297,3 @@ class LogCat(QWidget, Ui_Logcat):
                                     )
         self.proxy.setFilterRegularExpression(search)
         self.proxy.setFilterKeyColumn(5)
-
-# if __name__=="__main__":
-#     app = QApplication([])
-#     calc = LogCat()
-#     calc.show()
-#     app.exec()
