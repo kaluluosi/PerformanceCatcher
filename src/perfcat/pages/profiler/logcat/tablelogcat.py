@@ -122,7 +122,7 @@ class LogCat(QWidget, Ui_Logcat):
 
         self.search.textChanged.connect(self.on_tableview_content)
 
-        self.proxy = QSortFilterProxyModel(self)
+        self.proxy = SortFilterProxyModel(self)
         self.proxy.setSourceModel(self.model)   # 传入需要处理的模型
         self.tableView.setModel(self.proxy)
 
@@ -266,8 +266,8 @@ class LogCat(QWidget, Ui_Logcat):
         # 过滤规则
         filterString = QRegularExpression("")   # 正则表达式（空字符则默认匹配全部）
 
-        self.proxy.setFilterRegularExpression(filterString)        # 传入过滤规则
         self.proxy.setFilterKeyColumn(filterColumn)     # 过滤规则生效的列数
+        self.proxy.setFilterRegularExpression(filterString)        # 传入过滤规则
 
     def on_signalMapper_mapped(self, i):
         stringAction = self.signalMapper.mapping(i).text()  # 获取对应菜单列号的列名称
@@ -276,16 +276,16 @@ class LogCat(QWidget, Ui_Logcat):
                                         # Qt.CaseSensitive
                                         # QRegularExpression.FixedString
                                         )
-        self.proxy.setFilterRegularExpression(filterString)   
         self.proxy.setFilterKeyColumn(filterColumn)
+        self.proxy.setFilterRegularExpression(filterString)   
 
     def on_tableview_content(self, text):
         search = QRegularExpression(    text
                                     # Qt.CaseInsensitive
                                     # QRegularExpression.RegExp
                                     )
-        self.proxy.setFilterRegularExpression(search)
         self.proxy.setFilterKeyColumn(6)
+        self.proxy.setFilterRegularExpression(search)
 
     def on_tableview_tag(self, index):
         _tag = self.tag_box.itemText(index)
@@ -295,5 +295,6 @@ class LogCat(QWidget, Ui_Logcat):
                                     # Qt.CaseInsensitive
                                     # QRegularExpression.RegExp
                                     )
-        self.proxy.setFilterRegularExpression(search)
         self.proxy.setFilterKeyColumn(5)
+        self.proxy.setFilterRegularExpression(search)
+        

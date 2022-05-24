@@ -1,68 +1,39 @@
-from PySide6.QtCore import Qt, QSortFilterProxyModel, QDate, QDateTime
-import re
-
-class MultiFilterMode:
-    AND = 0
-    OR = 1
+from PySide6.QtCore import Qt, QSortFilterProxyModel
 
 class SortFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, data, parent=None):
         super(SortFilterProxyModel, self).__init__(parent)
         self.role = Qt.DisplayRole
-        self.minDate = QDate()
-        self.maxDate = QDate()
-        self.__data = data
 
-    def setFilterMinimumDate(self, date):
-        self.minDate = date
-        self.invalidateFilter()
-
-    def filterMinimumDate(self):
-        return self.minDate
-
-    def setFilterMaximumDate(self, date):
-        self.maxDate = date
-        self.invalidateFilter()
-
-    def filterMaximumDate(self):
-        return self.maxDate
+        self.column = 0     # 最后操作过滤的列号
+        self.filter_list = {2:"", 3:"", 4:"", 5:""}   # 各列正在使用的正则表达式
+        self.filter6 = ""
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
-        # index0 = self.sourceModel().index(sourceRow, 0, sourceParent)
-        # index1 = self.sourceModel().index(sourceRow, 1, sourceParent)
-        index2 = self.sourceModel().index(sourceRow, 2, sourceParent)
-        index3 = self.sourceModel().index(sourceRow, 3, sourceParent)
-        index4 = self.sourceModel().index(sourceRow, 4, sourceParent)
-        index5 = self.sourceModel().index(sourceRow, 5, sourceParent)
-        print("index2", index2, self.filterRegExp().indexIn(self.sourceModel().data(index2, self.role)))
-        print("index3", index3, self.filterRegExp().indexIn(self.sourceModel().data(index3, self.role)))
-        print("index4", index4, self.filterRegExp().indexIn(self.sourceModel().data(index4, self.role)))
-        print("index5", index5, self.filterRegExp().indexIn(self.sourceModel().data(index5, self.role)))
-        return ((
-                self.filterRegExp().indexIn(self.sourceModel().data(index2, self.role)) >= 0
-                and self.filterRegExp().indexIn(self.sourceModel().data(index3, self.role)) >= 0
-                and self.filterRegExp().indexIn(self.sourceModel().data(index4, self.role)) >= 0
-                and self.filterRegExp().indexIn(self.sourceModel().data(index5, self.role)) >= 0
-        ))
+        '''
+        sourceRow : 行数
+        sourceParent ：
+        第7列（下标是6，消息内容）特殊处理，按照输入半匹配
+        '''
+        _reg_exp = self.filterRegularExpression().pattern()  # 当前正则
+        # text = self.sourceModel().data(index2, self.role)   # 单元格的内容
+        index6 = self.sourceModel().index(sourceRow, 6, sourceParent)
+        text6 = self.sourceModel().data(index6, self.role)
+        for i in self.filter_list:
+            index = self.sourceModel().index(sourceRow, i, sourceParent)
+            text = self.sourceModel().data(index, self.role)        # 单元格的内容
+            if i == self.column:
+                self.filter_list[i] = _reg_exp
+            # 多列过滤规则
+            if self.filter_list[i] != "" and self.filter_list[i] != text:
+                return False
+        if self.column == 6 and _reg_exp != "":
+            self.filter6 = _reg_exp
+        if self.filter6 != "":
+            if self.filter6 not in text6:
+                return False
+        return True
 
-    def lessThan(self, left, right):
-        leftData = self.sourceModel().data(left, self.role)
-        rightData = self.sourceModel().data(right, self.role)
-
-        if not isinstance(leftData, QDate):
-            emailPattern = QRegExp("([\\w\\.]*@[\\w\\.]*)")
-
-            if left.column() == 1 and emailPattern.indexIn(leftData) != -1:
-                leftData = emailPattern.cap(1)
-
-            if right.column() == 1 and emailPattern.indexIn(rightData) != -1:
-                rightData = emailPattern.cap(1)
-
-        return leftData < rightData
-
-    def dateInRange(self, date):
-        if isinstance(date, QDateTime):
-            date = date.date()
-
-        return ((not self.minDate.isValid() or date >= self.minDate)
-                and (not self.maxDate.isValid() or date <= self.maxDate))
+    def setFilterKeyColumn(self, column):
+        self.column = column
+        return column
