@@ -100,12 +100,18 @@ class LogCat(QWidget, Ui_Logcat):
         # 显示最后一行
         self.model.data_changed.connect(self.last_line)
 
-        self.adaptive.clicked.connect(self.adaptive_left)
         self.empty.clicked.connect(self.remove_content)
         self.save.clicked.connect(self.save_log)
         self.tag_box.currentTextChanged.connect(self._tag_filter)
         self.tag_box.editTextChanged.connect(self._tag_filter)
         self.tag_box.currentIndexChanged.connect(self.on_tableview_tag)
+
+        # 标记选中的图标
+        self.pick_on = QIcon()
+        self.pick_on.addFile(u":/icon/assets/svg/checkmark.svg", QSize(), QIcon.Normal, QIcon.Off)
+        # 标记未选中的图标
+        self.pick_not = QIcon()
+        # self.pick_not.addFile(u":/icon_w/assets/svg_white/cross.svg", QSize(), QIcon.Normal, QIcon.Off)
 
         # 初始化列宽
         self.tableView.setColumnWidth(0,40)
@@ -147,6 +153,7 @@ class LogCat(QWidget, Ui_Logcat):
     def update_text(self, message):
         self.str_list += message
         self.threads.insert_data(self.model, message)
+        # 自适应宽度
         self.tableView.resizeRowToContents(self.model.rowCount() - 1)
 
     # 重写键盘监听事件
@@ -180,21 +187,28 @@ class LogCat(QWidget, Ui_Logcat):
             return ""
 
     def last_line(self):
-        _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
-        _visible_total = self.tableView.verticalScrollBar().pageStep()  # 表格可见的行数范围
-        # 滚动条在底部某个范围时才触发实时显示底部内容
-        if _visible_first + _visible_total >= self.tableView.model().rowCount() - 25:
-            # 保持滚动条在底部
-            self.tableView.scrollToBottom()
-
-    # 自适应宽度
-    def adaptive_left(self):
-        self.tableView.resizeRowsToContents()   # 自动换行并适应行高
+        # _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
+        # _visible_total = self.tableView.verticalScrollBar().pageStep()  # 表格可见的行数范围
+        # # 滚动条在底部某个范围时才触发实时显示底部内容
+        # if _visible_first + _visible_total >= self.tableView.model().rowCount() - 25:
+        #     # 保持滚动条在底部
+        self.tableView.scrollToBottom()
 
     # 清空列表（删除所有行，除了标题）
     def remove_content(self):
         # self.model.removeRows(0, self.model.rowCount())
         self.model.removeRows()
+    
+    def icon_show(self, column, menu_con):
+        '''
+        传入2个参数（列数和菜单字符），返回需要创建的菜单图标
+
+        根据过滤model存储的对应列数传入的正则进行判断的
+        '''
+        if menu_con == self.proxy.filter_list[column]:
+            return self.pick_on
+        else:
+            return self.pick_not
 
     # 文件保存
     def save_log(self):
@@ -207,7 +221,8 @@ class LogCat(QWidget, Ui_Logcat):
             file.close()
         except Exception:
             QMessageBox.critical(self, "错误", "没有指定保存的文件名")
-    
+
+    # 标签过滤栏输入匹配
     def _tag_filter(self):
         _tag_list = self.model.column_menu(5)
         _item_list = [self.tag_box.itemText(i) for i in range(self.tag_box.count())]
@@ -246,6 +261,7 @@ class LogCat(QWidget, Ui_Logcat):
             if actionName == "":
                 continue
             action = QAction(actionName, self)
+            action.setIcon(self.icon_show(self.logicalIndex, actionName))
             # 设置转发规则，转发 QAction 类型的信号，并把对应的菜单列号作为实参传递
             self.signalMapper.setMapping(action, actionNumber)
             action.triggered.connect(self.signalMapper.map)  # 将菜单发送的原始信号传递给 signalmapper
