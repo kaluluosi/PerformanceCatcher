@@ -1975,7 +1975,7 @@ background-color: #343b48;
           </property>
           <property name="icon">
            <iconset resource="../../../asset.qrc">
-            <normaloff>:/icon_w/assets/svg_white/IE.svg</normaloff>:/icon_w/assets/svg_white/IE.svg</iconset>
+            <normaloff>:/icon_w/assets/svg_white/loop.svg</normaloff>:/icon_w/assets/svg_white/loop.svg</iconset>
           </property>
          </widget>
         </item>
@@ -2324,6 +2324,10 @@ background-color: #343b48;
           <property name="text">
            <string>保存</string>
           </property>
+          <property name="icon">
+           <iconset resource="../../../asset.qrc">
+            <normaloff>:/icon_w/assets/svg_white/floppy-disk.svg</normaloff>:/icon_w/assets/svg_white/floppy-disk.svg</iconset>
+          </property>
          </widget>
         </item>
         <item>
@@ -2670,6 +2674,10 @@ background-color: #343b48;
           </property>
           <property name="text">
            <string>清空</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../asset.qrc">
+            <normaloff>:/icon_w/assets/svg_white/bin.svg</normaloff>:/icon_w/assets/svg_white/bin.svg</iconset>
           </property>
          </widget>
         </item>
