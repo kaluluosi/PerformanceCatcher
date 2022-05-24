@@ -23,6 +23,9 @@ import csv
 import time
 import json
 import os
+import subprocess
+import pkg_resources
+from shutil import which
 
 from perfcat.pages.profiler.plugins.base import MonitorChart
 from . import plugins
@@ -73,6 +76,8 @@ class Profiler(Page, Ui_Profiler):
 
     # 当系统设备插拔的时候发出信号
     device_changed: SignalInstance = Signal()
+    # 初始化adb-server信号
+    adb_server_starting: SignalInstance = Signal()
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
@@ -122,7 +127,9 @@ class Profiler(Page, Ui_Profiler):
         self.logcat = LogCat(self)
         self.verticalLayout_8.addWidget(self.logcat)
 
-
+        self.adb_server_starting.connect(
+            lambda: self.notify("adb server 启动中...", ButtonStyle.warning)
+        )
 
     def _init_plugins(self):
         self.reset_h_scrollbar()
@@ -136,6 +143,18 @@ class Profiler(Page, Ui_Profiler):
             plugin.axis_range_size_changed.connect(self._sync_plugin_range_size)  # 缩放同步
             plugin.mark_line_changed.connect(self._sync_mark_line)  # 标线位置同步
             plugin.x_max_offset_changed.connect(self._sync_scroll_max)  # 滚动条同步最大x轴
+
+    def start_adb_server(self):
+        path = which("adb")
+        default_adb_path = pkg_resources.resource_filename("perfcat", "adb/adb.exe")
+        log.debug(f"系统adb:{path} 内置adb:{default_adb_path}")
+        path = path or default_adb_path
+        try:
+            self.adb.version()
+        except RuntimeError:
+            self.adb_server_starting.emit()
+            subprocess.call([path, "start-server"], shell=False)
+            log.debug(f"测试adb server:{self.adb.version()}")
 
     def reset_h_scrollbar(self):
         self.horizontalScrollBar.setMaximum(0)
@@ -292,11 +311,10 @@ class Profiler(Page, Ui_Profiler):
         def run():
             HotPlugWatcher.device_added.connect(self._on_device_add)
             HotPlugWatcher.device_removed.connect(self._on_device_removed)
-
-            self.devices = set(self.adb.devices(state="device"))
-
+            self.start_adb_server()
+            # self.devices = set(self.adb.devices(state="device"))
             self._update_devices_list()
-            log.debug(f"刷新设备列表 {self.devices}")
+            # log.debug(f"刷新设备列表 {self.devices}")
 
         thread.run = run
         thread.start()
