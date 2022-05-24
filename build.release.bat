@@ -4,6 +4,7 @@ nuitka ^
 --show-progress ^
 --plugin-enable=pyside6 ^
 --include-data-dir=src/perfcat/assets=perfcat/assets  ^
+--include-data-dir=src/perfcat/adb=perfcat/adb  ^
 --output-dir=dist\win ^
 --windows-disable-console ^
 --windows-icon-from-ico=src/perfcat/assets/logo.ico ^
