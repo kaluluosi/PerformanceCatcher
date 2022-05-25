@@ -1,5 +1,6 @@
 from PySide6.QtCore import *
 from PySide6.QtGui import QColor
+from perfcat.ui.constant import Color
 
 class StringListModel(QAbstractTableModel):
 
@@ -7,7 +8,7 @@ class StringListModel(QAbstractTableModel):
 
     COL_DATE = 0
     COL_TIME = 1
-    COL_PRIORITY = 4
+    COL_LEVEL = 4
     COL_TAG = 5
 
     def __init__(self, data, HEADERS):
@@ -55,8 +56,15 @@ class StringListModel(QAbstractTableModel):
             return self._data[index.row()][index.column()]
         if role == Qt.ForegroundRole:
             # if index.column() == self.COL_PRIORITY:
-            if "E" in self._data[index.row()]:
-                return QColor('#df7e6b')
+            level = self._data[index.row()][self.COL_LEVEL]
+            if "E" == level:
+                return QColor(Color['danger'])
+            elif "W" == level:
+                return QColor(Color['warning'])
+            elif "D" == level:
+                return QColor(Color['success'])
+            elif "I" == level:
+                return QColor(Color['info'])
  
     def rowCount(self, parent=None, *args, **kwargs):
         """

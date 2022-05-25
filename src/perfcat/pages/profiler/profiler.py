@@ -56,7 +56,7 @@ from ...ui.page import Page
 from .plugins import register
 from .ui_profiler import Ui_Profiler
 from ...modules.profiler.device import device_info
-from .logcat.tablelogcat import LogCat
+from .logcat.table_logcat import LogCat
 
 log = logging.getLogger(__name__)
 
