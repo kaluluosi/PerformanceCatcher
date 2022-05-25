@@ -801,7 +801,7 @@ class Ui_Profiler(object):
         self.monitor_scollarea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 438))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 445))
         self.scrollAreaWidgetContents.setLayoutDirection(Qt.LeftToRight)
         self.scrollAreaWidgetContents.setStyleSheet(u"#scrollAreaWidgetContents{\n"
 "margin-right:5px;\n"
@@ -902,7 +902,7 @@ class Ui_Profiler(object):
         self.btn_copy_info.setText(QCoreApplication.translate("Profiler", u"\u590d\u5236\u4fe1\u606f", None))
         self.tab_main.setTabText(self.tab_main.indexOf(self.tab), QCoreApplication.translate("Profiler", u"\u8bbe\u5907", None))
 #if QT_CONFIG(tooltip)
-        self.tab_console.setToolTip(QCoreApplication.translate("Profiler", u"\u53cc\u51fb\u6807\u7b7e\u9690\u85cf", None))
+        self.tab_console.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.tab_console.setTabText(self.tab_console.indexOf(self.tab_3), QCoreApplication.translate("Profiler", u"LogCat", None))
         self.tab_console.setTabText(self.tab_console.indexOf(self.tab_4), QCoreApplication.translate("Profiler", u"Cmd", None))

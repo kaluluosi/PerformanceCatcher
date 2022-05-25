@@ -1003,7 +1003,7 @@ QHeaderView {
                   <x>0</x>
                   <y>0</y>
                   <width>849</width>
-                  <height>438</height>
+                  <height>445</height>
                  </rect>
                 </property>
                 <property name="layoutDirection">
@@ -1078,7 +1078,7 @@ margin-right:5px;
              <item row="0" column="0">
               <widget class="QTabWidget" name="tab_console">
                <property name="toolTip">
-                <string>双击标签隐藏</string>
+                <string/>
                </property>
                <property name="currentIndex">
                 <number>0</number>

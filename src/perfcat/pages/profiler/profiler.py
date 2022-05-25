@@ -153,7 +153,8 @@ class Profiler(Page, Ui_Profiler):
             self.adb.version()
         except RuntimeError:
             self.adb_server_starting.emit()
-            subprocess.call([path, "start-server"], shell=False)
+            log.debug(f"启动adb命令:{[path, 'start-server']}")
+            subprocess.call([path, "start-server"], shell=True)
             log.debug(f"测试adb server:{self.adb.version()}")
 
     def reset_h_scrollbar(self):

@@ -12,8 +12,9 @@
 
 # # here put the import lib
 # # 设置环境变量切换成生产模式
-# import os
-# os.environ["MODE"] = "production"
+import os
+
+os.environ["MODE"] = "production"
 
 import sys
 from perfcat.app import PerfcatApplication

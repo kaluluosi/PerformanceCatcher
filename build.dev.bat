@@ -1,4 +1,3 @@
-set MODE=development &^
 nuitka ^
 --standalone ^
 --follow-imports ^
