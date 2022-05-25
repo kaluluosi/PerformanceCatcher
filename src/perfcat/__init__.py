@@ -26,19 +26,15 @@ asset_dir = pkg_resources.resource_filename(__package__, ".")
 sys.path.append(asset_dir)
 
 
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
-    import importlib_metadata
-
 # 读取和设置包的元信息
-__version__ = "0.2.0"
+__version__ = "1.0.0"
 __author__ = "dengxuan"
 __author_email__ = "dengxuan@xinyuanstu.com"
 __meta__ = {}
 
 try:
-    METADATA = pkg_resources.get_distribution("perfcat").get_metadata("METADATA")
+    # todo: nuitka运行时无法获取到perfcat这个包的元数据，不知道以后怎么解决
+    METADATA = pkg_resources.get_distribution(__package__).get_metadata("METADATA")
     msg = message_from_string(METADATA)
     __meta__ = MultiDict(msg)
     __version__ = __meta__["Version"]

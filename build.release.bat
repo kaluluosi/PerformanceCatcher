@@ -1,3 +1,4 @@
+set MODE=production &^
 nuitka ^
 --standalone ^
 --follow-imports ^
