@@ -1,4 +1,4 @@
-from msvcrt import setmode
+
 from perfcat.pages.profiler.logcat.view_model import StractViewModel
 from perfcat.pages.profiler.logcat.ui_logtable import Ui_Logcat
 from PySide6.QtWidgets import *
@@ -7,7 +7,6 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 from perfcat.pages.profiler.logcat.filter_proxy_model import SortFilterProxyModel
 import subprocess
-import os
 import re
 import logging
 
@@ -22,8 +21,7 @@ class WorkThread(QThread):
         super(WorkThread, self).__init__()
 
     def run(self):
-        # os.system("adb logcat -c")
-        subprocess.call("adb logcat -c", shell=True)
+        subprocess.call("adb -s {} logcat -c".format(self.serial), shell=True)
         self.process = subprocess.Popen(
             "adb -s {} logcat".format(self.serial),
             shell=True,
@@ -48,7 +46,6 @@ class WorkThread(QThread):
                 if self.process.poll() is not None:
                     break
             else:
-                # data = self.filter_rule(data)
                 self.trigger.emit(data)
 
     def stop(self):
@@ -56,7 +53,7 @@ class WorkThread(QThread):
             self.fal = False
             self.process.kill()
         except Exception:
-            print("未启动就关闭的日志线程！")
+            log.exception("未启动就关闭的日志线程！")
 
     # 用正则取出对应的数据
     def filter_rule(self, message):
@@ -80,15 +77,13 @@ class WorkThread(QThread):
                 _tag = ""
             return [_date, _time, _pid, _tid, _priority, _tag, _content]
         except Exception as e:
-            print(message)
+            log.exception(message)
             return -1
 
     # 把数据插入交给线程来做
     def insert_data(self, model, message):
         # message = self.filter_rule(message)
         # if message != -1:
-        _row = model.rowCount()
-        model.insertRow(_row)
         model.updateData(message)
 
 
@@ -209,7 +204,16 @@ class LogCat(QWidget, Ui_Logcat):
             return ""
 
     def last_line(self):
-        self.tableView.scrollToBottom()
+        _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
+        # _visible_total = self.tableView.verticalScrollBar().pageStep()  # 表格可见的行数范围
+        maxium = self.tableView.verticalScrollBar().maximum()
+        print(_visible_first, maxium)
+        # 滚动条在底部某个范围时才触发实时显示底部内容
+        # if _visible_first + _visible_total >= self.tableView.model().rowCount() - 10:
+        #     # 保持滚动条在底部
+        # self.tableView.scrollToBottom()
+        if abs(maxium - _visible_first) < 2:
+            QTimer.singleShot(0, self.tableView.scrollToBottom)
 
     # 清空列表（删除所有行，除了标题）
     def remove_content(self):
