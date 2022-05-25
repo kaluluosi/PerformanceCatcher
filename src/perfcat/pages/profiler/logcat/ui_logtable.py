@@ -710,23 +710,23 @@ class Ui_Logcat(object):
         self.verticalLayout.setContentsMargins(9, 9, 9, 9)
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.other = QLabel(self.container)
-        self.other.setObjectName(u"other")
+        self.lb_other = QLabel(self.container)
+        self.lb_other.setObjectName(u"lb_other")
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.other.sizePolicy().hasHeightForWidth())
-        self.other.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(self.lb_other.sizePolicy().hasHeightForWidth())
+        self.lb_other.setSizePolicy(sizePolicy)
 
-        self.horizontalLayout.addWidget(self.other)
+        self.horizontalLayout.addWidget(self.lb_other)
 
-        self.search = QLineEdit(self.container)
-        self.search.setObjectName(u"search")
+        self.le_search = QLineEdit(self.container)
+        self.le_search.setObjectName(u"le_search")
         sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.search.sizePolicy().hasHeightForWidth())
-        self.search.setSizePolicy(sizePolicy1)
+        sizePolicy1.setHeightForWidth(self.le_search.sizePolicy().hasHeightForWidth())
+        self.le_search.setSizePolicy(sizePolicy1)
         palette1 = QPalette()
         palette1.setBrush(QPalette.Active, QPalette.WindowText, brush)
         brush2 = QBrush(QColor(27, 30, 35, 255))
@@ -788,10 +788,10 @@ class Ui_Logcat(object):
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette1.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
-        self.search.setPalette(palette1)
-        self.search.setFrame(False)
+        self.le_search.setPalette(palette1)
+        self.le_search.setFrame(False)
 
-        self.horizontalLayout.addWidget(self.search)
+        self.horizontalLayout.addWidget(self.le_search)
 
         self.label = QLabel(self.container)
         self.label.setObjectName(u"label")
@@ -800,8 +800,8 @@ class Ui_Logcat(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.tag_box = QComboBox(self.container)
-        self.tag_box.setObjectName(u"tag_box")
+        self.cbx_tag = QComboBox(self.container)
+        self.cbx_tag.setObjectName(u"cbx_tag")
         palette2 = QPalette()
         palette2.setBrush(QPalette.Active, QPalette.WindowText, brush)
         palette2.setBrush(QPalette.Active, QPalette.Button, brush2)
@@ -852,14 +852,15 @@ class Ui_Logcat(object):
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette2.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
-        self.tag_box.setPalette(palette2)
-        self.tag_box.setEditable(True)
+        self.cbx_tag.setPalette(palette2)
+        self.cbx_tag.setFocusPolicy(Qt.WheelFocus)
+        self.cbx_tag.setEditable(True)
 
-        self.horizontalLayout.addWidget(self.tag_box)
+        self.horizontalLayout.addWidget(self.cbx_tag)
 
-        self.save = QPushButton(self.container)
-        self.save.setObjectName(u"save")
-        self.save.setMaximumSize(QSize(100, 36))
+        self.btn_save = QPushButton(self.container)
+        self.btn_save.setObjectName(u"btn_save")
+        self.btn_save.setMaximumSize(QSize(100, 36))
         palette3 = QPalette()
         palette3.setBrush(QPalette.Active, QPalette.WindowText, brush)
         palette3.setBrush(QPalette.Active, QPalette.Button, brush2)
@@ -903,16 +904,16 @@ class Ui_Logcat(object):
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette3.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
-        self.save.setPalette(palette3)
+        self.btn_save.setPalette(palette3)
         icon = QIcon()
         icon.addFile(u":/icon_w/assets/svg_white/floppy-disk.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.save.setIcon(icon)
+        self.btn_save.setIcon(icon)
 
-        self.horizontalLayout.addWidget(self.save)
+        self.horizontalLayout.addWidget(self.btn_save)
 
-        self.empty = QPushButton(self.container)
-        self.empty.setObjectName(u"empty")
-        self.empty.setMaximumSize(QSize(100, 36))
+        self.btn_empty = QPushButton(self.container)
+        self.btn_empty.setObjectName(u"btn_empty")
+        self.btn_empty.setMaximumSize(QSize(100, 36))
         palette4 = QPalette()
         palette4.setBrush(QPalette.Active, QPalette.WindowText, brush)
         palette4.setBrush(QPalette.Active, QPalette.Button, brush2)
@@ -956,12 +957,12 @@ class Ui_Logcat(object):
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette4.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
-        self.empty.setPalette(palette4)
+        self.btn_empty.setPalette(palette4)
         icon1 = QIcon()
         icon1.addFile(u":/icon_w/assets/svg_white/bin.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.empty.setIcon(icon1)
+        self.btn_empty.setIcon(icon1)
 
-        self.horizontalLayout.addWidget(self.empty)
+        self.horizontalLayout.addWidget(self.btn_empty)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -1033,9 +1034,9 @@ class Ui_Logcat(object):
 #if QT_CONFIG(tooltip)
         Logcat.setToolTip(QCoreApplication.translate("Logcat", u"11111", None))
 #endif // QT_CONFIG(tooltip)
-        self.other.setText(QCoreApplication.translate("Logcat", u"\u641c\u7d22\u5185\u5bb9\uff1a", None))
+        self.lb_other.setText(QCoreApplication.translate("Logcat", u"\u641c\u7d22\u5185\u5bb9\uff1a", None))
         self.label.setText(QCoreApplication.translate("Logcat", u"\u6807\u7b7e\u8fc7\u6ee4\uff1a", None))
-        self.save.setText(QCoreApplication.translate("Logcat", u"\u4fdd\u5b58", None))
-        self.empty.setText(QCoreApplication.translate("Logcat", u"\u6e05\u7a7a", None))
+        self.btn_save.setText(QCoreApplication.translate("Logcat", u"\u4fdd\u5b58", None))
+        self.btn_empty.setText(QCoreApplication.translate("Logcat", u"\u6e05\u7a7a", None))
     # retranslateUi
 

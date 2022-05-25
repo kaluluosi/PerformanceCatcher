@@ -27,10 +27,10 @@ class SortFilterProxyModel(QSortFilterProxyModel):
             # 多列过滤规则
             if self.filter_list[i] != "" and self.filter_list[i] != text:
                 return False
-        if self.column == 6 and _reg_exp != "":
+        if self.column == 6:
             self.filter6 = _reg_exp
         if self.filter6 != "":
-            if self.filter6 not in text6:
+            if self.filter6.casefold() not in text6.casefold():
                 return False
         return True
 
