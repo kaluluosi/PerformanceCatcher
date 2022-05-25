@@ -1032,7 +1032,7 @@ class Ui_Logcat(object):
     def retranslateUi(self, Logcat):
         Logcat.setWindowTitle(QCoreApplication.translate("Logcat", u"Form", None))
 #if QT_CONFIG(tooltip)
-        Logcat.setToolTip(QCoreApplication.translate("Logcat", u"11111", None))
+        Logcat.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.lb_other.setText(QCoreApplication.translate("Logcat", u"\u641c\u7d22\u5185\u5bb9\uff1a", None))
         self.label.setText(QCoreApplication.translate("Logcat", u"\u6807\u7b7e\u8fc7\u6ee4\uff1a", None))

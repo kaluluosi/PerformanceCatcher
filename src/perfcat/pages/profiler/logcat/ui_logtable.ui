@@ -225,7 +225,7 @@
    <string>Form</string>
   </property>
   <property name="toolTip">
-   <string>11111</string>
+   <string/>
   </property>
   <property name="styleSheet">
    <string notr="true">*{
