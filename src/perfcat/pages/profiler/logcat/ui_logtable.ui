@@ -888,7 +888,7 @@ background-color: #343b48;
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="other">
+         <widget class="QLabel" name="lb_other">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -901,7 +901,7 @@ background-color: #343b48;
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="search">
+         <widget class="QLineEdit" name="le_search">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1261,7 +1261,7 @@ background-color: #343b48;
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="tag_box">
+         <widget class="QComboBox" name="cbx_tag">
           <property name="palette">
            <palette>
             <active>
@@ -1623,13 +1623,16 @@ background-color: #343b48;
             </disabled>
            </palette>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::WheelFocus</enum>
+          </property>
           <property name="editable">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="save">
+         <widget class="QPushButton" name="btn_save">
           <property name="maximumSize">
            <size>
             <width>100</width>
@@ -1980,7 +1983,7 @@ background-color: #343b48;
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="empty">
+         <widget class="QPushButton" name="btn_empty">
           <property name="maximumSize">
            <size>
             <width>100</width>

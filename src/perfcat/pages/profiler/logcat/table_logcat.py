@@ -1,12 +1,17 @@
+from msvcrt import setmode
+from perfcat.pages.profiler.logcat.view_model import StractViewModel
 from perfcat.pages.profiler.logcat.ui_logtable import Ui_Logcat
 from PySide6.QtWidgets import *
-from perfcat.pages.profiler.logcat.tablemodel import StringListModel
+from perfcat.pages.profiler.logcat.table_model import StringListModel
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-from perfcat.pages.profiler.logcat.SortFilterProxyModel import SortFilterProxyModel
+from perfcat.pages.profiler.logcat.filter_proxy_model import SortFilterProxyModel
 import subprocess
 import os
 import re
+import logging
+
+log = logging.getLogger(__name__)
 
 class WorkThread(QThread):
     # 实例化一个信号对象，类变量，需要定义在函数体外
@@ -78,11 +83,11 @@ class WorkThread(QThread):
 
     # 把数据插入交给线程来做
     def insert_data(self, model, message):
-        message = self.filter_rule(message)
-        if message != -1:
-            _row = model.rowCount()
-            model.insertRow(_row)
-            model.updateData(message)
+        # message = self.filter_rule(message)
+        # if message != -1:
+        _row = model.rowCount()
+        model.insertRow(_row)
+        model.updateData(message)
 
 class LogCat(QWidget, Ui_Logcat):
     def __init__(self, parent=None):
@@ -93,19 +98,29 @@ class LogCat(QWidget, Ui_Logcat):
         self.str_list = ""  # 全部日志记录（字符串）
 
         self.tableView.wordWrap = True
-
+        # 表格model
         self.model = StringListModel([], ['日期', '时间', 'PID', 'TID', '优先级', '标签','消息'])
         self.tableView.setModel(self.model)
+
+        # 下拉框列表model
+        self.drop_down = StractViewModel()
+        self.cbx_tag.setModel(self.drop_down)
+        completer = QCompleter(self.drop_down,self.cbx_tag)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchContains)
+        self.cbx_tag.setCompleter(completer)
 
         # 显示最后一行
         self.model.data_changed.connect(self.last_line)
 
-        self.adaptive.clicked.connect(self.adaptive_left)
-        self.empty.clicked.connect(self.remove_content)
-        self.save.clicked.connect(self.save_log)
-        self.tag_box.currentTextChanged.connect(self._tag_filter)
-        self.tag_box.editTextChanged.connect(self._tag_filter)
-        self.tag_box.currentIndexChanged.connect(self.on_tableview_tag)
+        self.btn_empty.clicked.connect(self.remove_content)
+        self.btn_save.clicked.connect(self.save_log)
+        self.le_search.textChanged.connect(self.on_tableview_content)
+        self.cbx_tag.editTextChanged.connect(self.on_tableview_tag)
+
+        # 标记选中的图标
+        self.pick_on = QIcon()
+        self.pick_on.addFile(u":/icon/assets/svg/checkmark.svg", QSize(), QIcon.Normal, QIcon.Off)
 
         # 初始化列宽
         self.tableView.setColumnWidth(0,40)
@@ -117,11 +132,7 @@ class LogCat(QWidget, Ui_Logcat):
         # 创建线程
         self.threads = WorkThread(self)
         self.threads.trigger.connect(self.update_text)  # 当信号接收到消息时，更新数据
-
-        # self.tableView.horizontalHeader().setStretchLastSection(True)  # 占满表格可用的宽度（一般最后一行）
-
-        self.search.textChanged.connect(self.on_tableview_content)
-
+        # 过滤模型
         self.proxy = SortFilterProxyModel(self)
         self.proxy.setSourceModel(self.model)   # 传入需要处理的模型
         self.tableView.setModel(self.proxy)
@@ -146,8 +157,13 @@ class LogCat(QWidget, Ui_Logcat):
 
     def update_text(self, message):
         self.str_list += message
-        self.threads.insert_data(self.model, message)
-        self.tableView.resizeRowToContents(self.model.rowCount() - 1)
+        _message = self.threads.filter_rule(message)
+        if _message != -1:
+            self.threads.insert_data(self.model, _message)
+            # 自适应宽度
+            self.tableView.resizeRowToContents(self.model.rowCount() - 1)
+            # 更新标签过滤的列表
+            self.drop_down.update_one_data(_message[5])
 
     # 重写键盘监听事件
     def keyPressEvent(self, event):
@@ -176,25 +192,27 @@ class LogCat(QWidget, Ui_Logcat):
                 text += (indexes_dict[i] +"\n")
             return text
         except BaseException as e:
-            print(e)
+            log.exception(e)
             return ""
 
     def last_line(self):
-        _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
-        _visible_total = self.tableView.verticalScrollBar().pageStep()  # 表格可见的行数范围
-        # 滚动条在底部某个范围时才触发实时显示底部内容
-        if _visible_first + _visible_total >= self.tableView.model().rowCount() - 25:
-            # 保持滚动条在底部
-            self.tableView.scrollToBottom()
-
-    # 自适应宽度
-    def adaptive_left(self):
-        self.tableView.resizeRowsToContents()   # 自动换行并适应行高
+        self.tableView.scrollToBottom()
 
     # 清空列表（删除所有行，除了标题）
     def remove_content(self):
         # self.model.removeRows(0, self.model.rowCount())
         self.model.removeRows()
+    
+    def icon_show(self, column, menu_con):
+        '''
+        传入2个参数（列数和菜单字符），返回需要创建的菜单图标
+
+        根据过滤model存储的对应列数传入的正则进行判断的
+        '''
+        if menu_con == self.proxy.filter_list[column]:
+            return self.pick_on
+        else:
+            return QIcon()
 
     # 文件保存
     def save_log(self):
@@ -207,24 +225,6 @@ class LogCat(QWidget, Ui_Logcat):
             file.close()
         except Exception:
             QMessageBox.critical(self, "错误", "没有指定保存的文件名")
-    
-    def _tag_filter(self):
-        _tag_list = self.model.column_menu(5)
-        _item_list = [self.tag_box.itemText(i) for i in range(self.tag_box.count())]
-        if len(_tag_list) == 0 or len(_tag_list) == len(_item_list):
-            return
-        _con = []
-        for i in _tag_list:
-            if i not in _item_list and i not in _con:
-                if i == "" and "ALL" not in _con and "ALL" not in _item_list:
-                    _con.append("ALL")
-                elif i != "":
-                    _con.append(i)
-        self.tag_box.addItems(_con)
-        completer = QCompleter(_con, self.tag_box)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        self.tag_box.setCompleter(completer)
 
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
         self.logicalIndex   = logicalIndex      # 标题所在的列号下标
@@ -246,6 +246,7 @@ class LogCat(QWidget, Ui_Logcat):
             if actionName == "":
                 continue
             action = QAction(actionName, self)
+            action.setIcon(self.icon_show(self.logicalIndex, actionName))
             # 设置转发规则，转发 QAction 类型的信号，并把对应的菜单列号作为实参传递
             self.signalMapper.setMapping(action, actionNumber)
             action.triggered.connect(self.signalMapper.map)  # 将菜单发送的原始信号传递给 signalmapper
@@ -272,29 +273,20 @@ class LogCat(QWidget, Ui_Logcat):
     def on_signalMapper_mapped(self, i):
         stringAction = self.signalMapper.mapping(i).text()  # 获取对应菜单列号的列名称
         filterColumn = self.logicalIndex
-        filterString = QRegularExpression(  stringAction
-                                        # Qt.CaseSensitive
-                                        # QRegularExpression.FixedString
-                                        )
+        filterString = QRegularExpression( stringAction)
         self.proxy.setFilterKeyColumn(filterColumn)
-        self.proxy.setFilterRegularExpression(filterString)   
+        self.proxy.setFilterRegularExpression(filterString)
 
     def on_tableview_content(self, text):
-        search = QRegularExpression(    text
-                                    # Qt.CaseInsensitive
-                                    # QRegularExpression.RegExp
-                                    )
+        search = QRegularExpression(text)
         self.proxy.setFilterKeyColumn(6)
         self.proxy.setFilterRegularExpression(search)
 
-    def on_tableview_tag(self, index):
-        _tag = self.tag_box.itemText(index)
-        if _tag == "ALL":
+    def on_tableview_tag(self, text):
+        _tag = text
+        if _tag == "ALL" or _tag == "":
             _tag = ""
-        search = QRegularExpression(    _tag
-                                    # Qt.CaseInsensitive
-                                    # QRegularExpression.RegExp
-                                    )
+        search = QRegularExpression(_tag)
         self.proxy.setFilterKeyColumn(5)
         self.proxy.setFilterRegularExpression(search)
         
