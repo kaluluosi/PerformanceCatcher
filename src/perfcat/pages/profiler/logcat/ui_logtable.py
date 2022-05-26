@@ -858,6 +858,15 @@ class Ui_Logcat(object):
 
         self.horizontalLayout.addWidget(self.cbx_tag)
 
+        self.btn_start = QPushButton(self.container)
+        self.btn_start.setObjectName(u"btn_start")
+        self.btn_start.setMaximumSize(QSize(100, 36))
+        icon = QIcon()
+        icon.addFile(u":/icon_w/assets/svg_white/edge.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_start.setIcon(icon)
+
+        self.horizontalLayout.addWidget(self.btn_start)
+
         self.btn_save = QPushButton(self.container)
         self.btn_save.setObjectName(u"btn_save")
         self.btn_save.setMaximumSize(QSize(100, 36))
@@ -905,9 +914,9 @@ class Ui_Logcat(object):
         palette3.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
         self.btn_save.setPalette(palette3)
-        icon = QIcon()
-        icon.addFile(u":/icon_w/assets/svg_white/floppy-disk.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_save.setIcon(icon)
+        icon1 = QIcon()
+        icon1.addFile(u":/icon_w/assets/svg_white/floppy-disk.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_save.setIcon(icon1)
 
         self.horizontalLayout.addWidget(self.btn_save)
 
@@ -958,9 +967,9 @@ class Ui_Logcat(object):
         palette4.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
         self.btn_empty.setPalette(palette4)
-        icon1 = QIcon()
-        icon1.addFile(u":/icon_w/assets/svg_white/bin.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_empty.setIcon(icon1)
+        icon2 = QIcon()
+        icon2.addFile(u":/icon_w/assets/svg_white/bin.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_empty.setIcon(icon2)
 
         self.horizontalLayout.addWidget(self.btn_empty)
 
@@ -1036,6 +1045,7 @@ class Ui_Logcat(object):
 #endif // QT_CONFIG(tooltip)
         self.lb_other.setText(QCoreApplication.translate("Logcat", u"\u641c\u7d22\u5185\u5bb9\uff1a", None))
         self.label.setText(QCoreApplication.translate("Logcat", u"\u6807\u7b7e\u8fc7\u6ee4\uff1a", None))
+        self.btn_start.setText(QCoreApplication.translate("Logcat", u"\u542f\u52a8", None))
         self.btn_save.setText(QCoreApplication.translate("Logcat", u"\u4fdd\u5b58", None))
         self.btn_empty.setText(QCoreApplication.translate("Logcat", u"\u6e05\u7a7a", None))
     # retranslateUi

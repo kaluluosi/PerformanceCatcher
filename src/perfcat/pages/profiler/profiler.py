@@ -420,7 +420,7 @@ class Profiler(Page, Ui_Profiler):
             self.start_tick()
             self.btn_open.setEnabled(False)
             print(11111)
-            self.logcat.start_catch(self.current_device.serial)
+            self.logcat.serial = self.current_device.serial
         else:
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
@@ -430,7 +430,7 @@ class Profiler(Page, Ui_Profiler):
             self.btn_record.setChecked(False)
             self.btn_open.setEnabled(True)
             self.record_range = [0, 0]
-            self.logcat.stop_catch()
+            # self.logcat.stop_catch()
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)

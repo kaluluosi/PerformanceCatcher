@@ -17,6 +17,8 @@ class WorkThread(QThread):
     # 实例化一个信号对象，类变量，需要定义在函数体外
     trigger = Signal(object)
 
+    log_list = []
+
     def __int__(self, model):
         super(WorkThread, self).__init__()
 
@@ -46,7 +48,8 @@ class WorkThread(QThread):
                 if self.process.poll() is not None:
                     break
             else:
-                self.trigger.emit(data)
+                # self.trigger.emit(data)
+                self.log_list.append(data)
 
     def stop(self):
         try:
@@ -55,30 +58,36 @@ class WorkThread(QThread):
         except Exception:
             log.exception("未启动就关闭的日志线程！")
 
+    def trigger_signal(self):
+        _log_list = self.log_list
+        self.log_list = []
+        self.trigger.emit(_log_list)
+        QApplication.instance().processEvents()
+
     # 用正则取出对应的数据
-    def filter_rule(self, message):
-        try:
-            r = re.search("(.*[0-9\s][VISFEWD]\s.*?):\s(.*)", message)
-            try:
-                _data_list = r.group(1).split(" ")
-            except Exception:
-                return ["", "", "", "", "", "", message]
-            while "" in _data_list:
-                _data_list.remove("")
-            _content = r.group(2)
-            _date = _data_list[0]
-            _time = _data_list[1]
-            _pid = _data_list[2]
-            _tid = _data_list[3]
-            _priority = _data_list[4]
-            try:
-                _tag = _data_list[5]
-            except Exception:
-                _tag = ""
-            return [_date, _time, _pid, _tid, _priority, _tag, _content]
-        except Exception as e:
-            log.exception(message)
-            return -1
+    # def filter_rule(self, message):
+    #     try:
+    #         r = re.search("(.*[0-9\s][VISFEWD]\s.*?):\s(.*)", message)
+    #         try:
+    #             _data_list = r.group(1).split(" ")
+    #         except Exception:
+    #             return ["", "", "", "", "", "", message]
+    #         while "" in _data_list:
+    #             _data_list.remove("")
+    #         _content = r.group(2)
+    #         _date = _data_list[0]
+    #         _time = _data_list[1]
+    #         _pid = _data_list[2]
+    #         _tid = _data_list[3]
+    #         _priority = _data_list[4]
+    #         try:
+    #             _tag = _data_list[5]
+    #         except Exception:
+    #             _tag = ""
+    #         return [_date, _time, _pid, _tid, _priority, _tag, _content]
+    #     except Exception as e:
+    #         log.exception(message)
+    #         return -1
 
     # 把数据插入交给线程来做
     def insert_data(self, model, message):
@@ -91,9 +100,11 @@ class LogCat(QWidget, Ui_Logcat):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.setStyleSheet("")
 
         self.log_list_gain = []  # 全部日志记录（列表）
         self.str_list = ""  # 全部日志记录（字符串）
+        self.serial = ""    # 设备名称
 
         self.tableView.wordWrap = True
         # 表格model
@@ -111,6 +122,7 @@ class LogCat(QWidget, Ui_Logcat):
         # 显示最后一行
         self.model.data_changed.connect(self.last_line)
 
+        self.btn_start.clicked.connect(self.start_catch)
         self.btn_empty.clicked.connect(self.remove_content)
         self.btn_save.clicked.connect(self.save_log)
         self.le_search.editingFinished.connect(lambda: self.on_tableview_content(self.le_search.text()))
@@ -132,6 +144,9 @@ class LogCat(QWidget, Ui_Logcat):
         # 创建线程
         self.threads = WorkThread(self)
         self.threads.trigger.connect(self.update_text)  # 当信号接收到消息时，更新数据
+
+        self.time_gain = QTimer(self)
+        self.time_gain.timeout.connect(self.threads.trigger_signal)
         # 过滤模型
         self.proxy = SortFilterProxyModel(self)
         self.proxy.setSourceModel(self.model)  # 传入需要处理的模型
@@ -149,23 +164,37 @@ class LogCat(QWidget, Ui_Logcat):
         )
 
     # 启动函数（跟随设备启动）
-    def start_catch(self, serial):
-        self.threads.serial = serial
-        self.threads.start()
+    def start_catch(self):
+        if self.btn_start.text() == "启动":
+            self.btn_start.setText("停止")
+            self.threads.serial = self.serial
+            self.threads.start()
+            self.time_gain.start(2000)
+        else:
+            self.btn_start.setText("启动")
+            self.stop_catch()
 
     # 关闭日志（跟随设备）
     def stop_catch(self):
+        self.time_gain.stop()
         self.threads.stop()
 
     def update_text(self, message):
-        self.str_list += message
-        _message = self.threads.filter_rule(message)
-        if _message != -1:
-            self.threads.insert_data(self.model, _message)
-            # 自适应宽度
-            self.tableView.resizeRowToContents(self.model.rowCount() - 1)
-            # 更新标签过滤的列表
-            self.drop_down.update_one_data(_message[5])
+        # self.str_list += message
+        # _message = self.threads.filter_rule(message)
+        # if _message != -1:
+        #     self.threads.insert_data(self.model, _message)
+        #     # 自适应宽度
+        #     self.tableView.resizeRowToContents(self.model.rowCount() - 1)
+        #     # 更新标签过滤的列表
+        #     self.drop_down.update_one_data(_message[5])
+        start_line = self.model.rowCount()
+        self.model.updateData(message)
+        end_line = self.model.rowCount()
+        # 自适应宽度
+        for i in range(start_line-1, end_line):
+            self.tableView.resizeRowToContents(i)
+        QApplication.instance().processEvents()
 
     # 重写键盘监听事件
     def keyPressEvent(self, event):
@@ -205,13 +234,7 @@ class LogCat(QWidget, Ui_Logcat):
 
     def last_line(self):
         _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
-        # _visible_total = self.tableView.verticalScrollBar().pageStep()  # 表格可见的行数范围
         maxium = self.tableView.verticalScrollBar().maximum()
-        print(_visible_first, maxium)
-        # 滚动条在底部某个范围时才触发实时显示底部内容
-        # if _visible_first + _visible_total >= self.tableView.model().rowCount() - 10:
-        #     # 保持滚动条在底部
-        # self.tableView.scrollToBottom()
         if abs(maxium - _visible_first) < 2:
             QTimer.singleShot(0, self.tableView.scrollToBottom)
 
@@ -239,7 +262,6 @@ class LogCat(QWidget, Ui_Logcat):
                 self, "文件保存", "/", "log(*.log)"
             )
             file = open(filepath, "w", encoding="utf-8")
-            print(filepath)
             file.write(_log)
             file.close()
         except Exception:
