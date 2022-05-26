@@ -113,7 +113,7 @@ class LogCat(QWidget, Ui_Logcat):
 
         self.btn_empty.clicked.connect(self.remove_content)
         self.btn_save.clicked.connect(self.save_log)
-        self.le_search.textChanged.connect(self.on_tableview_content)
+        self.le_search.editingFinished.connect(lambda: self.on_tableview_content(self.le_search.text()))
         self.cbx_tag.editTextChanged.connect(self.on_tableview_tag)
 
         # 标记选中的图标
