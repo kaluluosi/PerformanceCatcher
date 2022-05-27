@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 from ppadb.device import Device
 
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QApplication, QWidget, QFileDialog, QMessageBox
 from PySide6.QtCore import Qt, QSortFilterProxyModel
 from .ui_logcat import Ui_Logcat
 from .log_model import LogModel, LogSortFilterProxyModel
@@ -47,10 +47,28 @@ class LogcatWidget(QWidget, Ui_Logcat):
                 self.le_tag.text(), LogModel.COL_TAG
             )
         )
+        self.cbx_priority.activated.connect(
+            lambda: self.proxy_model.set_filter_by_column(
+                self.cbx_priority.currentText(), LogModel.COL_LEVEL
+            )
+        )
 
         # 列表右键菜单
         self.tbv_logs.addAction(self.action_copy)
         self.action_copy.triggered.connect(self._on_log_copy)
+
+        # 保存内容
+        self.btn_save.clicked.connect(self._on_btn_save)
+        
+        # 清空内容
+        self.btn_clear.clicked.connect(self.origin_model.clear)
+
+        # 初始化前5列的列宽
+        self.tbv_logs.setColumnWidth(0, 40)
+        self.tbv_logs.setColumnWidth(1, 80)
+        self.tbv_logs.setColumnWidth(2, 45)
+        self.tbv_logs.setColumnWidth(3, 45)
+        self.tbv_logs.setColumnWidth(4, 45)
 
     @property
     def device(self):
@@ -94,6 +112,20 @@ class LogcatWidget(QWidget, Ui_Logcat):
         if self._auto_scroll_to_bottom:
             self.tbv_logs.scrollToBottom()
 
+    def _on_btn_save(self):
+        text = self.origin_model.log_text()
+        try:
+            filepath, type = QFileDialog.getSaveFileName(
+                self, "文件保存", "/", "log(*.log)"
+            )
+            file = open(filepath, "w", encoding="utf-8")
+            log.debug(f"保存的文件路径：{filepath}")
+            file.writelines(text)
+            file.close()
+        except Exception:
+            QMessageBox.critical(self, "错误", "没有指定保存的文件名")
+
+        
 
 if __name__ == "__main__":
 

@@ -103,6 +103,14 @@ class LogModel(QAbstractTableModel):
 
         return "\n".join(lines)
 
+    def log_text(self):
+        lines = []
+        for each_row in self._logs:
+            line = '  '.join(each_row) + "\n"
+            lines.append(line)
+        
+        return lines
+
 
 class LogSortFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):

@@ -16,9 +16,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QHBoxLayout,
-    QHeaderView, QLineEdit, QPushButton, QSizePolicy,
-    QTableView, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QFrame,
+    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
+    QPushButton, QSizePolicy, QTableView, QVBoxLayout,
+    QWidget)
 import asset_rc
 
 class Ui_Logcat(object):
@@ -683,17 +684,44 @@ class Ui_Logcat(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label = QLabel(self.container)
+        self.label.setObjectName(u"label")
+
+        self.horizontalLayout.addWidget(self.label)
+
         self.le_search = QLineEdit(self.container)
         self.le_search.setObjectName(u"le_search")
         self.le_search.setMaximumSize(QSize(16777215, 36))
 
         self.horizontalLayout.addWidget(self.le_search)
 
+        self.lb_tag = QLabel(self.container)
+        self.lb_tag.setObjectName(u"lb_tag")
+
+        self.horizontalLayout.addWidget(self.lb_tag)
+
         self.le_tag = QLineEdit(self.container)
         self.le_tag.setObjectName(u"le_tag")
         self.le_tag.setMaximumSize(QSize(16777215, 36))
 
         self.horizontalLayout.addWidget(self.le_tag)
+
+        self.lb_priority = QLabel(self.container)
+        self.lb_priority.setObjectName(u"lb_priority")
+
+        self.horizontalLayout.addWidget(self.lb_priority)
+
+        self.cbx_priority = QComboBox(self.container)
+        self.cbx_priority.addItem("")
+        self.cbx_priority.addItem("")
+        self.cbx_priority.addItem("")
+        self.cbx_priority.addItem("")
+        self.cbx_priority.addItem("")
+        self.cbx_priority.addItem("")
+        self.cbx_priority.addItem("")
+        self.cbx_priority.setObjectName(u"cbx_priority")
+
+        self.horizontalLayout.addWidget(self.cbx_priority)
 
         self.btn_start = QPushButton(self.container)
         self.btn_start.setObjectName(u"btn_start")
@@ -737,6 +765,7 @@ class Ui_Logcat(object):
         self.tbv_logs.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tbv_logs.setTextElideMode(Qt.ElideRight)
         self.tbv_logs.setCornerButtonEnabled(False)
+        self.tbv_logs.horizontalHeader().setDefaultSectionSize(100)
         self.tbv_logs.horizontalHeader().setProperty("showSortIndicator", True)
         self.tbv_logs.horizontalHeader().setStretchLastSection(True)
         self.tbv_logs.verticalHeader().setVisible(False)
@@ -755,6 +784,17 @@ class Ui_Logcat(object):
     def retranslateUi(self, Logcat):
         Logcat.setWindowTitle(QCoreApplication.translate("Logcat", u"Form", None))
         self.action_copy.setText(QCoreApplication.translate("Logcat", u"\u590d\u5236", None))
+        self.label.setText(QCoreApplication.translate("Logcat", u"\u641c\u7d22\u5185\u5bb9\uff1a", None))
+        self.lb_tag.setText(QCoreApplication.translate("Logcat", u"\u6807\u7b7e\uff1a", None))
+        self.lb_priority.setText(QCoreApplication.translate("Logcat", u"\u4f18\u5148\u7ea7\uff1a", None))
+        self.cbx_priority.setItemText(0, "")
+        self.cbx_priority.setItemText(1, QCoreApplication.translate("Logcat", u"V", None))
+        self.cbx_priority.setItemText(2, QCoreApplication.translate("Logcat", u"D", None))
+        self.cbx_priority.setItemText(3, QCoreApplication.translate("Logcat", u"I", None))
+        self.cbx_priority.setItemText(4, QCoreApplication.translate("Logcat", u"W", None))
+        self.cbx_priority.setItemText(5, QCoreApplication.translate("Logcat", u"E", None))
+        self.cbx_priority.setItemText(6, QCoreApplication.translate("Logcat", u"F", None))
+
         self.btn_start.setText("")
         self.btn_save.setText("")
         self.btn_clear.setText("")
