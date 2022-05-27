@@ -6,7 +6,7 @@ from ppadb.device import Device
 from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtCore import Qt, QSortFilterProxyModel
 from .ui_logcat import Ui_Logcat
-from .log_model import LogModel
+from .log_model import LogModel, LogSortFilterProxyModel
 
 log = logging.getLogger(__name__)
 
@@ -23,13 +23,13 @@ class LogcatWidget(QWidget, Ui_Logcat):
         self.origin_model = LogModel(self)
         self.origin_model.rowsInserted.connect(self._on_scroll_to_bottom)
 
-        self.model = QSortFilterProxyModel(self)
-        self.model.setSourceModel(self.origin_model)
-        self.model.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.proxy_model = LogSortFilterProxyModel(self)
+        self.proxy_model.setSourceModel(self.origin_model)
+        self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         # 过滤内容列
-        self.model.setFilterKeyColumn(-1)
+        self.proxy_model.setFilterKeyColumn(-1)
 
-        self.tbv_logs.setModel(self.model)
+        self.tbv_logs.setModel(self.proxy_model)
         self.btn_start.toggled.connect(self.on_start)
 
         self._auto_scroll_to_bottom = True
@@ -37,7 +37,16 @@ class LogcatWidget(QWidget, Ui_Logcat):
         vsbar.valueChanged.connect(self._on_vsbar_value_changed)
 
         # 固定字符匹配
-        self.le_search.textChanged.connect(self.model.setFilterFixedString)
+        self.le_search.editingFinished.connect(
+            lambda: self.proxy_model.set_filter_by_column(
+                self.le_search.text(), LogModel.COL_CONTENT
+            )
+        )
+        self.le_tag.editingFinished.connect(
+            lambda: self.proxy_model.set_filter_by_column(
+                self.le_tag.text(), LogModel.COL_TAG
+            )
+        )
 
         # 列表右键菜单
         self.tbv_logs.addAction(self.action_copy)
@@ -54,6 +63,10 @@ class LogcatWidget(QWidget, Ui_Logcat):
             self.btn_start.setEnabled(False)
         else:
             self.btn_start.setEnabled(True)
+
+    def _on_tag_text_changed(self, text: str):
+        self.proxy_model.setFilterKeyColumn(self.origin_model.COL_TAG)
+        self.proxy_model.setFilterFixedString(text)
 
     def _on_log_copy(self):
         selection = self.tbv_logs.selectedIndexes()
@@ -73,13 +86,13 @@ class LogcatWidget(QWidget, Ui_Logcat):
             self.origin_model.stop()
 
     def _on_scroll_to_bottom(self, index, first, last):
+        # 可能有性能问题，但是要观察
         self.tbv_logs.setUpdatesEnabled(False)
         for i in range(first, last):
             self.tbv_logs.resizeRowToContents(i)
-
+        self.tbv_logs.setUpdatesEnabled(True)
         if self._auto_scroll_to_bottom:
             self.tbv_logs.scrollToBottom()
-        self.tbv_logs.setUpdatesEnabled(True)
 
 
 if __name__ == "__main__":

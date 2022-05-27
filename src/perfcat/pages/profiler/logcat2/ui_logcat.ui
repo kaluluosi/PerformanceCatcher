@@ -750,6 +750,9 @@ Logcat #container {
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideRight</enum>
+        </property>
         <property name="cornerButtonEnabled">
          <bool>false</bool>
         </property>

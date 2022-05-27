@@ -735,6 +735,7 @@ class Ui_Logcat(object):
         self.tbv_logs.setDefaultDropAction(Qt.IgnoreAction)
         self.tbv_logs.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.tbv_logs.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tbv_logs.setTextElideMode(Qt.ElideRight)
         self.tbv_logs.setCornerButtonEnabled(False)
         self.tbv_logs.horizontalHeader().setProperty("showSortIndicator", True)
         self.tbv_logs.horizontalHeader().setStretchLastSection(True)

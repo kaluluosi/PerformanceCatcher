@@ -6,6 +6,8 @@ from PySide6.QtCore import (
     QModelIndex,
     QPersistentModelIndex,
     Qt,
+    QSortFilterProxyModel,
+    QRegularExpression,
 )
 from PySide6.QtGui import QColor
 from perfcat.ui.constant import Color
@@ -100,3 +102,32 @@ class LogModel(QAbstractTableModel):
         lines.append("  ".join(line))
 
         return "\n".join(lines)
+
+
+class LogSortFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super(LogSortFilterProxyModel, self).__init__(parent)
+        self.role = Qt.DisplayRole
+
+        self.filter_map = {}  # 各列正在使用的正则表达式
+
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        """
+        sourceRow : 行数
+        sourceParent ：
+        """
+        for col, regex in self.filter_map.items():
+            index = self.sourceModel().index(sourceRow, col, sourceParent)
+            if index.isValid():
+                text: str = self.sourceModel().data(index, Qt.DisplayRole)
+                if self.filterCaseSensitivity() == Qt.CaseInsensitive:
+                    if regex.lower() not in text.lower():
+                        return False
+                else:
+                    if regex not in text:
+                        return False
+        return True
+
+    def set_filter_by_column(self, pattern: str, column: int):
+        self.filter_map[column] = pattern
+        self.invalidateFilter()
