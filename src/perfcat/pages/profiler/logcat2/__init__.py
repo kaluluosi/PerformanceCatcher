@@ -64,8 +64,8 @@ class LogcatWidget(QWidget, Ui_Logcat):
         self.btn_clear.clicked.connect(self.origin_model.clear)
 
         # 初始化前5列的列宽
-        self.tbv_logs.setColumnWidth(0, 40)
-        self.tbv_logs.setColumnWidth(1, 80)
+        self.tbv_logs.setColumnWidth(0, 50)
+        self.tbv_logs.setColumnWidth(1, 90)
         self.tbv_logs.setColumnWidth(2, 45)
         self.tbv_logs.setColumnWidth(3, 45)
         self.tbv_logs.setColumnWidth(4, 45)
