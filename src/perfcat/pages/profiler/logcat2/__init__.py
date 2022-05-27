@@ -1,0 +1,90 @@
+import sys
+import logging
+from typing import Optional
+from ppadb.device import Device
+
+from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtCore import Qt, QSortFilterProxyModel
+from .ui_logcat import Ui_Logcat
+from .log_model import LogModel
+
+log = logging.getLogger(__name__)
+
+
+class LogcatWidget(QWidget, Ui_Logcat):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setupUi(self)
+
+        self._device: Device = None
+
+        self.btn_start.setEnabled(False)
+
+        self.origin_model = LogModel(self)
+        self.origin_model.rowsInserted.connect(self._on_scroll_to_bottom)
+
+        self.model = QSortFilterProxyModel(self)
+        self.model.setSourceModel(self.origin_model)
+        self.model.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        # 过滤内容列
+        self.model.setFilterKeyColumn(-1)
+
+        self.tbv_logs.setModel(self.model)
+        self.btn_start.toggled.connect(self.on_start)
+
+        self._auto_scroll_to_bottom = True
+        vsbar = self.tbv_logs.verticalScrollBar()
+        vsbar.valueChanged.connect(self._on_vsbar_value_changed)
+
+        # 固定字符匹配
+        self.le_search.textChanged.connect(self.model.setFilterFixedString)
+
+        # 列表右键菜单
+        self.tbv_logs.addAction(self.action_copy)
+        self.action_copy.triggered.connect(self._on_log_copy)
+
+    @property
+    def device(self):
+        return self._device
+
+    @device.setter
+    def device(self, value: Device):
+        self._device = value
+        if value == None:
+            self.btn_start.setEnabled(False)
+        else:
+            self.btn_start.setEnabled(True)
+
+    def _on_log_copy(self):
+        selection = self.tbv_logs.selectedIndexes()
+        text = self.origin_model.get_text_by_indexes(selection)
+        QApplication.clipboard().setText(text)
+
+    def _on_vsbar_value_changed(self, value):
+        vsbar = self.tbv_logs.verticalScrollBar()
+        maximun = vsbar.maximum()
+        self._auto_scroll_to_bottom = value == maximun
+        # log.debug(f"自动滚动 {self._auto_scroll_to_bottom}")
+
+    def on_start(self, checked):
+        if checked:
+            self.origin_model.start(self.device.serial)
+        else:
+            self.origin_model.stop()
+
+    def _on_scroll_to_bottom(self, index, first, last):
+        self.tbv_logs.setUpdatesEnabled(False)
+        for i in range(first, last):
+            self.tbv_logs.resizeRowToContents(i)
+
+        if self._auto_scroll_to_bottom:
+            self.tbv_logs.scrollToBottom()
+        self.tbv_logs.setUpdatesEnabled(True)
+
+
+if __name__ == "__main__":
+
+    app = QApplication()
+    win = LogcatWidget()
+    win.show()
+    sys.exit(app.exec())

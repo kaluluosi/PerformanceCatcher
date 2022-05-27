@@ -1,4 +1,3 @@
-
 from perfcat.pages.profiler.logcat.view_model import StractViewModel
 from perfcat.pages.profiler.logcat.ui_logtable import Ui_Logcat
 from PySide6.QtWidgets import *
@@ -104,7 +103,7 @@ class LogCat(QWidget, Ui_Logcat):
 
         self.log_list_gain = []  # 全部日志记录（列表）
         self.str_list = ""  # 全部日志记录（字符串）
-        self.serial = ""    # 设备名称
+        self.serial = ""  # 设备名称
 
         self.tableView.wordWrap = True
         # 表格model
@@ -125,7 +124,9 @@ class LogCat(QWidget, Ui_Logcat):
         self.btn_start.clicked.connect(self.start_catch)
         self.btn_empty.clicked.connect(self.remove_content)
         self.btn_save.clicked.connect(self.save_log)
-        self.le_search.editingFinished.connect(lambda: self.on_tableview_content(self.le_search.text()))
+        self.le_search.editingFinished.connect(
+            lambda: self.on_tableview_content(self.le_search.text())
+        )
         self.cbx_tag.editTextChanged.connect(self.on_tableview_tag)
 
         # 标记选中的图标
@@ -192,7 +193,7 @@ class LogCat(QWidget, Ui_Logcat):
         self.model.updateData(message)
         end_line = self.model.rowCount()
         # 自适应宽度
-        for i in range(start_line-1, end_line):
+        for i in range(start_line - 1, end_line):
             self.tableView.resizeRowToContents(i)
         QApplication.instance().processEvents()
 
@@ -233,7 +234,7 @@ class LogCat(QWidget, Ui_Logcat):
             return ""
 
     def last_line(self):
-        _visible_first = self.tableView.verticalScrollBar().value()     # 表格可见的第一行行号
+        _visible_first = self.tableView.verticalScrollBar().value()  # 表格可见的第一行行号
         maxium = self.tableView.verticalScrollBar().maximum()
         if abs(maxium - _visible_first) < 2:
             QTimer.singleShot(0, self.tableView.scrollToBottom)
