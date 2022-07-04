@@ -32,7 +32,7 @@ except ModuleNotFoundError:
     import importlib_metadata
 
 # 读取和设置包的元信息
-__version__ = "0.2.0"
+__version__ = "1.2.1"
 __author__ = "dengxuan"
 __author_email__ = "dengxuan@xinyuanstu.com"
 __meta__ = {}
