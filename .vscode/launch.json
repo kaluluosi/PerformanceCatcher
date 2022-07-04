@@ -5,11 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: 模块",
+            "name": "Run",
             "type": "python",
             "request": "launch",
-            "module": "perfcat",
-            "justMyCode": false
+            "program": "${workspaceFolder}/src/perfcat/Perfcat.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

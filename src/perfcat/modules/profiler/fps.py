@@ -16,12 +16,12 @@ class FpsSampler:
         self._surface_name = None
 
     @property
-    def surface_name(self):
-        result = self.device.shell(
-            f"dumpsys SurfaceFlinger --list|grep ^{self._package_name}.*#"
+    def surface_name(self) -> str:
+        result: str = self.device.shell(
+            f'dumpsys SurfaceFlinger --list|grep "^SurfaceView - {self._package_name}.*#"'
         )
-        # log.debug(f"找surface：{result}")
-        return result
+        log.debug(f"找surface：{result}")
+        return result.strip()
 
     @property
     def data(self) -> dict:
@@ -36,8 +36,10 @@ class FpsSampler:
             log.warning("没有找到surface")
             return data
 
+        log.debug(f'dumpsys SurfaceFlinger --latency "{self.surface_name}"')
+
         result: str = self.device.shell(
-            f"dumpsys SurfaceFlinger --latency {self.surface_name}"
+            f'dumpsys SurfaceFlinger --latency "{self.surface_name}"'
         )
         refresh_period, data_table = self._parse_data(result)
         if not data_table:
