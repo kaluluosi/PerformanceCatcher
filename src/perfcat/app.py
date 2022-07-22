@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 
 
 def about_content():
+
     about_txt: str = pkg_resources.resource_string(
         __package__, "assets/ABOUT.md"
     ).decode("utf-8")

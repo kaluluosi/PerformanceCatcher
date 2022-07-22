@@ -23,6 +23,9 @@ import csv
 import time
 import json
 import os
+import subprocess
+import pkg_resources
+from shutil import which
 
 from perfcat.pages.profiler.plugins.base import MonitorChart
 from . import plugins
@@ -53,6 +56,7 @@ from ...ui.page import Page
 from .plugins import register
 from .ui_profiler import Ui_Profiler
 from ...modules.profiler.device import device_info
+from .logcat.table_logcat import LogCat
 
 log = logging.getLogger(__name__)
 
@@ -72,6 +76,8 @@ class Profiler(Page, Ui_Profiler):
 
     # 当系统设备插拔的时候发出信号
     device_changed: SignalInstance = Signal()
+    # 初始化adb-server信号
+    adb_server_starting: SignalInstance = Signal()
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
@@ -100,7 +106,7 @@ class Profiler(Page, Ui_Profiler):
         # 复制设备信息
         self.btn_copy_info.clicked.connect(self._copy_info)
 
-        # 档设备选择改变的时候更新连接按钮状态
+        # 当设备选择改变的时候更新连接按钮状态
         self.cbx_device.currentIndexChanged.connect(self._update_btn_status)  # 设备切换时更新
         self.cbx_device.currentIndexChanged.connect(
             self._update_device_info
@@ -118,6 +124,13 @@ class Profiler(Page, Ui_Profiler):
         self._init_plugins()
         self._update_btn_status()
 
+        self.logcat = LogCat(self)
+        self.verticalLayout_8.addWidget(self.logcat)
+
+        self.adb_server_starting.connect(
+            lambda: self.notify("adb server 启动中...", ButtonStyle.warning)
+        )
+
     def _init_plugins(self):
         self.reset_h_scrollbar()
         for plugin_cls in register:
@@ -130,6 +143,19 @@ class Profiler(Page, Ui_Profiler):
             plugin.axis_range_size_changed.connect(self._sync_plugin_range_size)  # 缩放同步
             plugin.mark_line_changed.connect(self._sync_mark_line)  # 标线位置同步
             plugin.x_max_offset_changed.connect(self._sync_scroll_max)  # 滚动条同步最大x轴
+
+    def start_adb_server(self):
+        path = which("adb")
+        default_adb_path = pkg_resources.resource_filename("perfcat", "adb/adb.exe")
+        log.debug(f"系统adb:{path} 内置adb:{default_adb_path}")
+        path = path or default_adb_path
+        try:
+            self.adb.version()
+        except RuntimeError:
+            self.adb_server_starting.emit()
+            log.debug(f"启动adb命令:{[path, 'start-server']}")
+            subprocess.call([path, "start-server"], shell=True)
+            log.debug(f"测试adb server:{self.adb.version()}")
 
     def reset_h_scrollbar(self):
         self.horizontalScrollBar.setMaximum(0)
@@ -286,11 +312,10 @@ class Profiler(Page, Ui_Profiler):
         def run():
             HotPlugWatcher.device_added.connect(self._on_device_add)
             HotPlugWatcher.device_removed.connect(self._on_device_removed)
-
-            self.devices = set(self.adb.devices(state="device"))
-
+            self.start_adb_server()
+            # self.devices = set(self.adb.devices(state="device"))
             self._update_devices_list()
-            log.debug(f"刷新设备列表 {self.devices}")
+            # log.debug(f"刷新设备列表 {self.devices}")
 
         thread.run = run
         thread.start()
@@ -394,6 +419,8 @@ class Profiler(Page, Ui_Profiler):
             self.clear_all_data()
             self.start_tick()
             self.btn_open.setEnabled(False)
+            print(11111)
+            self.logcat.start_catch(self.current_device.serial)
         else:
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
@@ -403,6 +430,7 @@ class Profiler(Page, Ui_Profiler):
             self.btn_record.setChecked(False)
             self.btn_open.setEnabled(True)
             self.record_range = [0, 0]
+            self.logcat.stop_catch()
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)
