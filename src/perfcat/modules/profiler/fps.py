@@ -18,10 +18,31 @@ class FpsSampler:
     @property
     def surface_name(self) -> str:
         result: str = self.device.shell(
-            f'dumpsys SurfaceFlinger --list|grep "^SurfaceView - {self._package_name}.*#"'
+            f'dumpsys SurfaceFlinger --list|grep "{self._package_name}"'
         )
-        log.debug(f"找surface：{result}")
-        return result.strip()
+
+        results = result.split("\n")
+
+        # 由上到下扫描出最后一个SurfaceView
+        top_surface_view = None
+        surface_views = filter(lambda txt: txt.startswith("SurfaceView"), results)
+        surface_views = list(surface_views)
+        if surface_views:
+            top_surface_view = surface_views[-1]
+
+        # 找出包含app_name的SurfaceView
+        top_app_surface_view = None
+        app_surface_views = filter(
+            lambda txt: self._package_name in txt and txt.startswith("SurfaceView"),
+            results,
+        )
+        app_surface_views = list(app_surface_views)
+        if app_surface_views:
+            top_app_surface_view = app_surface_views[-1]
+
+        target_surface_view = top_app_surface_view or top_surface_view or ""
+
+        return target_surface_view.strip()
 
     @property
     def data(self) -> dict:

@@ -1,23 +1,22 @@
 import re
-from ppadb.client import Client as adb
 from ppadb.device import Device
 
 
 def device_info(dev: Device) -> dict:
     prop = dev.get_properties()
     info = {}
-    info["品牌"] = prop["ro.product.brand"]  # 品牌
-    info["制造商"] = prop["ro.product.manufacturer"]  # 制造商
-    info["型号"] = prop["ro.product.model"]  # 型号
-    info["名称"] = prop["ro.product.name"]  # 名称
-    info["系统版本"] = prop["ro.build.version.release"]  # 系统版本
-    info["SDK版本"] = prop["ro.build.version.sdk"]  # SDK版本
-    info["首选SDK版本"] = prop.get("ro.product.first_api_level","未知")  # 首选SDK版本
+    info["品牌"] = prop.get("ro.product.brand", "Unknow")  # 品牌
+    info["制造商"] = prop.get("ro.product.manufacturer", "Unknow")  # 制造商
+    info["型号"] = prop.get("ro.product.model", "Unknow")  # 型号
+    info["名称"] = prop.get("ro.product.name", "Unknow")  # 名称
+    info["系统版本"] = prop.get("ro.build.version.release", "Unknow")  # 系统版本
+    info["SDK版本"] = prop.get("ro.build.version.sdk", "Unknow")  # SDK版本
+    info["首选SDK版本"] = prop.get("ro.product.first_api_level", "Unknow")  # 首选SDK版本
 
-    info["CPU平台"] = prop["ro.board.platform"]
+    info["CPU平台"] = prop.get("ro.board.platform", "Unknow")
 
     info["CPU名称"] = __cpu_name(dev)
-    info["CPU架构"] = prop["ro.product.cpu.abi"]  # CPU架构
+    info["CPU架构"] = prop.get("ro.product.cpu.abi", "Unknow")  # CPU架构
     info["CPU核心"] = str(dev.cpu_count())
     freq = cpu_freq(dev)[0]
     info["CPU频率"] = f"{freq['min']/1000}MHZ - {freq['max']/1000}MHZ"
@@ -52,7 +51,7 @@ def __cpu_name(dev: Device) -> str:
         text: str = dev.shell("cat /proc/cpuinfo|grep Hardware")
         name = text.split(":")[1].lstrip()
     except:
-        name = "未知"
+        name = "Unknow"
     return name
 
 

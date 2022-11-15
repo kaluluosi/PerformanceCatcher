@@ -59,7 +59,7 @@ class LogcatWidget(QWidget, Ui_Logcat):
 
         # 保存内容
         self.btn_save.clicked.connect(self._on_btn_save)
-        
+
         # 清空内容
         self.btn_clear.clicked.connect(self.origin_model.clear)
 
@@ -125,7 +125,6 @@ class LogcatWidget(QWidget, Ui_Logcat):
         except Exception:
             QMessageBox.critical(self, "错误", "没有指定保存的文件名")
 
-        
 
 if __name__ == "__main__":
 
