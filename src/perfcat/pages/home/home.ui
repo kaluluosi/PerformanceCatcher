@@ -26,7 +26,7 @@
     <widget class="QFrame" name="frame">
      <property name="styleSheet">
       <string notr="true">
-background-image: url(:/iamges/assets/imagesimages/logo_sws_10.png);
+background-image: url(:/images/assets/images/logo_sws_10.png);
 background-repeat: no;
 background-position:center;</string>
      </property>

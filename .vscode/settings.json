@@ -13,4 +13,8 @@
         "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
     ],
     "qtForPython.lupdate.liveExecution": false,
+    "qtForPython.rcc.options": [
+        "-o",
+        "${resourceDirname}${pathSeparator}${resourceBasenameNoExtension}_rc.py"
+    ],
 }

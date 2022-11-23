@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_widgets.ui'
+## Form generated from reading UI file 'widgets.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.0
+## Created by: Qt User Interface Compiler version 6.4.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -361,8 +361,8 @@ class Ui_Widgets(object):
             "\n"
             "QPlainTextEdit:focus,\n"
             "QTextEdit:focus,\n"
-            "QLineEdit:fo"
-            "cus{\n"
+            "QLine"
+            "Edit:focus{\n"
             "    border: 2px solid #568af2;\n"
             "}\n"
             "\n"
@@ -408,8 +408,8 @@ class Ui_Widgets(object):
             "}\n"
             "\n"
             "QScrollBar::add-page:horizontal{\n"
-            "    background-color:n"
-            "one;\n"
+            "    background-"
+            "color:none;\n"
             "}\n"
             "QScrollBar::sub-page:horizontal{\n"
             "    background-color:none;\n"
@@ -451,8 +451,8 @@ class Ui_Widgets(object):
             "QScrollBar::add-page:vertical{\n"
             "    background-color:none;\n"
             "}\n"
-            "QScrollBar::sub-page:vertical{"
-            "\n"
+            "QScrollBar::sub-page:ve"
+            "rtical{\n"
             "    background-color:none;\n"
             "}\n"
             "\n"
@@ -497,9 +497,9 @@ class Ui_Widgets(object):
             "    height:16px;\n"
             "    width:16px;\n"
             "    margin: -3px;\n"
-            "    border-radius: 8px;\n"
-            "  "
-            "  background-color: #4f9fee;\n"
+            "    border-radius: 8px;"
+            "\n"
+            "    background-color: #4f9fee;\n"
             "}\n"
             "\n"
             "QSlider:vertical{\n"
@@ -548,8 +548,8 @@ class Ui_Widgets(object):
             "    background-color:black;\n"
             "}\n"
             "\n"
-            "QComboBox::down-a"
-            "rrow{\n"
+            "QComboBox:"
+            ":down-arrow{\n"
             "    image:url(:/icon_w/assets/svg_white/circle-down.svg);\n"
             "    width: 18px;\n"
             "    height:18px;\n"
@@ -832,12 +832,7 @@ class Ui_Widgets(object):
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setMinimumSize(QSize(40, 40))
         self.pushButton_3.setMaximumSize(QSize(16777215, 16777215))
-        icon7 = QIcon()
-        icon7.addFile(
-            ":/icon_w/assets/svg_white/IE.svg", QSize(), QIcon.Normal, QIcon.Off
-        )
-        icon7.addFile(":/icon/assets/svg/IE.svg", QSize(), QIcon.Normal, QIcon.On)
-        self.pushButton_3.setIcon(icon7)
+        self.pushButton_3.setIcon(icon6)
         self.pushButton_3.setCheckable(True)
 
         self.verticalLayout_2.addWidget(self.pushButton_3)

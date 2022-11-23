@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_logcat.ui'
+## Form generated from reading UI file 'logcat.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.0
+## Created by: Qt User Interface Compiler version 6.4.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -26,7 +26,8 @@ class Ui_Logcat(object):
     def setupUi(self, Logcat):
         if not Logcat.objectName():
             Logcat.setObjectName(u"Logcat")
-        Logcat.resize(652, 455)
+        Logcat.resize(688, 200)
+        Logcat.setMaximumSize(QSize(16777215, 16777215))
         Logcat.setStyleSheet(u"*{\n"
 "    border-radius:8;\n"
 "    color:#6c7c96;\n"
