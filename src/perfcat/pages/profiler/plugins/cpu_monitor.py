@@ -44,7 +44,16 @@ def __cpu_max_freq(dev: Device) -> list:
     return freq
 
 
-def normalize(device: Device):
+def normalize(device: Device) -> float:
+    """
+    获取设备的CPU归一化因子
+
+    Args:
+        device (Device): 设备对象
+
+    Returns:
+        float : 因子
+    """
 
     # 合计所有CPU最大频率
     max_freq = __cpu_max_freq(device)
