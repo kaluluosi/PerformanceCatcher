@@ -362,6 +362,7 @@ class Profiler(Page, Ui_Profiler):
             pool = QThreadPool.globalInstance()
             while not self.sample_thread.isInterruptionRequested():
 
+                # 记录这次采样耗时
                 time_counter = QElapsedTimer()
                 time_counter.start()
 
@@ -388,7 +389,9 @@ class Profiler(Page, Ui_Profiler):
                 for p in self.plugins:
                     p.flush()
 
+                # 获取采样耗时
                 take_sec = time_counter.elapsed()
+                # 如果采样时间不足1s，那么剩下空闲时间让采样tick线程把这段时间睡过去
                 if take_sec < 1000:
                     self.sample_thread.msleep(1000 - take_sec)
                 self.tick_count += 1
