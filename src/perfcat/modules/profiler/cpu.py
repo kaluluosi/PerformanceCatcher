@@ -15,29 +15,36 @@
 
 # here put the import lib
 
-
+import re
 from ppadb.device import Device
 from ppadb.plugins.device.cpustat import TotalCPUStat
 from ppadb.client import Client
 
 
-def get_all_cpu_max_freq(dev: Device) -> list:
+
+
+def get_all_cpu_freq(dev:Device, filename) -> list:
     count = dev.cpu_count()
-    freq = []
+    values = {}
+
     for index in range(count):
-        cmd_root = f"cat /sys/devices/system/cpu/cpu{index}/cpufreq"
-        max = dev.shell(f"{cmd_root}/cpuinfo_max_freq")
+        CMD_ROOT = f"cat /sys/devices/system/cpu/cpu{index}/cpufreq"
+        value = dev.shell(f"{CMD_ROOT}/{filename}")
+        values[index] = int(value)/1024
 
-        freq.append(int(max))
+    return values
 
-    return freq
+def get_all_cpu_max_freq(dev: Device) -> list:
+    return get_all_cpu_freq(dev, "cpuinfo_max_freq")
 
+def get_all_cpu_cur_freq(dev:Device) -> list:
+    return get_all_cpu_freq(dev, "scaling_cur_freq")
 
-def normalize(device: Device):
+def normalize_factor(device: Device):
 
     # 合计所有CPU最大频率
     max_freq = get_all_cpu_max_freq(device)
-    total_max_freq = sum(max_freq)
+    total_max_freq = sum(max_freq.values())
 
     # 找出所有在在线的CPU
     online_cmd = "cat /sys/devices/system/cpu/online"
@@ -46,11 +53,22 @@ def normalize(device: Device):
 
     # 合计所有在线CPU的当前频率
     cur_freq_sum = 0
-    for index in range(count):
-        cmd_cur_freq = (
-            f"cat /sys/devices/system/cpu/cpu{index}/cpufreq/scaling_cur_freq"
-        )
-        cur_freq = device.shell(cmd_cur_freq)
-        cur_freq_sum += int(cur_freq)
+    all_cur_freq = get_all_cpu_cur_freq(device)
+    cur_freq_sum = sum([all_cur_freq[i] for i in range(count)])
 
     return cur_freq_sum / total_max_freq
+
+
+
+def get_all_cpu_state(device:Device) -> list[TotalCPUStat]:
+    pattern = re.compile(
+        "cpu(\d)\s+([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s"
+    )
+    cpu_state_info = device.shell("cat /proc/stat")
+    matches = pattern.findall(cpu_state_info)
+
+    all_cpu_state = {
+        int(group[0]):TotalCPUStat(*map(lambda x:int(x),group[1:])) for group in matches
+    }
+
+    return all_cpu_state

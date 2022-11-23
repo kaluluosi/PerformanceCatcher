@@ -5,7 +5,7 @@ from ppadb.device import Device
 log = logging.getLogger(__name__)
 
 
-class DefaultCpuTemp:
+class DefaultCpuTempSampler:
 
     TEMP_FILE_PATHS = [
         "/sys/devices/system/cpu/cpu0/cpufreq/cpu_temp",

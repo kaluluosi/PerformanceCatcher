@@ -1,7 +1,8 @@
-import re
 import logging
+import math
 from ppadb.client import Client
 from ppadb.device import Device
+
 
 
 log = logging.getLogger(__name__)
@@ -67,9 +68,17 @@ class FpsSampler:
             log.warning(f"{self.surface_name} 没有数据")
             return data
 
-        fps = self._calc_fps(data_table)
+        fps = self._calc_fps(data_table, refresh_period)
         jank, big_jank, frametime = self._calc_jank(data_table, refresh_period)
-        return {"fps": fps, "jank": jank, "big_jank": big_jank, "frametime": frametime}
+
+        self.device.shell("adb shell dumpsys SurfaceFlinger --latency-clear")
+
+        return {
+            "fps": fps, 
+            "jank": jank, 
+            "big_jank": big_jank, 
+            "frametimes": frametime,
+            }
 
     def _parse_data(self, result: str):
         lines = result.strip().split("\n")
@@ -86,33 +95,31 @@ class FpsSampler:
 
     def _calc_jank(self, data_table, refresh_period):
 
-        b_delta_list = []
         jank_count = 0
         big_jank_count = 0
 
-        for index, data in enumerate(data_table):
-            if index == 0:
-                b_delta_list.append(0)
-                continue
+        # 计算帧间隔，转为ms
+        frametimes = [ (data_table[i+1][0] - data_table[i][0])/pow(10,6) for i in range(len(data_table)-1)]
 
-            delta = data_table[index][0] - data_table[index - 1][0]
-            b_delta_list.append(delta)
 
-            # 计算前3帧平均耗时
-            if index < 3:
-                continue
+        for i in range(3,len(frametimes)):
+            pre_three_avg = (frametimes[i-1]+frametimes[i-2]+frametimes[i-3])/3
+            cur_frametime = frametimes[i]
+            if cur_frametime > 2*pre_three_avg:
 
-            pre_avg = sum(b_delta_list[index - 3 : index]) / 3
-            if delta > pre_avg * 2 or delta > 83.33 * pow(10, 6):
-                jank_count += 1
+                if cur_frametime > 83.33:
+                    jank_count+=1
 
-                if delta > 125 * pow(10, 6):
-                    big_jank_count += 1
+                if cur_frametime > 125:
+                    big_jank_count+=1
 
-        frame_time = max([delta / pow(10, 6) for delta in b_delta_list])
-        return jank_count, big_jank_count, frame_time
 
-    def _calc_fps(self, data_table):
+        return jank_count, big_jank_count, frametimes
+
+    def _calc_fps(self, data_table,refresh_period):
+        if refresh_period <0:
+            return -1.0
+
         frame_count = len(data_table)
 
         if frame_count == 1:
@@ -131,5 +138,5 @@ if __name__ == "__main__":
     adb = Client()
     dev = adb.devices(state="device")[0]
     # sampler = FpsSampler(dev, "com.mhatsh.eu")
-    sampler = FpsSampler(dev, "com.xinyuanstu.bee")
+    sampler = FpsSampler(dev, "com.xinyuan.w9")
     print(sampler.data)

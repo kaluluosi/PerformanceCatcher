@@ -6,36 +6,67 @@ class MemMonitor(MonitorChart):
     def __init__(self, parent=None):
         super().__init__(
             series_names=[
-                "pss",
-                "private dirty",
-                "private clean",
-                "swapped dirty",
-                "heap size",
-                "heap alloc",
-                "heap free",
+                "PSS",
+                "PrivateDirty",
+                "PrivateClean",
+                "SwappedDirty",
+                "HeapSize",
+                "HeapAlloc",
+                "HeapFree",
             ],
             formatter={
-                "pss": lambda v: f"{v}MB",
-                "private dirty": lambda v: f"{v}MB",
-                "private clean": lambda v: f"{v}MB",
-                "swapped dirty": lambda v: f"{v}MB",
-                "heap size": lambda v: f"{v}MB",
-                "heap alloc": lambda v: f"{v}MB",
-                "heap free": lambda v: f"{v}MB",
+                "PSS": lambda v: f"{v}MB",
+                "PrivateDirty": lambda v: f"{v}MB",
+                "PrivateClean": lambda v: f"{v}MB",
+                "SwappedDirty": lambda v: f"{v}MB",
+                "HeapSize": lambda v: f"{v}MB",
+                "HeapAlloc": lambda v: f"{v}MB",
+                "HeapFree": lambda v: f"{v}MB",
             },
             y_axis_name="MEM",
             parent=parent,
         )
         self.setObjectName("Memory")
 
+        self._sample_data ={}
+
+    def reset_series_data(self):
+        self._sample_data = {}
+        return super().reset_series_data()
+
+
     def sample(self, sec: int, device: Device, package_name: str):
 
         mem_info = device.get_meminfo(package_name)
 
-        self.add_point("pss", sec, mem_info.pss / 1024)
-        self.add_point("private dirty", sec, mem_info.private_dirty / 1024)
-        self.add_point("private clean", sec, mem_info.private_clean / 1024)
-        self.add_point("swapped dirty", sec, mem_info.swapped_dirty / 1024)
-        self.add_point("heap size", sec, mem_info.heap_size / 1024)
-        self.add_point("heap alloc", sec, mem_info.heap_alloc / 1024)
-        self.add_point("heap free", sec, mem_info.heap_free / 1024)
+        self._sample_data[sec] = {
+            "PSS":mem_info.pss / 1024,
+            "PrivateDirty":mem_info.private_dirty / 1024,
+            "PrivateClean": mem_info.private_clean/ 1024,
+            "SwappedDirty": mem_info.swapped_dirty/ 1024,
+            "HeapSize": mem_info.heap_size / 1024,
+            "HeapAlloc": mem_info.heap_alloc / 1024,
+            "HeapFree": mem_info.heap_free / 1024,
+        }
+
+        for k,v in self._sample_data[sec].items():
+            self.add_point(k, sec, v)
+
+    def to_dict(self, all: bool = True) -> dict:
+
+        if all:
+            return self._sample_data
+        else:
+            start = self.record_range[0]
+            end = self.record_range[1]
+
+            data = {}
+            for k,v in self._sample_data.items():
+                if start <= k <= end:
+                    data[k] = v
+            return data
+
+    def from_dict(self, data: dict):
+        for sec, data_table in data.items():
+            for k, v in data_table.items():
+                self.add_point(k,sec,v)

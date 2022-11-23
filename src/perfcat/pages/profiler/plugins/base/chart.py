@@ -79,12 +79,12 @@ class MonitorChart(QChartView):
         _chart.legend().setMinimumWidth(150)
         _chart.legend().setMaximumWidth(150)
 
-        self.device = None
-        self.package_name = None
-        self.sample_points = {}
+        self._device = None
+        self._package_name = None
 
-        self.series_map: dict[str, QLineSeries] = {}
-        self.formatter: dict[str, str] = formatter  # 值格式化
+        self._series_map: dict[str, QLineSeries] = {}
+        self._point_buffer = {}  # 记录点缓冲池，add_point的时候会缓存到这里，然后通过flush函数一起写入serial
+        self._formatter: dict[str, str] = formatter  # 值格式化
         self._mark_line: QPoint = QPoint()  # 标线坐标
 
         self.tick_count = 0
@@ -98,8 +98,6 @@ class MonitorChart(QChartView):
 
         _chart.setTheme(QChart.ChartThemeDark)
         _chart.legend().setAlignment(Qt.AlignRight)
-        # self.setRubberBand(QChartView.HorizontalRubberBand)
-        # _chart.setAnimationOptions(QChart.SeriesAnimations)
 
         self.setRenderHint(QPainter.Antialiasing)
 
@@ -122,7 +120,7 @@ class MonitorChart(QChartView):
         for s_name in series_names:
             series = QLineSeries(self)
             series.setName(s_name)
-            self.series_map[s_name] = series
+            self._series_map[s_name] = series
             _chart.addSeries(series)
 
             pen = series.pen()
@@ -137,11 +135,12 @@ class MonitorChart(QChartView):
         for mk in _chart.legend().markers():
             mk.clicked.connect(self._on_marker_clicked)
 
+
     def reset_series_data(self):
         """
         清空系列数据
         """
-        for s in self.series_map.values():
+        for s in self._series_map.values():
             s.clear()
 
         self.total_x = 0
@@ -157,9 +156,9 @@ class MonitorChart(QChartView):
 
         _extended_summary_
         """
-        for s_name, p in self.sample_points.items():
-            self.series_map[s_name].append(*p)
-        self.sample_points.clear()
+        for s_name, p in self._point_buffer.items():
+            self._series_map[s_name].append(*p)
+        self._point_buffer.clear()
         self.update()
         self.series_changed.emit()
 
@@ -288,7 +287,7 @@ class MonitorChart(QChartView):
         y_max = max(self.axis_y.max(), y)
         self.axis_y.setMax(y_max)
 
-        self.sample_points[s_name] = (time.toMSecsSinceEpoch(), y)
+        self._point_buffer[s_name] = (time.toMSecsSinceEpoch(), y)
 
         self.tick_count = x
 
@@ -343,7 +342,7 @@ class MonitorChart(QChartView):
         points = {}
 
         # 绘制值点
-        for name, series in self.series_map.items():
+        for name, series in self._series_map.items():
             pen2 = QPen(series.color())
             pen2.setWidth(10)
             painter.setPen(pen2)
@@ -413,9 +412,9 @@ class MonitorChart(QChartView):
         time = self._base_time().addMSecs(int(value_at_position.x()))
         lines.append(time.toString("mm:ss"))
         for name, point in points.items():
-            if not self.series_map[name].isVisible():
+            if not self._series_map[name].isVisible():
                 continue
-            format = self.formatter.get(name, lambda v: v)
+            format = self._formatter.get(name, lambda v: v)
             lines.append(f"{name}: {format(point.y())}")
         text = "\n".join(lines)
 
@@ -449,29 +448,7 @@ class MonitorChart(QChartView):
         Returns:
             dict: _description_
         """
-        data = {}
-
-        for s_name, s in self.series_map.items():
-            if s_name not in data:
-                data[s_name] = []
-
-            for p in s.points():
-                if all:
-                    data[s_name].append((p.x(), p.y()))
-                else:
-                    _start = (
-                        self._base_time()
-                        .addSecs(self.record_range[0])
-                        .toMSecsSinceEpoch()
-                    )
-                    _end = (
-                        self._base_time()
-                        .addSecs(self.record_range[1])
-                        .toMSecsSinceEpoch()
-                    )
-                    if _start <= p.x() <= _end:
-                        data[s_name].append((p.x(), p.y()))
-        return data
+        raise NotImplementedError
 
     def from_dict(self, data: dict):
         """
@@ -482,14 +459,7 @@ class MonitorChart(QChartView):
         Args:
             value (_type_): _description_
         """
-        self.reset_series_data()
-        for s_name, s in self.series_map.items():
-            if s_name not in data:
-                log.error(f"data里没有 {s_name}系列的数据")
-                continue
-
-            for p in data[s_name]:
-                s.append(p[0], p[1])
+        raise NotImplementedError
 
     def record_enable(self, enable: bool, tick_count=-1):
         self.recording = enable

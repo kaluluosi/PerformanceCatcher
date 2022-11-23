@@ -39,6 +39,8 @@ class TempMonitor(MonitorChart):
         self.setToolTip("不少设备无法获得温度，会显示为-1")
         self.mark_temp = None
 
+        self._sample_data = {}
+
     def sample(self, sec: int, device: Device, package_name: str):
 
         if self.mark_temp is None:
@@ -46,12 +48,36 @@ class TempMonitor(MonitorChart):
 
         temp_data = self.mark_temp.get_temp()
 
-        self.add_point("整体温度", sec, temp_data["total"])
-        self.add_point("CPU温度", sec, temp_data["cpu"])
-        self.add_point("GPU温度", sec, temp_data["gpu"])
-        self.add_point("NPU温度", sec, temp_data["npu"])
-        self.add_point("电池温度", sec, temp_data["battery"])
+        self._sample_data[sec] = {
+            "整体温度": temp_data["total"],
+            "CPU温度":temp_data["cpu"],
+            "GPU温度": temp_data["gpu"],
+            "NPU温度": temp_data["npu"],
+            "电池温度": temp_data["battery"]
+        }
+
+        for k,v in self._sample_data[sec].items():
+            self.add_point(k, sec, v)
 
     def reset_series_data(self):
         self.mark_temp = None
+        self._sample_data = {}
         return super().reset_series_data()
+
+    def to_dict(self, all: bool = True) -> dict:
+        if all:
+            return self._sample_data
+        else:
+            start = self.record_range[0]
+            end = self.record_range[1]
+
+            data = {}
+            for k,v in self._sample_data.items():
+                if start <= k <= end:
+                    data[k] = v
+            return data
+
+    def from_dict(self, data: dict):
+        for sec, data_table in data:
+            for k, v in data_table.items():
+                self.add_point(k,sec, v)
