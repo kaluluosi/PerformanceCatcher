@@ -27,7 +27,7 @@ sys.path.append(asset_dir)
 
 
 # 读取和设置包的元信息
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 __author__ = "dengxuan"
 __author_email__ = "dengxuan@xinyuanstu.com"
 __meta__ = {}
