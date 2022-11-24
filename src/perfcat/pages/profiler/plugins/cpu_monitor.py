@@ -46,8 +46,8 @@ def __cpu_max_freq(dev: Device) -> list:
 class CpuMonitor(MonitorChart):
     def __init__(self, parent=None):
         super().__init__(
-            series_names=["TotalCPU", "AppCPU"],
-            formatter={"TotalCPU": lambda v: f"{v}%", "AppCPU": lambda v: f"{v}%"},
+            series_names=["TotalCPU(标准化)", "AppCPU(标准化)"],
+            formatter={"TotalCPU(标准化)": lambda v: f"{v}%", "AppCPU(标准化)": lambda v: f"{v}%"},
             y_axis_name="%",
             parent=parent,
         )
@@ -100,14 +100,14 @@ class CpuMonitor(MonitorChart):
             self.last_total_cpu_state = cur_total_cpu
 
         total_cpu_usage_normalized = round(total_cpu_usage * factor,2)
-        self.add_point("TotalCPU", sec, total_cpu_usage_normalized)
+        self.add_point("TotalCPU(标准化)", sec, total_cpu_usage_normalized)
 
 
         # 采集pid占用
         app_cpu_usage = 0
         app_cpu_usage_normalized = 0
         if self.pid is None:  # 如果app没启动，那么就记录0占用
-            self.add_point("AppCPU", sec, 0)
+            self.add_point("AppCPU(标准化)", sec, 0)
         else:
             # 启动了就从top里面找
             cur_pid_cpu = device.get_pid_cpu(self.pid)
@@ -119,7 +119,7 @@ class CpuMonitor(MonitorChart):
                 app_cpu_usage = round(app_cpu_usage,2)
                 self.last_pid_cpu_state = cur_pid_cpu
             app_cpu_usage_normalized = round(app_cpu_usage*factor,2)
-            self.add_point("AppCPU", sec, app_cpu_usage_normalized)
+            self.add_point("AppCPU(标准化)", sec, app_cpu_usage_normalized)
 
         # 采集所有cpu占用
         self.cpu_count = self.cpu_count or device.cpu_count()
@@ -164,11 +164,11 @@ class CpuMonitor(MonitorChart):
 
     def from_dict(self, data: dict):
         for sec, data_table in data.items():
-            app_cpu_value = data_table["AppCPU"]
-            total_cpu_value = data_table["TotalCPU"]
+            app_cpu_value = data_table["AppCPUNormalized"]
+            total_cpu_value = data_table["TotalCPUNormalized"]
 
             if app_cpu_value:
-                self.add_point("AppCPU", sec, app_cpu_value)
+                self.add_point("AppCPU(标准化)", sec, app_cpu_value)
 
             if total_cpu_value:
-                self.add_point("TotalCPU", sec, total_cpu_value)
+                self.add_point("TotalCPU(标准化)", sec, total_cpu_value)

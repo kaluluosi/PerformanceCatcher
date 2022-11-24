@@ -94,11 +94,11 @@ def export(app_name:str,data:dict,filename:str):
         round(fps_avg),
         "具体看游戏锁帧的帧率"
         )
-    stat_data["帧率18以上比例"] =  (
+    stat_data["帧率18以上比例（%）"] =  (
         round(fps_gt_18*100,2),
         "90%以上最佳"
         )
-    stat_data["帧率25以上比例"] = (
+    stat_data["帧率25以上比例（%）"] = (
         round(fps_gt_25*100,2),
         "80%以上最佳"
     )
@@ -131,13 +131,83 @@ def export(app_name:str,data:dict,filename:str):
 
     fps_frametime_gt_100_rate = fps_frametime_gt_100*60*3600
 
-    stat_data["FrameTime大于100ms的比例"] = (
+    stat_data["FrameTime大于100ms的比例（%）"] = (
         round(fps_frametime_gt_100*100,2),
-        "帧间隔大于100ms比例越高意味着渲染压力越大"
+        "帧间隔大于100ms比例越高意味着渲染压力越大\n算法不是很准，仅供参考"
     )
     stat_data["FrameTime大于100ms的概率（次/小时）"] = (
-        round(fps_frametime_gt_100_rate*100,2),
-        "帧间隔大于100ms的概率越高意味着渲染影响到流畅体验"
+        round(fps_frametime_gt_100_rate,2),
+        "帧间隔大于100ms的概率越高意味着渲染影响到流畅体验\n算法不是很准，仅供参考"
+    )
+
+
+    # 内存
+    mem_data = data["data"]["Memory"]
+    pss_list = [mem["PSS"] for mem in mem_data.values()]
+    swap_list = [mem["SwappedDirty"] for mem in mem_data.values()]
+    pss_swap_list = [pss_list[i]+swap_list[i] for i in range(record_length)]
+
+    avg_pss = sum(pss_list)/record_length
+    max_pss = max(pss_list)
+    max_pss_swap = max(pss_swap_list)
+
+    stat_data["平均内存占用(MB)"] = (
+        round(avg_pss,2),
+        "平均PSS"
+    )
+    stat_data["峰值内存占用(MB)"] = (
+        round(max_pss,2),
+        "峰值PSS"
+    )
+    stat_data["峰值PSS+SWAP(MB)"] = (
+        round(max_pss_swap,2),
+        "峰值PSS+SWAP"
+    )
+
+
+    # CPU
+    cpu_data = data["data"]["CPU"]
+    app_cpu_list = [cpu['AppCPU'] for cpu in cpu_data.values()]
+    app_cpu_n_list = [cpu['AppCPUNormalized'] for cpu in cpu_data.values()]
+    avg_app_cpu = sum(app_cpu_list)/record_length
+    app_cpu_lt_60 = len(list(
+        filter(lambda v:v<=60, app_cpu_list)
+    ))/record_length
+    app_cpu_lt_80 = len(list(
+        filter(lambda v:v<=80, app_cpu_list)
+    ))/record_length
+
+    avg_app_cpu_n = sum(app_cpu_n_list)/record_length
+    app_cpu_n_lt_60 = len(list(
+        filter(lambda v:v<=60, app_cpu_n_list)
+    ))/record_length
+    app_cpu_n_lt_80 = len(list(
+        filter(lambda v:v<=80, app_cpu_n_list)
+    ))/record_length
+
+    stat_data["平均AppCPU占用（%）"] = (
+        round(avg_app_cpu,2),
+        ""
+    )
+    stat_data["平均AppCPU小于60%的比例（%）"] = (
+        round(app_cpu_lt_60*100,2),
+        ""
+    )
+    stat_data["平均AppCPU小于80%的比例（%）"] = (
+        round(app_cpu_lt_80*100,2),
+        ""
+    )
+    stat_data["平均AppCPU占用（标准化%）"] = (
+        round(avg_app_cpu_n,2),
+        ""
+    )
+    stat_data["平均AppCPU小于60%的比例（标准化%）"] = (
+        round(app_cpu_n_lt_60*100,2),
+        ""
+    )
+    stat_data["平均AppCPU小于80%的比例（标准化%）"] = (
+        round(app_cpu_n_lt_80*100,2),
+        ""
     )
 
     cur_row += 1
@@ -155,6 +225,7 @@ def export(app_name:str,data:dict,filename:str):
         c_content = ws.cell(cur_row, 2, stat_data[key][0])
         c_content.fill = CONTENT_FILL
         c_content.border = BORDER
+
 
     # 调整列宽
     adjust_width(ws)
