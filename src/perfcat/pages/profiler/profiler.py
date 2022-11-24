@@ -217,7 +217,7 @@ class Profiler(Page, Ui_Profiler):
 
         log.debug(f"更新按钮状态 valid_device:{valid_device} valid_app:{valid_app}")
         self.btn_connect.setEnabled(valid_device and valid_app)
-        self.btn_save.setEnabled(valid_device and valid_app)
+        # self.btn_save.setEnabled(valid_device and valid_app)
 
         self.logcat.device = self.current_device
 
@@ -427,6 +427,7 @@ class Profiler(Page, Ui_Profiler):
             self.clear_all_data()
             self.start_tick()
             self.btn_open.setEnabled(False)
+            self.btn_save.setEnabled(True)
         else:
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
@@ -435,6 +436,7 @@ class Profiler(Page, Ui_Profiler):
             self.stop_tick()
             self.btn_record.setChecked(False)
             self.btn_open.setEnabled(True)
+            self.btn_save.setEnabled(self.tick_count!=0)
             self.record_range = [0, 0]
 
         self.cbx_device.setDisabled(enable)
@@ -470,23 +472,26 @@ class Profiler(Page, Ui_Profiler):
         date_str = time.strftime("%Y-%m-%d_%H-%M-%S")
         last_dir = settings.value("profiler/last_dir", "")
 
-        file_name = QFileDialog.getSaveFileName(
+        file_names = QFileDialog.getSaveFileName(
             self,
             "保存记录",
             os.path.join(last_dir, f"{device_name}_{app_name}_{date_str}"),
-            "perfcat(*.pc);;excel(*.xlsx)",
+            "all(*.*);;perfcat(*.pc);;excel(*.xlsx)",
         )
-        if file_name[0]:
-            if file_name[1] == "perfcat(*.pc)":
+        if file_names[0]:
+            if file_names[1] in ["perfcat(*.pc)","all(*.*)"]:
                 self.btn_record.setChecked(False)
                 self.update()
-                with open(file_name[0], "w", encoding="utf-8") as f:
+                file_name = file_names[0] if not os.path.splitext(file_names[0]) else file_names[0]+".pc"
+                with open(file_name, "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=4)
-                    self.notify(f"保存到 {file_name[0]}", ButtonStyle.success)
-                last_dir = os.path.dirname(file_name[0])
+                    self.notify(f"保存到 {file_name}", ButtonStyle.success)
+                last_dir = os.path.dirname(file_names[0])
                 settings.setValue("profiler/last_dir", last_dir)
-            elif file_name[1] == "excel(*.xlsx)":
-                export(app_name,data, file_name[0])
+
+            if file_names[1] in ["excel(*.xlsx)","all(*.*)"]:
+                file_name = file_names[0] if not os.path.splitext(file_names[0]) else file_names[0]+".xlsx"
+                export(app_name,data, file_name)
 
 
     def _open_file(self):

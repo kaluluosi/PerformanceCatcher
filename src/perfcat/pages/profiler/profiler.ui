@@ -783,6 +783,9 @@ QHeaderView {
               </item>
               <item>
                <widget class="QToolButton" name="btn_save">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>36</width>

@@ -696,6 +696,7 @@ class Ui_Profiler(object):
 
         self.btn_save = QToolButton(self.frame_2)
         self.btn_save.setObjectName(u"btn_save")
+        self.btn_save.setEnabled(False)
         self.btn_save.setMaximumSize(QSize(36, 36))
         icon3 = QIcon()
         icon3.addFile(u":/icon_w/assets/svg_white/save.svg", QSize(), QIcon.Normal, QIcon.Off)
