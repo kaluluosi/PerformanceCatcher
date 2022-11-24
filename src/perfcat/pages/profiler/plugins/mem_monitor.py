@@ -40,13 +40,13 @@ class MemMonitor(MonitorChart):
         mem_info = device.get_meminfo(package_name)
 
         self._sample_data[sec] = {
-            "PSS":mem_info.pss / 1024,
-            "PrivateDirty":mem_info.private_dirty / 1024,
-            "PrivateClean": mem_info.private_clean/ 1024,
-            "SwappedDirty": mem_info.swapped_dirty/ 1024,
-            "HeapSize": mem_info.heap_size / 1024,
-            "HeapAlloc": mem_info.heap_alloc / 1024,
-            "HeapFree": mem_info.heap_free / 1024,
+            "PSS":round(mem_info.pss / 1024,2),
+            "PrivateDirty":round(mem_info.private_dirty / 1024,2),
+            "PrivateClean": round(mem_info.private_clean/ 1024,2),
+            "SwappedDirty": round(mem_info.swapped_dirty/ 1024,2),
+            "HeapSize": round(mem_info.heap_size / 1024,2),
+            "HeapAlloc": round(mem_info.heap_alloc / 1024,2),
+            "HeapFree": round(mem_info.heap_free / 1024,2),
         }
 
         for k,v in self._sample_data[sec].items():

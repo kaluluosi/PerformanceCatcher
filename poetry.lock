@@ -61,6 +61,19 @@ url = "https://mirrors.aliyun.com/pypi/simple"
 reference = "aliyun"
 
 [[package]]
+name = "et-xmlfile"
+version = "1.1.0"
+description = "An implementation of lxml.xmlfile for the standard library"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
+[[package]]
 name = "icespringpysidestubs-pyside6"
 version = "1.3.1"
 description = "PySide6 stubs with Qt signals and Qt documentations and more"
@@ -133,6 +146,22 @@ description = "Python compiler with full language support and CPython compatibil
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
+[[package]]
+name = "openpyxl"
+version = "3.0.10"
+description = "A Python library to read/write Excel 2010 xlsx/xlsm files"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+et-xmlfile = "*"
 
 [package.source]
 type = "legacy"
@@ -441,7 +470,7 @@ reference = "aliyun"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "0b721d17e76981b0297531a5722722c0ef8adcb7dfa997d25e256f4b6a31425b"
+content-hash = "91994aa8cda2fd9d4d349c16f3d92e75e88d5d984c9ad8509f46bf834af89791"
 
 [metadata.files]
 atomicwrites = [
@@ -459,6 +488,10 @@ autopep8 = [
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
+]
+et-xmlfile = [
+    {file = "et_xmlfile-1.1.0-py3-none-any.whl", hash = "sha256:a2ba85d1d6a74ef63837eed693bcb89c3f752169b0e3e7ae5b16ca5e1b3deada"},
+    {file = "et_xmlfile-1.1.0.tar.gz", hash = "sha256:8eb9e2bc2f8c97e37a2dc85a09ecdcdec9d8a396530a6d5a33b30b9a92da0c5c"},
 ]
 icespringpysidestubs-pyside6 = [
     {file = "IceSpringPySideStubs-PySide6-1.3.1.tar.gz", hash = "sha256:8ea90c61f10ee9aba2dde75de65255bc6e92f535d00250a7b305ccc6b6902f0c"},
@@ -478,6 +511,10 @@ more-itertools = [
 ]
 nuitka = [
     {file = "Nuitka-0.7.7.tar.gz", hash = "sha256:c2bac25edae92d3ab00f6d16f9e32e5f25f55508e1e380b0ab0120e46e4b1767"},
+]
+openpyxl = [
+    {file = "openpyxl-3.0.10-py2.py3-none-any.whl", hash = "sha256:0ab6d25d01799f97a9464630abacbb34aafecdcaa0ef3cba6d6b3499867d0355"},
+    {file = "openpyxl-3.0.10.tar.gz", hash = "sha256:e47805627aebcf860edb4edf7987b1309c1b3632f3750538ed962bbcc3bd7449"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},

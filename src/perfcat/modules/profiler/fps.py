@@ -52,7 +52,7 @@ class FpsSampler:
         Returns:
             float: 帧率
         """
-        data = {"fps": -1, "jank": -1, "big_jank": -1, "frametime": -1}
+        data = {"fps": -1, "jank": -1, "big_jank": -1, "frametimes": [0]}
 
         if not self.surface_name:
             log.warning("没有找到surface")
@@ -99,7 +99,7 @@ class FpsSampler:
         big_jank_count = 0
 
         # 计算帧间隔，转为ms
-        frametimes = [ (data_table[i+1][0] - data_table[i][0])/pow(10,6) for i in range(len(data_table)-1)]
+        frametimes = [ round((data_table[i+1][0] - data_table[i][0])/pow(10,6),2) for i in range(len(data_table)-1)]
 
 
         for i in range(3,len(frametimes)):

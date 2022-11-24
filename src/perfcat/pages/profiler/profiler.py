@@ -50,6 +50,7 @@ from PySide6.QtCore import (
     QThreadPool,
 )
 from perfcat.modules.hot_plug import HotPlugWatcher
+from perfcat.modules.reporter import export
 from perfcat.settings import settings
 
 from ...ui.constant import ButtonStyle
@@ -466,23 +467,27 @@ class Profiler(Page, Ui_Profiler):
         elif result == QMessageBox.No:
             data = self._get_data(False)
 
-        date_str = time.strftime("%Y-%m_%H-%M-%S")
+        date_str = time.strftime("%Y-%m-%d_%H-%M-%S")
         last_dir = settings.value("profiler/last_dir", "")
 
         file_name = QFileDialog.getSaveFileName(
             self,
             "保存记录",
-            os.path.join(last_dir, f"{device_name}_{app_name}_{date_str}.pc"),
-            "perfcat(*.pc)",
+            os.path.join(last_dir, f"{device_name}_{app_name}_{date_str}"),
+            "perfcat(*.pc);;excel(*.xlsx)",
         )
         if file_name[0]:
-            self.btn_record.setChecked(False)
-            self.update()
-            with open(file_name[0], "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=4)
-                self.notify(f"保存到 {file_name[0]}", ButtonStyle.success)
-            last_dir = os.path.dirname(file_name[0])
-            settings.setValue("profiler/last_dir", last_dir)
+            if file_name[1] == "perfcat(*.pc)":
+                self.btn_record.setChecked(False)
+                self.update()
+                with open(file_name[0], "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=4)
+                    self.notify(f"保存到 {file_name[0]}", ButtonStyle.success)
+                last_dir = os.path.dirname(file_name[0])
+                settings.setValue("profiler/last_dir", last_dir)
+            elif file_name[1] == "excel(*.xlsx)":
+                export(app_name,data, file_name[0])
+
 
     def _open_file(self):
         last_dir = settings.value("profiler/last_dir", "")
@@ -510,6 +515,7 @@ class Profiler(Page, Ui_Profiler):
 
             data["data"][plugin.objectName()] = _p_data
         data["device_info"] = self.device_info
+        data["tick_count"] = self.tick_count
         return data
 
     def _on_toggled_record(self, checked: bool):

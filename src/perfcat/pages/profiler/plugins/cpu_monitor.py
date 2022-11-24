@@ -96,9 +96,10 @@ class CpuMonitor(MonitorChart):
             cur_total_cpu = device.get_total_cpu()
             cpu_diff:TotalCPUStat = cur_total_cpu - self.last_total_cpu_state
             total_cpu_usage = 100 * (cpu_diff.user + cpu_diff.system) / cpu_diff.total()
+            total_cpu_usage = round(total_cpu_usage,2)
             self.last_total_cpu_state = cur_total_cpu
 
-        total_cpu_usage_normalized = total_cpu_usage * factor
+        total_cpu_usage_normalized = round(total_cpu_usage * factor,2)
         self.add_point("TotalCPU", sec, total_cpu_usage_normalized)
 
 
@@ -115,8 +116,9 @@ class CpuMonitor(MonitorChart):
             else:
                 pid_diff = cur_pid_cpu - self.last_pid_cpu_state
                 app_cpu_usage = 100 * pid_diff.total() / cpu_diff.total()
+                app_cpu_usage = round(app_cpu_usage,2)
                 self.last_pid_cpu_state = cur_pid_cpu
-            app_cpu_usage_normalized = app_cpu_usage*factor
+            app_cpu_usage_normalized = round(app_cpu_usage*factor,2)
             self.add_point("AppCPU", sec, app_cpu_usage_normalized)
 
         # 采集所有cpu占用
@@ -131,7 +133,7 @@ class CpuMonitor(MonitorChart):
                 last_cpu_state = self.last_all_cpu_state[index]
                 cpu_diff:TotalCPUStat = cpu_state-last_cpu_state
                 cpu_usage = 100* (cpu_diff.user+cpu_diff.system)/cpu_diff.total()
-                all_cpu_usage[index] = cpu_usage
+                all_cpu_usage[index] = round(cpu_usage,2)
             self.last_all_cpu_state = all_cpu_state
 
         self._sample_data[sec] = {
@@ -141,7 +143,7 @@ class CpuMonitor(MonitorChart):
             "TotalCPUNormalized":total_cpu_usage_normalized,
             "AllCPUCurFreq": all_cpu_cur_freq,
             "AllCPUUsage":all_cpu_usage,
-            "AllCPUUsageNormalized":{index:(usage* factor) for index, usage in all_cpu_usage.items()}
+            "AllCPUUsageNormalized":{index:round(usage* factor,2) for index, usage in all_cpu_usage.items()}
         }
 
 

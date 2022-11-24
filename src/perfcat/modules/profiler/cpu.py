@@ -49,12 +49,14 @@ def normalize_factor(device: Device):
     # 找出所有在在线的CPU
     online_cmd = "cat /sys/devices/system/cpu/online"
     online = device.shell(online_cmd)
-    count = int(online.strip().split("-")[1])
+    phases =[list(map(lambda v:int(v), sub)) for sub in [p.split("-") for p in online.split(",")]]
 
     # 合计所有在线CPU的当前频率
     cur_freq_sum = 0
     all_cur_freq = get_all_cpu_cur_freq(device)
-    cur_freq_sum = sum([all_cur_freq[i] for i in range(count)])
+    for p in phases:
+        for i in range(p[0],p[1]+1):
+            cur_freq_sum +=all_cur_freq[i]
 
     return cur_freq_sum / total_max_freq
 
