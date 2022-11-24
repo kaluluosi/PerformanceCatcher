@@ -168,7 +168,9 @@ class CpuMonitor(MonitorChart):
             total_cpu_value = data_table["TotalCPUNormalized"]
 
             if app_cpu_value:
-                self.add_point("AppCPU(标准化)", sec, app_cpu_value)
+                self.add_point("AppCPU(标准化)", int(sec), app_cpu_value)
 
             if total_cpu_value:
-                self.add_point("TotalCPU(标准化)", sec, total_cpu_value)
+                self.add_point("TotalCPU(标准化)", int(sec), total_cpu_value)
+
+            self.flush()

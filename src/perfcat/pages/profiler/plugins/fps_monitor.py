@@ -96,11 +96,17 @@ class FpsMonitor(MonitorChart):
 
     def from_dict(self, data: dict):
         for sec, data_table in data.items():
+            fps = data_table["fps"]
             jank_value = data_table['jank']
             big_jank_value = data_table['big_jank']
 
+            if fps:
+                self.add_point("FPS", int(sec), fps)
+
             if jank_value:
-                self.add_point("Jank-卡顿", sec, jank_value)
+                self.add_point("Jank-卡顿", int(sec), jank_value)
 
             if big_jank_value:
-                self.add_point("BigJank-大卡顿", sec, data['big_jank'])
+                self.add_point("BigJank-大卡顿", int(sec), big_jank_value)
+
+            self.flush()

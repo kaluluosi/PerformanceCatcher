@@ -135,7 +135,7 @@ def export(app_name:str,data:dict,filename:str):
         round(fps_frametime_gt_100*100,2),
         "帧间隔大于100ms比例越高意味着渲染压力越大\n算法不是很准，仅供参考"
     )
-    stat_data["FrameTime大于100ms的概率（次/小时）"] = (
+    stat_data["FrameTime大于100ms的频率（次/小时）"] = (
         round(fps_frametime_gt_100_rate,2),
         "帧间隔大于100ms的概率越高意味着渲染影响到流畅体验\n算法不是很准，仅供参考"
     )

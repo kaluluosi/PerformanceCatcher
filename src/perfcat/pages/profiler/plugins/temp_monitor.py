@@ -78,6 +78,7 @@ class TempMonitor(MonitorChart):
             return data
 
     def from_dict(self, data: dict):
-        for sec, data_table in data:
+        for sec, data_table in data.items():
             for k, v in data_table.items():
-                self.add_point(k,sec, v)
+                self.add_point(k,int(sec), v)
+            self.flush()

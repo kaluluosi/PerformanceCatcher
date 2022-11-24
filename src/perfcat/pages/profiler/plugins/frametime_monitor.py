@@ -48,4 +48,6 @@ class FrameTimeMonitor(MonitorChart):
         for sec, data_table in data.items():
             frametimes = data_table["frametimes"]
             frametime = sum(frametimes)/len(frametimes)
-            self.add_point("FrameTime", sec, frametime)
+            self.add_point("FrameTime", int(sec), frametime)
+            
+            self.flush()
