@@ -16,7 +16,7 @@
 from ppadb.device import Device
 from .base.chart import MonitorChart
 from perfcat.modules.profiler.temp import MarkTempSampler
-
+from PySide6.QtCharts import QLineSeries
 
 class TempMonitor(MonitorChart):
     def __init__(
@@ -24,29 +24,27 @@ class TempMonitor(MonitorChart):
         parent=None,
     ):
         super().__init__(
-            series_names=["整体温度", "CPU温度", "GPU温度", "NPU温度", "电池温度"],
-            formatter={
-                "整体温度": lambda v: f"{v}℃",
-                "CPU温度": lambda v: f"{v}℃",
-                "GPU温度": lambda v: f"{v}℃",
-                "NPU温度": lambda v: f"{v}℃",
-                "电池温度": lambda v: f"{v}℃",
-            },
             y_axis_name="℃",
             parent=parent,
         )
         self.setObjectName("Temperature")
         self.setToolTip("不少设备无法获得温度，会显示为-1")
-        self.mark_temp = None
+        self.mark_temp_sampler = None
 
         self._sample_data = {}
 
+        self.create_series("整体温度", QLineSeries(self), lambda v: f"{v}℃")
+        self.create_series("CPU温度", QLineSeries(self), lambda v: f"{v}℃")
+        self.create_series("GPU温度", QLineSeries(self), lambda v: f"{v}℃")
+        self.create_series("NPU温度", QLineSeries(self), lambda v: f"{v}℃")
+        self.create_series("电池温度", QLineSeries(self), lambda v: f"{v}℃")
+
     def sample(self, sec: int, device: Device, package_name: str):
 
-        if self.mark_temp is None:
-            self.mark_temp = MarkTempSampler(device)
+        if self.mark_temp_sampler is None:
+            self.mark_temp_sampler = MarkTempSampler(device)
 
-        temp_data = self.mark_temp.get_temp()
+        temp_data = self.mark_temp_sampler.get_temp()
 
         self._sample_data[sec] = {
             "整体温度": temp_data["total"],
@@ -60,7 +58,7 @@ class TempMonitor(MonitorChart):
             self.add_point(k, sec, v)
 
     def reset_series_data(self):
-        self.mark_temp = None
+        self.mark_temp_sampler = None
         self._sample_data = {}
         return super().reset_series_data()
 

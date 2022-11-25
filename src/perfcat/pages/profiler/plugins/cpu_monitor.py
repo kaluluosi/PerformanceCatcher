@@ -21,6 +21,8 @@
 
 import logging
 
+from PySide6.QtCharts import QLineSeries
+
 from perfcat.modules.profiler.cpu import get_all_cpu_cur_freq, normalize_factor, get_all_cpu_state
 from ppadb.device import Device
 from .base.chart import MonitorChart
@@ -46,8 +48,6 @@ def __cpu_max_freq(dev: Device) -> list:
 class CpuMonitor(MonitorChart):
     def __init__(self, parent=None):
         super().__init__(
-            series_names=["TotalCPU(标准化)", "AppCPU(标准化)"],
-            formatter={"TotalCPU(标准化)": lambda v: f"{v}%", "AppCPU(标准化)": lambda v: f"{v}%"},
             y_axis_name="%",
             parent=parent,
         )
@@ -56,10 +56,13 @@ class CpuMonitor(MonitorChart):
         self.last_total_cpu_state = None
         self.last_pid_cpu_state = None
         self.last_all_cpu_state = None
-        
+
         self.cpu_count = None
 
         self._sample_data = {}
+
+        self.create_series("TotalCPU(标准化)", QLineSeries(self), lambda v: f"{v}%")
+        self.create_series("AppCPU(标准化)", QLineSeries(self), lambda v: f"{v}%")
 
     def reset_series_data(self):
         self.pid = None

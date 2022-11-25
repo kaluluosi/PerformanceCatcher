@@ -14,7 +14,7 @@ fps采样
 # here put the import lib
 from ppadb.device import Device
 from .base.chart import MonitorChart
-from PySide6.QtCharts import QScatterSeries
+from PySide6.QtCharts import QScatterSeries,QLineSeries
 from perfcat.modules.profiler.fps import FpsSampler
 
 
@@ -22,40 +22,18 @@ class FpsMonitor(MonitorChart):
     def __init__(self, parent):
         super().__init__(
             parent,
-            series_names=["FPS", "Jank-卡顿", "BigJank-大卡顿"],
-            formatter={
-                "Jank-卡顿": lambda v: f"{v}次",
-                "BigJank-大卡顿": lambda v: f"{v}次",
-            },
             y_axis_name="FPS",
         )
         self.setObjectName("FPS")
-        self.chart().removeSeries(self._series_map["Jank-卡顿"])
-        self.chart().removeSeries(self._series_map["BigJank-大卡顿"])
+
+        series = QLineSeries(self)
+        self.create_series("FPS", series, lambda v:f"{v}")
 
         series = QScatterSeries(self)
-        series.setName("Jank-卡顿")
-        self._series_map["Jank-卡顿"] = series
-        self.chart().addSeries(series)
-
-        pen = series.pen()
-        pen.setWidth(1)
-        series.setPen(pen)
-
-        self.chart().setAxisX(self.axis_x, series)
-        self.chart().setAxisY(self.axis_y, series)
+        self.create_series("Jank-卡顿", series, lambda v:f"{v}次")
 
         series = QScatterSeries(self)
-        series.setName("BigJank-大卡顿")
-        self._series_map["BigJank-大卡顿"] = series
-        self.chart().addSeries(series)
-
-        pen = series.pen()
-        pen.setWidth(1)
-        series.setPen(pen)
-
-        self.chart().setAxisX(self.axis_x, series)
-        self.chart().setAxisY(self.axis_y, series)
+        self.create_series("BigJank-大卡顿", series, lambda v:f"{v}次")
 
         self.fps_sampler = None
 
