@@ -470,7 +470,7 @@ reference = "aliyun"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "91994aa8cda2fd9d4d349c16f3d92e75e88d5d984c9ad8509f46bf834af89791"
+content-hash = "9aa157c3d2c9a9bb1e08cbace808d82e87ed37ebbd4f70ea95d70fb2fb92ada9"
 
 [metadata.files]
 atomicwrites = [
