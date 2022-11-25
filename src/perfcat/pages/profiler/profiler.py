@@ -428,6 +428,7 @@ class Profiler(Page, Ui_Profiler):
             self.start_tick()
             self.btn_open.setEnabled(False)
             self.btn_save.setEnabled(True)
+            self.record_range = [0, 0]
         else:
             if self.current_device:  # current_device非none就是还连着usb
                 log.debug(f"断开设备 {self.current_device.serial}")
@@ -437,7 +438,6 @@ class Profiler(Page, Ui_Profiler):
             self.btn_record.setChecked(False)
             self.btn_open.setEnabled(True)
             self.btn_save.setEnabled(self.tick_count!=0)
-            self.record_range = [0, 0]
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)
@@ -521,6 +521,7 @@ class Profiler(Page, Ui_Profiler):
             data["data"][plugin.objectName()] = _p_data
         data["device_info"] = self.device_info
         data["tick_count"] = self.tick_count
+        data["record_range"] = self.record_range
         return data
 
     def _on_toggled_record(self, checked: bool):

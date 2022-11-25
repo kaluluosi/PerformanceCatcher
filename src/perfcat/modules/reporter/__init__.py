@@ -234,12 +234,12 @@ def export(app_name:str,data:dict,filename:str):
 
     records = data["data"]
 
-    tick_count = data["tick_count"]
+    record_range = data["record_range"]
     title_row = 1
 
     table = {}
 
-    for tick in range(tick_count):
+    for tick in range(record_range[0],record_range[1]):
         table[tick] = {}
         for record_name,record_dict in records.items():
             if not record_dict: continue
@@ -256,7 +256,7 @@ def export(app_name:str,data:dict,filename:str):
                     table[tick][title] = value
 
     if table:
-        titles = table[0].keys()
+        titles = list(table.values())[0].keys()
         for col, title in enumerate(titles):
             c_title = ws_detail.cell(title_row, col+2, title)
             c_title.fill = TITLE_FILL
@@ -266,7 +266,7 @@ def export(app_name:str,data:dict,filename:str):
         c_title_sec.fill = TITLE_FILL
         c_title_sec.border = BORDER
 
-        for row, row_data in table.items():
+        for row, row_data in enumerate(table.values()):
             cell = ws_detail.cell(title_row+row+1,1,row) # 写入秒
             cell.fill = CONTENT_FILL
             cell.border = BORDER
