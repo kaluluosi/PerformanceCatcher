@@ -25,5 +25,5 @@ def main():
     app = PerfcatApplication(sys.argv)
     return app.exec()
 
-
-sys.exit(main())
+if __name__ == "__main__":
+    sys.exit(main())
