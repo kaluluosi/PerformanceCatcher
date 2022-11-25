@@ -134,6 +134,11 @@ class Profiler(Page, Ui_Profiler):
             lambda: self.notify("adb server 启动中...", ButtonStyle.warning)
         )
 
+        def on_splitter_clicked(event):
+            self.frame_3.setHidden(not self.frame_3.isHidden())
+
+        self.right.mouseDoubleClickEvent  = on_splitter_clicked
+
     def _init_plugins(self):
         self.reset_h_scrollbar()
         for plugin_cls in register:
