@@ -2,20 +2,20 @@
 from ppadb.device import Device
 from .base.chart import MonitorChart
 from perfcat.modules.profiler.fps import FpsSampler
-
+from PySide6.QtCharts import QLineSeries
 
 class FrameTimeMonitor(MonitorChart):
     def __init__(self, parent):
         super().__init__(
             parent,
-            series_names=["FrameTime"],
-            formatter={"FrameTime": lambda v: f"{v}ms"},
             y_axis_name="FrameTime",
         )
         self.setObjectName("FrameTime")
         self.fps_sampler = None
 
         self._sample_data = {}
+
+        self.create_series("FrameTime", QLineSeries(self), lambda v:f"{v}ms")
 
     def sample(self, sec: int, device: Device, package_name: str):
         if self.fps_sampler is None:

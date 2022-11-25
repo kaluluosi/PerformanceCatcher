@@ -1,34 +1,24 @@
 from ppadb.device import Device
 from .base.chart import MonitorChart
-
+from PySide6.QtCharts import QLineSeries
 
 class MemMonitor(MonitorChart):
     def __init__(self, parent=None):
         super().__init__(
-            series_names=[
-                "PSS",
-                "PrivateDirty",
-                "PrivateClean",
-                "SwappedDirty",
-                "HeapSize",
-                "HeapAlloc",
-                "HeapFree",
-            ],
-            formatter={
-                "PSS": lambda v: f"{v}MB",
-                "PrivateDirty": lambda v: f"{v}MB",
-                "PrivateClean": lambda v: f"{v}MB",
-                "SwappedDirty": lambda v: f"{v}MB",
-                "HeapSize": lambda v: f"{v}MB",
-                "HeapAlloc": lambda v: f"{v}MB",
-                "HeapFree": lambda v: f"{v}MB",
-            },
             y_axis_name="MEM",
             parent=parent,
         )
         self.setObjectName("Memory")
 
         self._sample_data ={}
+
+        self.create_series("PSS", QLineSeries(self),lambda v: f"{v}MB")
+        self.create_series("PrivateDirty", QLineSeries(self),lambda v: f"{v}MB")
+        self.create_series("PrivateClean", QLineSeries(self),lambda v: f"{v}MB")
+        self.create_series("SwappedDirty", QLineSeries(self),lambda v: f"{v}MB")
+        self.create_series("HeapSize", QLineSeries(self),lambda v: f"{v}MB")
+        self.create_series("HeapAlloc", QLineSeries(self),lambda v: f"{v}MB")
+        self.create_series("HeapFree", QLineSeries(self),lambda v: f"{v}MB")
 
     def reset_series_data(self):
         self._sample_data = {}

@@ -19,7 +19,7 @@ import logging
 import math
 import PySide6
 
-from typing import Union
+from typing import Callable, Union
 from ppadb.device import Device
 from PySide6.QtCharts import (
     QChart,
@@ -63,8 +63,6 @@ class MonitorChart(QChartView):
     def __init__(
         self,
         parent,
-        series_names: list[str] = [],
-        formatter: dict = {},
         y_axis_name="%",
     ):
         super().__init__(parent)
@@ -84,7 +82,7 @@ class MonitorChart(QChartView):
 
         self._series_map: dict[str, QLineSeries] = {}
         self._point_buffer = {}  # 记录点缓冲池，add_point的时候会缓存到这里，然后通过flush函数一起写入serial
-        self._formatter: dict[str, str] = formatter  # 值格式化
+        self._value_formatter: dict[str, Callable[[float], str]] = {}  # 值格式化
         self._mark_line: QPoint = QPoint()  # 标线坐标
 
         self.tick_count = 0
@@ -116,25 +114,18 @@ class MonitorChart(QChartView):
 
         self.axis_x.rangeChanged.connect(self.update_x_offset)
 
-        # 创建并装载系列
-        for s_name in series_names:
-            series = QLineSeries(self)
-            series.setName(s_name)
-            self._series_map[s_name] = series
-            _chart.addSeries(series)
-
-            pen = series.pen()
-            pen.setWidth(1)
-            series.setPen(pen)
-
-            _chart.setAxisX(self.axis_x, series)
-            _chart.setAxisY(self.axis_y, series)
-
         self.setChart(_chart)
 
         for mk in _chart.legend().markers():
             mk.clicked.connect(self._on_marker_clicked)
 
+    def create_series(self, name:str,series:QAbstractSeries,v_format:Callable[[float],str]=lambda v:v):
+        series.setName(name)
+        self.chart().addSeries(series)
+        self.chart().setAxisX(self.axis_x, series)
+        self.chart().setAxisY(self.axis_y, series)
+        self._value_formatter[name] = v_format
+        self._series_map[name] = series
 
     def reset_series_data(self):
         """
@@ -414,7 +405,7 @@ class MonitorChart(QChartView):
         for name, point in points.items():
             if not self._series_map[name].isVisible():
                 continue
-            format = self._formatter.get(name, lambda v: v)
+            format = self._value_formatter.get(name, lambda v: v)
             lines.append(f"{name}: {format(point.y())}")
         text = "\n".join(lines)
 
