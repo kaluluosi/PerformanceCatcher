@@ -71,8 +71,6 @@ class FpsSampler:
         fps = self._calc_fps(data_table, refresh_period)
         jank, big_jank, frametime = self._calc_jank(data_table, refresh_period)
 
-        self.device.shell("adb shell dumpsys SurfaceFlinger --latency-clear")
-
         return {
             "fps": fps, 
             "jank": jank, 

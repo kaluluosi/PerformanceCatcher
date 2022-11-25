@@ -21,7 +21,8 @@ class FrameTimeMonitor(MonitorChart):
         if self.fps_sampler is None:
             self.fps_sampler = FpsSampler(device, package_name)
 
-        frametimes = self.fps_sampler.data["frametimes"]
+        data = self.fps_sampler.data
+        frametimes = data["frametimes"]
         frametime = sum(frametimes)/len(frametimes)
 
         self.add_point("FrameTime", sec, frametime)
