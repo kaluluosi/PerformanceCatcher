@@ -521,7 +521,11 @@ class Profiler(Page, Ui_Profiler):
             data["data"][plugin.objectName()] = _p_data
         data["device_info"] = self.device_info
         data["tick_count"] = self.tick_count
-        data["record_range"] = self.record_range
+        if all:
+            data["record_range"] = (0, self.tick_count)
+        else:
+            data["record_range"] = self.record_range
+
         return data
 
     def _on_toggled_record(self, checked: bool):
