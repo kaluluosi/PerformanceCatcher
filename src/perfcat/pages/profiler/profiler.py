@@ -503,6 +503,8 @@ class Profiler(Page, Ui_Profiler):
                 data = json.load(f)
                 data = data["data"]
 
+                self.clear_all_data()
+
                 for plugin in self.plugins:
                     if plugin.objectName() in data:
                         plugin.from_dict(data[plugin.objectName()])
