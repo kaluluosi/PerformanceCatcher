@@ -6,9 +6,9 @@ from .fps_monitor import FpsMonitor
 from .frametime_monitor import FrameTimeMonitor
 
 register: list[MonitorChart] = [
+    FpsMonitor,
     CpuMonitor,
     MemMonitor,
-    FpsMonitor,
     FrameTimeMonitor,
     TempMonitor,
 ]
