@@ -22,7 +22,7 @@ class FrameTimeMonitor(MonitorChart):
             self.fps_sampler = FpsSampler(device, package_name)
 
         data = self.fps_sampler.data
-        frametimes = data["frametimes"]
+        frametimes = data["*frametimes"]
         frametime = sum(frametimes)/len(frametimes)
 
         self.add_point("FrameTime", sec, frametime)
@@ -47,7 +47,7 @@ class FrameTimeMonitor(MonitorChart):
 
     def from_dict(self, data: dict):
         for sec, data_table in data.items():
-            frametimes = data_table["frametimes"]
+            frametimes = data_table["*frametimes"]
             frametime = sum(frametimes)/len(frametimes)
             self.add_point("FrameTime", int(sec), frametime)
             
