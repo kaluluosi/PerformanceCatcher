@@ -6,6 +6,10 @@ from openpyxl.styles import borders
 from openpyxl.comments import Comment
 from openpyxl.worksheet.worksheet import Worksheet
 
+from openpyxl.chart.axis import DateAxis
+from openpyxl.chart.line_chart import LineChart
+from openpyxl.chart.reference import Reference
+
 THIN_SIDE = borders.Side(border_style=borders.BORDER_THIN)
 BORDER = borders.Border(top=THIN_SIDE,left=THIN_SIDE,right=THIN_SIDE,bottom=THIN_SIDE)
 TAG_FILL = PatternFill("solid", start_color="c0504d")
@@ -123,7 +127,7 @@ def export(app_name:str,data:dict,filename:str):
     fps_frametime_gt_100 = 0
     frametime_count = 0
     for data_value in fps_data.values():
-        framtimes:list = data_value['frametimes']
+        framtimes:list = data_value['*frametimes']
         fps_frametime_gt_100 += len(list(filter(lambda ft:ft>100, framtimes)))
         frametime_count+= len(framtimes)
 
@@ -275,7 +279,37 @@ def export(app_name:str,data:dict,filename:str):
                 cell.fill = CONTENT_FILL
                 cell.border = BORDER
 
-    adjust_width(ws_detail)
+        adjust_width(ws_detail)
+    
+        # FPS chart
+        selected_titles = ['fps', 'jank','big_jank']
+        chart = create_chart(ws_detail,selected_titles,titles,'FPS','')
+        ws.add_chart(chart, 'A44')
+        
+        # CPU chart
+        selected_titles = ['AppCPU', 'TotalCPU']
+        chart = create_chart(ws_detail,selected_titles,titles,'CPU占用','%')
+        ws.add_chart(chart, 'A74')
+        
+        # MEM chart
+        selected_titles = [
+            'PSS', 'PrivateDirty','PrivateClean','SwappedDirty',
+            'HeapSize','HeapAlloc','HeapFree'
+            ]
+        chart = create_chart(ws_detail,selected_titles,titles,'内存占用','%')
+        ws.add_chart(chart, 'A104')
+        
+        # Temp chart
+        selected_titles = [
+            '整体温度',
+            'CPU温度',
+            'GPU温度',
+            'NPU温度',
+            '电池温度'
+            ]
+        chart = create_chart(ws_detail,selected_titles,titles,'温度','%')
+        ws.add_chart(chart, 'A134')
+        
 
     wb.save(filename)
     wb.close()
@@ -287,3 +321,20 @@ def adjust_width(ws:Worksheet):
         max_length = max([len(str(cell.value)) for cell in col])
         adjust_width = (max_length+2)*1.2
         ws.column_dimensions[col_name].width = adjust_width
+
+
+def create_chart(ws_detail:Worksheet,selected_titles:list[str],titles:list[str], chart_name:str, y_axis_name:str):
+    chart = LineChart()
+    chart.title = chart_name
+    chart.legend.position = 'r'
+    chart.y_axis.title = y_axis_name
+    chart.width = 40
+    chart.height = 12
+    titles = list(titles)
+    cols = [ titles.index(selected)+2 for selected in selected_titles]
+    
+    for col in cols:
+        data_ref = Reference(ws_detail,min_col=col,max_col=col,min_row=1,max_row=ws_detail.max_row)
+        chart.add_data(data_ref,titles_from_data=True)
+    
+    return chart
