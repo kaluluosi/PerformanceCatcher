@@ -16,6 +16,7 @@
 import logging
 import sys
 import pkg_resources
+from . import logger
 from email import message_from_string
 from importlib.metadata import metadata
 from webob.multidict import MultiDict
