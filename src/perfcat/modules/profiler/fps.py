@@ -75,7 +75,7 @@ class FpsSampler:
             "fps": fps, 
             "jank": jank, 
             "big_jank": big_jank, 
-            "frametimes": frametime,
+            "*frametimes": frametime,
             }
 
     def _parse_data(self, result: str):
