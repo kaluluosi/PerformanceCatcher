@@ -18,4 +18,5 @@
         "${resourceDirname}${pathSeparator}${resourceBasenameNoExtension}_rc.py"
     ],
     "python.linting.enabled": true,
+    "python.analysis.typeCheckingMode": "off"
 }

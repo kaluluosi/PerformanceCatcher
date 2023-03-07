@@ -62,7 +62,7 @@ def normalize_factor(device: Device):
 
 
 
-def get_all_cpu_state(device:Device) -> list[TotalCPUStat]:
+def get_all_cpu_state(device:Device) -> dict[int,TotalCPUStat]:
     pattern = re.compile(
         "cpu(\d)\s+([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s"
     )

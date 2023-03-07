@@ -77,9 +77,9 @@ class Worker(QRunnable):
 class Profiler(Page, Ui_Profiler):
 
     # 当系统设备插拔的时候发出信号
-    device_changed: SignalInstance = Signal()
+    device_changed: SignalInstance = Signal() # type:ignore
     # 初始化adb-server信号
-    adb_server_starting: SignalInstance = Signal()
+    adb_server_starting: SignalInstance = Signal() # type:ignore
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
@@ -88,7 +88,7 @@ class Profiler(Page, Ui_Profiler):
         self.clear_stylesheet()
 
         # 让监视器layout顶部对齐（designer里无法做到只能代码设置）
-        self.verticalLayout_6.setAlignment(Qt.AlignTop)
+        self.verticalLayout_6.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.adb = adb()
         self._device_info = {}
