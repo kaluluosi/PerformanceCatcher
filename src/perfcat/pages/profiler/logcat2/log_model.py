@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, List
 from PySide6.QtCore import (
     QAbstractTableModel,
     QObject,
@@ -7,7 +7,6 @@ from PySide6.QtCore import (
     QPersistentModelIndex,
     Qt,
     QSortFilterProxyModel,
-    QRegularExpression,
 )
 from PySide6.QtGui import QColor
 from perfcat.ui.constant import Color
@@ -85,7 +84,7 @@ class LogModel(QAbstractTableModel):
     def flags(self, index: Union[QModelIndex, QPersistentModelIndex]) -> Qt.ItemFlags:
         return Qt.ItemIsEnabled | Qt.ItemIsEditable | Qt.ItemIsSelectable
 
-    def get_text_by_indexes(self, indexes: list[QModelIndex]):
+    def get_text_by_indexes(self, indexes: List[QModelIndex]):
         lines = []
         row = None
 
@@ -106,9 +105,9 @@ class LogModel(QAbstractTableModel):
     def log_text(self):
         lines = []
         for each_row in self._logs:
-            line = '  '.join(each_row) + "\n"
+            line = "  ".join(each_row) + "\n"
             lines.append(line)
-        
+
         return lines
 
 

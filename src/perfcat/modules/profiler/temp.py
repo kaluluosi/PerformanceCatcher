@@ -1,4 +1,5 @@
 import logging
+from typing import List
 from ppadb.client import Client
 from ppadb.device import Device
 
@@ -6,7 +7,6 @@ log = logging.getLogger(__name__)
 
 
 class DefaultCpuTempSampler:
-
     TEMP_FILE_PATHS = [
         "/sys/devices/system/cpu/cpu0/cpufreq/cpu_temp",
         "/sys/devices/system/cpu/cpu0/cpufreq/FakeShmoo_cpu_temp",
@@ -32,7 +32,6 @@ class DefaultCpuTempSampler:
         self.cpu_temp_valid_path = None
 
     def cpu_temp(self):
-
         if not self.cpu_temp_valid_path:
             for path in self.TEMP_FILE_PATHS:
                 temp = self.__try_get_temp(path)
@@ -65,7 +64,6 @@ class DefaultCpuTempSampler:
 
 
 class MarkTempSampler:
-
     CPU_MARKS = [
         "mtktscpu",  # 联发科
         "tsens_tz_sensor",  # 高通
@@ -99,7 +97,6 @@ class MarkTempSampler:
         return list_str.split("\n")
 
     def get_sensor_temp(self, index: int):
-
         file_name = self._sensor_filename_list[index]
         temp_value = self.device.shell(self.TEMP_CMD.format(filename=file_name)) or "0"
         temp_value = self.str_to_temp(temp_value)
@@ -107,7 +104,7 @@ class MarkTempSampler:
         return temp_value
 
     def get_senser_index(self, marks):
-        sensor_list: list[str] = self._sensor_list
+        sensor_list: List[str] = self._sensor_list
         for mark in marks:
             for index, sensor_name in enumerate(sensor_list):
                 if sensor_name.lower().startswith(mark):

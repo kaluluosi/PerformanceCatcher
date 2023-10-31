@@ -13,17 +13,17 @@
 # # here put the import lib
 # # 设置环境变量切换成生产模式
 import os
-
-os.environ["MODE"] = "production"
-
 import sys
-from perfcat.app import PerfcatApplication
-from perfcat import asset_rc
+
+os.environ["MODE"] = "production"  # noqa
+from perfcat.app import PerfcatApplication  # noqa
+from perfcat import asset_rc  # noqa
 
 
 def main():
     app = PerfcatApplication(sys.argv)
     return app.exec()
+
 
 if __name__ == "__main__":
     sys.exit(main())

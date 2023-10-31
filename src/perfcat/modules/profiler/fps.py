@@ -4,7 +4,6 @@ from ppadb.client import Client
 from ppadb.device import Device
 
 
-
 log = logging.getLogger(__name__)
 
 
@@ -52,7 +51,7 @@ class FpsSampler:
         Returns:
             float: 帧率
         """
-        data = {"fps": -1, "jank": -1, "big_jank": -1, "frametimes": [0]}
+        data = {"fps": -1, "jank": -1, "big_jank": -1, "*frametimes": [0]}
 
         if not self.surface_name:
             log.warning("没有找到surface")
@@ -72,11 +71,11 @@ class FpsSampler:
         jank, big_jank, frametime = self._calc_jank(data_table, refresh_period)
 
         return {
-            "fps": fps, 
-            "jank": jank, 
-            "big_jank": big_jank, 
+            "fps": fps,
+            "jank": jank,
+            "big_jank": big_jank,
             "*frametimes": frametime,
-            }
+        }
 
     def _parse_data(self, result: str):
         lines = result.strip().split("\n")
@@ -92,30 +91,31 @@ class FpsSampler:
         return refresh_period, data
 
     def _calc_jank(self, data_table, refresh_period):
-
         jank_count = 0
         big_jank_count = 0
 
         # 计算帧间隔，转为ms
-        frametimes = [ round((data_table[i+1][0] - data_table[i][0])/pow(10,6),2) for i in range(len(data_table)-1)]
+        frametimes = [
+            round((data_table[i + 1][0] - data_table[i][0]) / pow(10, 6), 2)
+            for i in range(len(data_table) - 1)
+        ]
 
-
-        for i in range(3,len(frametimes)):
-            pre_three_avg = (frametimes[i-1]+frametimes[i-2]+frametimes[i-3])/3
+        for i in range(3, len(frametimes)):
+            pre_three_avg = (
+                frametimes[i - 1] + frametimes[i - 2] + frametimes[i - 3]
+            ) / 3
             cur_frametime = frametimes[i]
-            if cur_frametime > 2*pre_three_avg:
-
+            if cur_frametime > 2 * pre_three_avg:
                 if cur_frametime > 83.33:
-                    jank_count+=1
+                    jank_count += 1
 
                 if cur_frametime > 125:
-                    big_jank_count+=1
-
+                    big_jank_count += 1
 
         return jank_count, big_jank_count, frametimes
 
-    def _calc_fps(self, data_table,refresh_period):
-        if refresh_period <0:
+    def _calc_fps(self, data_table, refresh_period):
+        if refresh_period < 0:
             return -1.0
 
         frame_count = len(data_table)

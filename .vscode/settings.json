@@ -1,22 +1,6 @@
 {
-    "python.formatting.provider": "black",
-    "qtForPython.designer.path": "pyside6-designer",
-    "qtForPython.uic.path": "pyside6-uic",
-    "qtForPython.rcc.path": "pyside6-rcc",
-    "qtForPython.uic.args": [
-        "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
-    ],
-    "qtForPython.rcc.args": [
-        "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
-    ],
-    "qtForPython.lupdate.args": [
-        "-o \"${fileDirname}/${fileBasenameNoExtension}.py\""
-    ],
-    "qtForPython.lupdate.liveExecution": false,
-    "qtForPython.rcc.options": [
-        "-o",
-        "${resourceDirname}${pathSeparator}${resourceBasenameNoExtension}_rc.py"
-    ],
-    "python.linting.enabled": true,
-    "python.analysis.typeCheckingMode": "off"
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }

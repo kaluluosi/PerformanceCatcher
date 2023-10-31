@@ -19,7 +19,7 @@ import logging
 import math
 import PySide6
 
-from typing import Callable, Union
+from typing import Callable, Union, Dict
 from ppadb.device import Device
 from PySide6.QtCharts import (
     QChart,
@@ -29,7 +29,6 @@ from PySide6.QtCharts import (
     QLineSeries,
     QValueAxis,
     QAbstractSeries,
-    QAreaSeries,
 )
 from PySide6.QtCore import (
     QDateTime,
@@ -40,8 +39,6 @@ from PySide6.QtCore import (
     Qt,
     Signal,
     SignalInstance,
-    QTimer,
-    QThread,
 )
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QWheelEvent
 from PySide6.QtWidgets import QScrollBar
@@ -51,7 +48,6 @@ log = logging.getLogger(__name__)
 
 
 class MonitorChart(QChartView):
-
     series_changed: SignalInstance = Signal()
     x_offset_changed: SignalInstance = Signal(int)
     x_max_offset_changed: SignalInstance = Signal(int)
@@ -80,9 +76,9 @@ class MonitorChart(QChartView):
         self._device = None
         self._package_name = None
 
-        self._series_map: dict[str, QLineSeries] = {}
+        self._series_map: Dict[str, QLineSeries] = {}
         self._point_buffer = {}  # 记录点缓冲池，add_point的时候会缓存到这里，然后通过flush函数一起写入serial
-        self._value_formatter: dict[str, Callable[[float], str]] = {}  # 值格式化
+        self._value_formatter: Dict[str, Callable[[float], str]] = {}  # 值格式化
         self._mark_line: QPoint = QPoint()  # 标线坐标
 
         self.tick_count = 0
@@ -119,7 +115,12 @@ class MonitorChart(QChartView):
         for mk in _chart.legend().markers():
             mk.clicked.connect(self._on_marker_clicked)
 
-    def create_series(self, name:str,series:QAbstractSeries,v_format:Callable[[float],str]=lambda v:v):
+    def create_series(
+        self,
+        name: str,
+        series: QAbstractSeries,
+        v_format: Callable[[float], str] = lambda v: v,
+    ):
         series.setName(name)
         self.chart().addSeries(series)
         self.chart().setAxisX(self.axis_x, series)
@@ -348,7 +349,6 @@ class MonitorChart(QChartView):
             last_diff = 0  # 上次的差值
 
             for p in series.pointsVector():
-
                 if nearest_left is None:
                     # 如果最左为空，那么先设置最左为p
                     nearest_left = p

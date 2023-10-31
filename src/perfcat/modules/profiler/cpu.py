@@ -18,30 +18,30 @@
 import re
 from ppadb.device import Device
 from ppadb.plugins.device.cpustat import TotalCPUStat
-from ppadb.client import Client
+from typing import Dict
 
 
-
-
-def get_all_cpu_freq(dev:Device, filename) -> list:
+def get_all_cpu_freq(dev: Device, filename) -> list:
     count = dev.cpu_count()
     values = {}
 
     for index in range(count):
         CMD_ROOT = f"cat /sys/devices/system/cpu/cpu{index}/cpufreq"
         value = dev.shell(f"{CMD_ROOT}/{filename}")
-        values[index] = int(value)/1024
+        values[index] = int(value) / 1024
 
     return values
+
 
 def get_all_cpu_max_freq(dev: Device) -> list:
     return get_all_cpu_freq(dev, "cpuinfo_max_freq")
 
-def get_all_cpu_cur_freq(dev:Device) -> list:
+
+def get_all_cpu_cur_freq(dev: Device) -> list:
     return get_all_cpu_freq(dev, "scaling_cur_freq")
 
-def normalize_factor(device: Device):
 
+def normalize_factor(device: Device):
     # 合计所有CPU最大频率
     max_freq = get_all_cpu_max_freq(device)
     total_max_freq = sum(max_freq.values())
@@ -49,20 +49,22 @@ def normalize_factor(device: Device):
     # 找出所有在在线的CPU
     online_cmd = "cat /sys/devices/system/cpu/online"
     online = device.shell(online_cmd)
-    phases =[list(map(lambda v:int(v), sub)) for sub in [p.split("-") for p in online.split(",")]]
+    phases = [
+        list(map(lambda v: int(v), sub))
+        for sub in [p.split("-") for p in online.split(",")]
+    ]
 
     # 合计所有在线CPU的当前频率
     cur_freq_sum = 0
     all_cur_freq = get_all_cpu_cur_freq(device)
     for p in phases:
-        for i in range(p[0],p[1]+1):
-            cur_freq_sum +=all_cur_freq[i]
+        for i in range(p[0], p[1] + 1):
+            cur_freq_sum += all_cur_freq[i]
 
     return cur_freq_sum / total_max_freq
 
 
-
-def get_all_cpu_state(device:Device) -> dict[int,TotalCPUStat]:
+def get_all_cpu_state(device: Device) -> Dict[int, TotalCPUStat]:
     pattern = re.compile(
         "cpu(\d)\s+([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s([\d]+)\s"
     )
@@ -70,7 +72,8 @@ def get_all_cpu_state(device:Device) -> dict[int,TotalCPUStat]:
     matches = pattern.findall(cpu_state_info)
 
     all_cpu_state = {
-        int(group[0]):TotalCPUStat(*map(lambda x:int(x),group[1:])) for group in matches
+        int(group[0]): TotalCPUStat(*map(lambda x: int(x), group[1:]))
+        for group in matches
     }
 
     return all_cpu_state

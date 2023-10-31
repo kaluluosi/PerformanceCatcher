@@ -26,10 +26,11 @@ import io
 import os
 import subprocess
 import pkg_resources
+from typing import Dict, List
 from shutil import which
 
 from perfcat.pages.profiler.plugins.base import MonitorChart
-from . import plugins
+from . import plugins  # noqa
 from ppadb.client import Client as adb
 from ppadb.device import Device
 from PySide6.QtWidgets import (
@@ -45,7 +46,6 @@ from PySide6.QtCore import (
     QRunnable,
     SignalInstance,
     QThread,
-    QTimer,
     QElapsedTimer,
     QThreadPool,
 )
@@ -75,11 +75,10 @@ class Worker(QRunnable):
 
 
 class Profiler(Page, Ui_Profiler):
-
     # 当系统设备插拔的时候发出信号
-    device_changed: SignalInstance = Signal() # type:ignore
+    device_changed: SignalInstance = Signal()  # type:ignore
     # 初始化adb-server信号
-    adb_server_starting: SignalInstance = Signal() # type:ignore
+    adb_server_starting: SignalInstance = Signal()  # type:ignore
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
@@ -93,7 +92,7 @@ class Profiler(Page, Ui_Profiler):
         self.adb = adb()
         self._device_info = {}
 
-        self.plugins: list[MonitorChart] = []
+        self.plugins: List[MonitorChart] = []
 
         self.sample_thread: QThread = QThread(self)
         self.tick_count = 0
@@ -137,7 +136,7 @@ class Profiler(Page, Ui_Profiler):
         def on_splitter_clicked(event):
             self.frame_3.setHidden(not self.frame_3.isHidden())
 
-        self.right.mouseDoubleClickEvent  = on_splitter_clicked
+        self.right.mouseDoubleClickEvent = on_splitter_clicked
 
     def _init_plugins(self):
         self.reset_h_scrollbar()
@@ -208,7 +207,7 @@ class Profiler(Page, Ui_Profiler):
         return self.cbx_device.currentData(Qt.UserRole)
 
     @property
-    def device_info(self) -> dict[str, str]:
+    def device_info(self) -> Dict[str, str]:
         if self.current_device is None:
             return {}
 
@@ -296,7 +295,7 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_app.setCompleter(completer)
 
     def _update_devices_list(self):
-        devices: list[Device] = self.adb.devices(state="device")
+        devices: List[Device] = self.adb.devices(state="device")
         pre_selected = self.cbx_device.currentText()
         self.cbx_device.clear()
         for dev in devices:
@@ -312,7 +311,6 @@ class Profiler(Page, Ui_Profiler):
             self._connect_device(False)
 
     def showEvent(self, event: PySide6.QtGui.QShowEvent) -> None:
-
         # 这种神奇的用法……用monkeypatch的方式强行把run方法替换成内部函数，就不用派生了
         # 这样可以快速的编写异步代码，防止阻塞UI线程
         # 如果不需要维护和释放thread，那么就不需要self里声明一个变量来保存了
@@ -340,7 +338,7 @@ class Profiler(Page, Ui_Profiler):
         return super().hideEvent(event)
 
     def _on_device_add(self):
-        devices: list[Device] = self.adb.devices(state="device")
+        devices: List[Device] = self.adb.devices(state="device")
         count = len(devices)
         if self.cbx_device.count() != count:
             self.notify("发现新设备！", ButtonStyle.success)
@@ -348,7 +346,7 @@ class Profiler(Page, Ui_Profiler):
             self._update_devices_list()
 
     def _on_device_removed(self):
-        devices: list[Device] = self.adb.devices(state="device")
+        devices: List[Device] = self.adb.devices(state="device")
         count = len(devices)
         if self.cbx_device.count() != count:
             self.notify("设备被移除！", ButtonStyle.warning)
@@ -367,7 +365,6 @@ class Profiler(Page, Ui_Profiler):
             # 统一采样
             pool = QThreadPool.globalInstance()
             while not self.sample_thread.isInterruptionRequested():
-
                 # 记录这次采样耗时
                 time_counter = QElapsedTimer()
                 time_counter.start()
@@ -442,7 +439,7 @@ class Profiler(Page, Ui_Profiler):
             self.stop_tick()
             self.btn_record.setChecked(False)
             self.btn_open.setEnabled(True)
-            self.btn_save.setEnabled(self.tick_count!=0)
+            self.btn_save.setEnabled(self.tick_count != 0)
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)
@@ -455,7 +452,6 @@ class Profiler(Page, Ui_Profiler):
         self.btn_record.setEnabled(enable)
 
     def _save_file(self):
-
         device_name = self._device_info["型号"]
         app_name = self.cbx_app.currentText()
 
@@ -484,20 +480,27 @@ class Profiler(Page, Ui_Profiler):
             "all(*.*);;perfcat(*.pc);;excel(*.xlsx)",
         )
         if file_names[0]:
-            if file_names[1] in ["perfcat(*.pc)","all(*.*)"]:
+            if file_names[1] in ["perfcat(*.pc)", "all(*.*)"]:
                 self.btn_record.setChecked(False)
                 self.update()
-                file_name = file_names[0] if not os.path.splitext(file_names[0]) else file_names[0]+".pc"
+                file_name = (
+                    file_names[0]
+                    if not os.path.splitext(file_names[0])
+                    else file_names[0] + ".pc"
+                )
                 with open(file_name, "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=4)
                     self.notify(f"保存到 {file_name}", ButtonStyle.success)
                 last_dir = os.path.dirname(file_names[0])
                 settings.setValue("profiler/last_dir", last_dir)
 
-            if file_names[1] in ["excel(*.xlsx)","all(*.*)"]:
-                file_name = file_names[0] if not os.path.splitext(file_names[0]) else file_names[0]+".xlsx"
-                export(app_name,data, file_name)
-
+            if file_names[1] in ["excel(*.xlsx)", "all(*.*)"]:
+                file_name = (
+                    file_names[0]
+                    if not os.path.splitext(file_names[0])
+                    else file_names[0] + ".xlsx"
+                )
+                export(app_name, data, file_name)
 
     def _open_file(self):
         last_dir = settings.value("profiler/last_dir", "")
