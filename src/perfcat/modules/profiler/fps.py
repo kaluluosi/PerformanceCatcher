@@ -1,6 +1,4 @@
 import logging
-import math
-from ppadb.client import Client
 from ppadb.device import Device
 
 
@@ -130,11 +128,3 @@ class FpsSampler:
         # pow(10,9)是 1000000000 ，用来把纳秒转秒
 
         return frame_count * pow(10, 9) / duration
-
-
-if __name__ == "__main__":
-    adb = Client()
-    dev = adb.devices(state="device")[0]
-    # sampler = FpsSampler(dev, "com.mhatsh.eu")
-    sampler = FpsSampler(dev, "com.xinyuan.w9")
-    print(sampler.data)

@@ -8,7 +8,7 @@ nuitka ^
 --output-dir=dist\win ^
 --windows-disable-console ^
 --windows-icon-from-ico=src/perfcat/assets/logo.ico ^
---windows-company-name="xinyuanstudio" ^
+--windows-company-name="dxstudio" ^
 --windows-file-version="1.0.0" ^
 --windows-file-description="性能测试工具" ^
 .\src\perfcat\PerfCat.py

@@ -2,7 +2,7 @@
 name = "perfcat"
 version = "1.0.7"
 description = ""
-authors = ["dengxuan <303359166@qq.com>"]
+authors = ["kaluluosi <kaluluosi@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
