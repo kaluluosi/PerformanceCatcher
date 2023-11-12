@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "perfcat"
-version = "1.0.9"
+version = "1.0.10"
 license = "MIT"
 description = "基于`QT` `pyside6` 开发的安卓游戏性能采集工具。"
 readme = "README.md"
