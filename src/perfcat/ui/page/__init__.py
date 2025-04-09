@@ -11,6 +11,7 @@
 """
 
 # here put the import lib
+from typing import Optional
 from PySide6.QtWidgets import QWidget
 from perfcat.ui.constant import ButtonStyle
 
@@ -26,7 +27,7 @@ class Page(QWidget):
         self.setStyleSheet("")
 
     @property
-    def setting_widget(self) -> "Page":
+    def setting_widget(self) -> Optional["Page"]:
         """
         返回设置页widget
 

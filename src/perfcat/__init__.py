@@ -15,15 +15,15 @@
 # 把asset/放到搜索目录里，这样.ui文件里 import asset_rc 才能正常导入asset_rc
 import logging
 import sys
-import pkg_resources
 from . import logger
 from email import message_from_string
 from importlib.metadata import metadata
 from webob.multidict import MultiDict
+from perfcat import util
 
 log = logging.getLogger(__name__)
 
-asset_dir = pkg_resources.resource_filename(__package__, ".")
+asset_dir = util.get_path("perfcat", ".")
 sys.path.append(asset_dir)
 
 
@@ -33,13 +33,13 @@ __author__ = "kaluluosi"
 __author_email__ = "kaluluosi@gmail.com"
 __meta__ = {}
 
-try:
-    # todo: nuitka运行时无法获取到perfcat这个包的元数据，不知道以后怎么解决
-    METADATA = pkg_resources.get_distribution(__package__).get_metadata("METADATA")
-    msg = message_from_string(METADATA)
-    __meta__ = MultiDict(msg)
-    __version__ = __meta__["Version"]
-    __author__ = __meta__["Author"]
-    __author_email__ = __meta__["Author-email"]
-except Exception as e:
-    log.exception(e)
+# try:
+#     # todo: nuitka运行时无法获取到perfcat这个包的元数据，不知道以后怎么解决
+#     METADATA = pkg_resources.get_distribution(__package__).get_metadata("METADATA")
+#     msg = message_from_string(METADATA)
+#     __meta__ = MultiDict(msg)
+#     __version__ = __meta__["Version"]
+#     __author__ = __meta__["Author"]
+#     __author_email__ = __meta__["Author-email"]
+# except Exception as e:
+#     log.exception(e)

@@ -25,7 +25,6 @@ import json
 import io
 import os
 import subprocess
-import pkg_resources
 from typing import Dict, List
 from shutil import which
 
@@ -52,6 +51,7 @@ from PySide6.QtCore import (
 from perfcat.modules.hot_plug import HotPlugWatcher
 from perfcat.modules.reporter import export
 from perfcat.settings import settings
+from perfcat import util
 
 from ...ui.constant import ButtonStyle
 from ...ui.page import Page
@@ -153,7 +153,7 @@ class Profiler(Page, Ui_Profiler):
 
     def start_adb_server(self):
         path = which("adb")
-        default_adb_path = pkg_resources.resource_filename("perfcat", "adb/adb.exe")
+        default_adb_path = util.get_path("perfcat.adb", "adb.exe")
         log.debug(f"系统adb:{path} 内置adb:{default_adb_path}")
         path = path or default_adb_path
         try:

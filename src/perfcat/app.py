@@ -14,8 +14,8 @@
 # here put the import lib
 import logging
 
-import pkg_resources
 from PySide6.QtWidgets import QApplication
+from perfcat import util
 
 from . import __version__, __author__, __author_email__, pages
 from .modules.hot_plug import HotPlugWatcher
@@ -26,9 +26,9 @@ log = logging.getLogger(__name__)
 
 def about_content():
 
-    about_txt: str = pkg_resources.resource_string(
-        __package__, "assets/ABOUT.md"
-    ).decode("utf-8")
+    about_txt: str = util.read_text(
+        "perfcat.assets", "ABOUT.md"
+    )
 
     doc = about_txt.format(
         __version__=__version__,
@@ -64,21 +64,20 @@ class PerfcatApplication(QApplication):
     @classmethod
     @property
     def instance(cls) -> "PerfcatApplication":
-        return QApplication.instance()
+        return QApplication.instance() # type: ignore
 
     def load_stylesheet(self, path=None):
         if not path:
-            stylesheet = pkg_resources.resource_string(
-                __package__, "assets/css/default.css"
-            ).decode("utf-8")
-            log.debug("加载内置stylesheet")
+            stylesheet = util.read_text(
+                "perfcat.assets.css", "default.css"
+            )
+            log.debug("加载默认stylesheet")
         else:
             with open(path) as f:
                 stylesheet = f.read()
-            log.debug(f"加载stylesheet：{path}")
+            log.debug(f"加载其他stylesheet：{path}")
 
         self.setStyleSheet(stylesheet)
-        log.debug("加载stylesheet")
 
     def _install_pages(self):
         w = self.main_win

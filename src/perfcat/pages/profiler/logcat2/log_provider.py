@@ -13,9 +13,9 @@
 # here put the import lib
 import re
 import subprocess
-import pkg_resources
 import logging
 import time
+from perfcat import util
 from typing import Optional
 from shutil import which
 from PySide6.QtCore import QThread, QObject, SignalInstance, Signal
@@ -44,7 +44,7 @@ class LogProvider(QThread):
     @property
     def adb_path(self):
         path = which("adb")
-        default_adb_path = pkg_resources.resource_filename("perfcat", "adb/adb.exe")
+        default_adb_path = util.get_path("perfcat.adb", "adb.exe")
         return path or default_adb_path
 
     def run(self) -> None:
