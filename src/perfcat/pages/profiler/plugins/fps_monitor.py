@@ -12,6 +12,7 @@ fps采样
 """
 
 # here put the import lib
+from typing import Optional
 from ppadb.device import Device
 from .base.chart import MonitorChart
 from PySide6.QtCharts import QScatterSeries,QLineSeries
@@ -39,7 +40,7 @@ class FpsMonitor(MonitorChart):
 
         self._sample_data = {}
 
-    def sample(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str,subprocess:Optional[str]=None):
         if self.fps_sampler is None:
             self.fps_sampler = FpsSampler(device, package_name)
         data = self.fps_sampler.data

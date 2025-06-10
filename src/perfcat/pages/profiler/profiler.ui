@@ -735,6 +735,9 @@ QHeaderView {
              </widget>
             </item>
             <item>
+             <widget class="QComboBox" name="cbx_subprocess"/>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
                <widget class="QPushButton" name="btn_connect">
@@ -1012,7 +1015,7 @@ QHeaderView {
                   <x>0</x>
                   <y>0</y>
                   <width>849</width>
-                  <height>445</height>
+                  <height>448</height>
                  </rect>
                 </property>
                 <property name="layoutDirection">

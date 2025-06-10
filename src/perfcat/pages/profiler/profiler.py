@@ -56,7 +56,7 @@ from perfcat import util
 from ...ui.constant import ButtonStyle
 from ...ui.page import Page
 from .plugins import register
-from .ui_profiler import Ui_Profiler
+from .profiler_ui import Ui_Profiler
 from ...modules.profiler.device import device_info
 from .logcat2 import LogcatWidget
 
@@ -110,6 +110,8 @@ class Profiler(Page, Ui_Profiler):
         # 日志logcat模块
         self.logcat = LogcatWidget(self)
         self.verticalLayout_8.addWidget(self.logcat)
+        self.frame_3.setHidden(True)
+        
 
         # 当设备选择改变的时候更新连接按钮状态
         self.cbx_device.currentIndexChanged.connect(self._update_btn_status)  # 设备切换时更新
@@ -120,6 +122,7 @@ class Profiler(Page, Ui_Profiler):
         self.cbx_app.editTextChanged.connect(self._update_btn_status)  # app名修改的时候更新
 
         self.cbx_device.currentIndexChanged.connect(self._update_app_list)
+        self.cbx_app.currentIndexChanged.connect(self._update_subprocess_list)
 
         # 按钮处理
         self.btn_save.clicked.connect(self._save_file)
@@ -294,6 +297,14 @@ class Profiler(Page, Ui_Profiler):
         completer.setFilterMode(Qt.MatchContains)
         self.cbx_app.setCompleter(completer)
 
+    def _update_subprocess_list(self):
+        self.cbx_subprocess.clear()
+        process_names = self.current_device.get_process(self.cbx_app.currentText())
+        process_names.sort(key=lambda x:x[1])
+        for pn in process_names:
+            self.cbx_subprocess.addItem(pn[1], pn[0])
+            
+
     def _update_devices_list(self):
         devices: List[Device] = self.adb.devices(state="device")
         pre_selected = self.cbx_device.currentText()
@@ -382,6 +393,7 @@ class Profiler(Page, Ui_Profiler):
                         self.tick_count,
                         self.current_device,
                         self.cbx_app.currentText(),
+                        self.cbx_subprocess.currentText()
                     )
 
                     pool.start(workder)
@@ -443,6 +455,7 @@ class Profiler(Page, Ui_Profiler):
 
         self.cbx_device.setDisabled(enable)
         self.cbx_app.setDisabled(enable)
+        self.cbx_subprocess.setDisabled(enable)
 
         # 先拦截信号防止setchecked的时候发出toggled信号导致执行两次
         self.btn_connect.blockSignals(True)

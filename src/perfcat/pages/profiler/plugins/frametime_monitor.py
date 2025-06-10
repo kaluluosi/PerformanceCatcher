@@ -1,4 +1,5 @@
 # here put the import lib
+from typing import Optional
 from ppadb.device import Device
 from .base.chart import MonitorChart
 from perfcat.modules.profiler.fps import FpsSampler
@@ -17,7 +18,7 @@ class FrameTimeMonitor(MonitorChart):
 
         self.create_series("FrameTime", QLineSeries(self), lambda v:f"{v}ms")
 
-    def sample(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str,subprocess:Optional[str]=None):
         if self.fps_sampler is None:
             self.fps_sampler = FpsSampler(device, package_name)
 

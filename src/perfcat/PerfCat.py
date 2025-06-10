@@ -1,3 +1,18 @@
+# nuitka-project: --standalone
+# nuitka-project: --assume-yes-for-downloads
+# nuitka-project: --remove-output
+# nuitka-project: --output-filename=Perfcat
+# nuitka-project: --follow-imports
+# nuitka-project: --show-progress
+# nuitka-project: --include-package=perfcat
+# nuitka-project: --output-dir=dist
+# nuitka-project: --enable-plugin=pyside6
+# nuitka-project: --include-data-dir=src/perfcat/assets=perfcat/assets
+# nuitka-project: --include-data-dir=src/perfcat/adb=perfcat/adb
+# nuitka-project: --windows-console-mode='hide'
+# nuitka-project: --windows-icon-from-ico=src/perfcat/assets/logo.ico
+
+
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 """

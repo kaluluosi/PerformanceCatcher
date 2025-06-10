@@ -13,6 +13,7 @@
 """
 
 # here put the import lib
+from typing import Optional
 from ppadb.device import Device
 from .base.chart import MonitorChart
 from perfcat.modules.profiler.temp import MarkTempSampler
@@ -33,13 +34,12 @@ class TempMonitor(MonitorChart):
 
         self._sample_data = {}
 
-        self.create_series("整体温度", QLineSeries(self), lambda v: f"{v}℃")
         self.create_series("CPU温度", QLineSeries(self), lambda v: f"{v}℃")
         self.create_series("GPU温度", QLineSeries(self), lambda v: f"{v}℃")
-        self.create_series("NPU温度", QLineSeries(self), lambda v: f"{v}℃")
+        self.create_series("体感温度", QLineSeries(self), lambda v: f"{v}℃")
         self.create_series("电池温度", QLineSeries(self), lambda v: f"{v}℃")
 
-    def sample(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str,subprocess:Optional[str]=None):
 
         if self.mark_temp_sampler is None:
             self.mark_temp_sampler = MarkTempSampler(device)
@@ -47,10 +47,9 @@ class TempMonitor(MonitorChart):
         temp_data = self.mark_temp_sampler.get_temp()
 
         self._sample_data[sec] = {
-            "整体温度": temp_data["total"],
             "CPU温度":temp_data["cpu"],
             "GPU温度": temp_data["gpu"],
-            "NPU温度": temp_data["npu"],
+            "体感温度": temp_data["skin"],
             "电池温度": temp_data["battery"]
         }
 

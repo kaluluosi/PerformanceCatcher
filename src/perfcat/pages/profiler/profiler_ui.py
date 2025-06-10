@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'profiler.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.0
+## Created by: Qt User Interface Compiler version 6.6.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -670,6 +670,11 @@ class Ui_Profiler(object):
 
         self.verticalLayout_3.addWidget(self.cbx_app)
 
+        self.cbx_subprocess = QComboBox(self.frame_2)
+        self.cbx_subprocess.setObjectName(u"cbx_subprocess")
+
+        self.verticalLayout_3.addWidget(self.cbx_subprocess)
+
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.btn_connect = QPushButton(self.frame_2)
@@ -774,7 +779,7 @@ class Ui_Profiler(object):
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.splitter = QSplitter(self.right)
         self.splitter.setObjectName(u"splitter")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
@@ -783,7 +788,7 @@ class Ui_Profiler(object):
         self.splitter.setHandleWidth(1)
         self.frame_4 = QFrame(self.splitter)
         self.frame_4.setObjectName(u"frame_4")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.frame_4.sizePolicy().hasHeightForWidth())
@@ -796,7 +801,7 @@ class Ui_Profiler(object):
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.monitor_scollarea = QScrollArea(self.frame_4)
         self.monitor_scollarea.setObjectName(u"monitor_scollarea")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(100)
         sizePolicy2.setHeightForWidth(self.monitor_scollarea.sizePolicy().hasHeightForWidth())
@@ -807,7 +812,7 @@ class Ui_Profiler(object):
         self.monitor_scollarea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 445))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 849, 448))
         self.scrollAreaWidgetContents.setLayoutDirection(Qt.LeftToRight)
         self.scrollAreaWidgetContents.setStyleSheet(u"#scrollAreaWidgetContents{\n"
 "margin-right:5px;\n"
@@ -829,7 +834,7 @@ class Ui_Profiler(object):
         self.frame_3 = QFrame(self.splitter)
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setEnabled(True)
-        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
@@ -846,7 +851,7 @@ class Ui_Profiler(object):
         self.tab_console = QTabWidget(self.frame_3)
         self.tab_console.setObjectName(u"tab_console")
         self.tab_console.setEnabled(True)
-        sizePolicy4 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.tab_console.sizePolicy().hasHeightForWidth())
@@ -855,7 +860,7 @@ class Ui_Profiler(object):
         self.tab_console.setElideMode(Qt.ElideLeft)
         self.tab_3 = QWidget()
         self.tab_3.setObjectName(u"tab_3")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy5.setHorizontalStretch(0)
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.tab_3.sizePolicy().hasHeightForWidth())

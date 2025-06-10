@@ -21,8 +21,8 @@ pure-python-adb = "0.3.0.dev0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^5.2"
-nuitka = "^0.7.7"
 autopep8 = "^2.0.0"
+nuitka = "^2.7.7"
 
 [tool.poetry.scripts]
 perfcat = "perfcat.PerfCat:main"

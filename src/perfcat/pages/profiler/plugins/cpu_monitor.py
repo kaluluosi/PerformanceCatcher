@@ -20,6 +20,7 @@
 # here put the import lib
 
 import logging
+from typing import Optional
 
 from PySide6.QtCharts import QLineSeries
 
@@ -61,8 +62,8 @@ class CpuMonitor(MonitorChart):
 
         self._sample_data = {}
 
-        self.create_series("TotalCPU(标准化)", QLineSeries(self), lambda v: f"{v}%")
-        self.create_series("AppCPU(标准化)", QLineSeries(self), lambda v: f"{v}%")
+        self.create_series("TotalCPU", QLineSeries(self), lambda v: f"{v}%")
+        self.create_series("AppCPU", QLineSeries(self), lambda v: f"{v}%")
 
     def reset_series_data(self):
         self.pid = None
@@ -72,13 +73,13 @@ class CpuMonitor(MonitorChart):
         self._sample_data = {}
         return super().reset_series_data()
 
-    def sample(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str,subprocess:Optional[str]=None):
         # 我们直接取top的数据，因此cpu占用是未规范化的
         # 为规范化的CPU占用值会导致一个问题：
         # 当你在A设备上测试采集到的峰值，跟B设备上测试采集到的峰值不一致。
         # 可能A设备的平均峰值更高
 
-        pid_str = device.shell(f"pidof {package_name}")
+        pid_str = device.shell(f"pidof {subprocess}")
         if pid_str:
             self.pid = int(pid_str)
         else:
@@ -86,7 +87,7 @@ class CpuMonitor(MonitorChart):
 
         # 归一化因子，归一化CPU占用
         # 参考：https://blog.gamebench.net/measuring-cpu-usage-in-mobile-devices
-        factor = normalize_factor(device)
+        # factor = normalize_factor(device)
 
         # 参考 SoloPi的算法
 
@@ -97,20 +98,25 @@ class CpuMonitor(MonitorChart):
             self.last_total_cpu_state = device.get_total_cpu()
         else:
             cur_total_cpu = device.get_total_cpu()
-            cpu_diff:TotalCPUStat = cur_total_cpu - self.last_total_cpu_state
-            total_cpu_usage = 100 * (cpu_diff.user + cpu_diff.system) / cpu_diff.total()
+            # cpu_diff:TotalCPUStat = cur_total_cpu - self.last_total_cpu_state
+            total_diff = (cur_total_cpu.user+cur_total_cpu.system+cur_total_cpu.idle+cur_total_cpu.iowait+cur_total_cpu.irq+cur_total_cpu.softirq+cur_total_cpu.stealstolen)\
+            -(self.last_total_cpu_state.user+self.last_total_cpu_state.system+self.last_total_cpu_state.idle+self.last_total_cpu_state.iowait+self.last_total_cpu_state.irq+self.last_total_cpu_state.softirq+self.last_total_cpu_state.stealstolen)
+            idle_diff = (cur_total_cpu.idle+cur_total_cpu.iowait) - (self.last_total_cpu_state.idle+self.last_total_cpu_state.iowait)
+
+            # total_cpu_usage = 100 * (cpu_diff.user + cpu_diff.system) / cpu_diff.total()
+            total_cpu_usage = 100 * (total_diff - idle_diff) / total_diff
             total_cpu_usage = round(total_cpu_usage,2)
             self.last_total_cpu_state = cur_total_cpu
 
-        total_cpu_usage_normalized = round(total_cpu_usage * factor,2)
-        self.add_point("TotalCPU(标准化)", sec, total_cpu_usage_normalized)
+        # total_cpu_usage_normalized = round(total_cpu_usage * factor,2)
+        self.add_point("TotalCPU", sec, total_cpu_usage)
 
 
         # 采集pid占用
         app_cpu_usage = 0
         app_cpu_usage_normalized = 0
         if self.pid is None:  # 如果app没启动，那么就记录0占用
-            self.add_point("AppCPU(标准化)", sec, 0)
+            self.add_point("AppCPU", sec, 0)
         else:
             # 启动了就从top里面找
             cur_pid_cpu = device.get_pid_cpu(self.pid)
@@ -118,11 +124,11 @@ class CpuMonitor(MonitorChart):
                 self.last_pid_cpu_state = cur_pid_cpu
             else:
                 pid_diff = cur_pid_cpu - self.last_pid_cpu_state
-                app_cpu_usage = 100 * pid_diff.total() / cpu_diff.total()
+                app_cpu_usage = 100 * pid_diff.total() / total_diff
                 app_cpu_usage = round(app_cpu_usage,2)
                 self.last_pid_cpu_state = cur_pid_cpu
-            app_cpu_usage_normalized = round(app_cpu_usage*factor,2)
-            self.add_point("AppCPU(标准化)", sec, app_cpu_usage_normalized)
+            # app_cpu_usage_normalized = round(app_cpu_usage*factor,2)
+            self.add_point("AppCPU", sec, app_cpu_usage)
 
         # 采集所有cpu占用
         self.cpu_count = self.cpu_count or device.cpu_count()
@@ -144,9 +150,9 @@ class CpuMonitor(MonitorChart):
             "TotalCPU":total_cpu_usage,
             "AppCPUNormalized":app_cpu_usage_normalized,
             "TotalCPUNormalized":total_cpu_usage_normalized,
-            "AllCPUCurFreq": all_cpu_cur_freq,
-            "AllCPUUsage":all_cpu_usage,
-            "AllCPUUsageNormalized":{index:round(usage* factor,2) for index, usage in all_cpu_usage.items()}
+            # "AllCPUCurFreq": all_cpu_cur_freq,
+            # "AllCPUUsage":all_cpu_usage,
+            # "AllCPUUsageNormalized":{index:round(usage* factor,2) for index, usage in all_cpu_usage.items()}
         }
 
 
@@ -167,13 +173,13 @@ class CpuMonitor(MonitorChart):
 
     def from_dict(self, data: dict):
         for sec, data_table in data.items():
-            app_cpu_value = data_table["AppCPUNormalized"]
-            total_cpu_value = data_table["TotalCPUNormalized"]
+            app_cpu_value = data_table["AppCPU"]
+            total_cpu_value = data_table["TotalCPU"]
 
             if app_cpu_value:
-                self.add_point("AppCPU(标准化)", int(sec), app_cpu_value)
+                self.add_point("AppCPU", int(sec), app_cpu_value)
 
             if total_cpu_value:
-                self.add_point("TotalCPU(标准化)", int(sec), total_cpu_value)
+                self.add_point("TotalCPU", int(sec), total_cpu_value)
 
             self.flush()

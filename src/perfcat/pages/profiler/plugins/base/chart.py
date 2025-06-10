@@ -19,7 +19,7 @@ import logging
 import math
 import PySide6
 
-from typing import Callable, Union, Dict
+from typing import Callable, Optional, Union, Dict
 from ppadb.device import Device
 from PySide6.QtCharts import (
     QChart,
@@ -138,7 +138,7 @@ class MonitorChart(QChartView):
         self.total_x = 0
         self.record_range = [-1, -1]
 
-    def sample(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str,subprocess:Optional[str]=None):
         """每一tick更新数据，自己实现，然后通过addpoint添加数据点"""
         raise NotImplementedError
 

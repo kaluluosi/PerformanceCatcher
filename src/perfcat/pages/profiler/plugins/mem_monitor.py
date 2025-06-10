@@ -1,3 +1,4 @@
+from typing import Optional
 from ppadb.device import Device
 from .base.chart import MonitorChart
 from PySide6.QtCharts import QLineSeries
@@ -25,9 +26,9 @@ class MemMonitor(MonitorChart):
         return super().reset_series_data()
 
 
-    def sample(self, sec: int, device: Device, package_name: str):
+    def sample(self, sec: int, device: Device, package_name: str,subprocess:Optional[str]=None):
 
-        mem_info = device.get_meminfo(package_name)
+        mem_info = device.get_meminfo(subprocess)
 
         self._sample_data[sec] = {
             "PSS":round(mem_info.pss / 1024,2),

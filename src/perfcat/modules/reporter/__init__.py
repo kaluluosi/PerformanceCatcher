@@ -156,15 +156,15 @@ def export(app_name: str, data: dict, filename: str):
     app_cpu_list = [cpu["AppCPU"] for cpu in cpu_data.values()]
     app_cpu_n_list = [cpu["AppCPUNormalized"] for cpu in cpu_data.values()]
     avg_app_cpu = sum(app_cpu_list) / record_length
-    app_cpu_lt_60 = len(list(filter(lambda v: v <= 60, app_cpu_list))) / record_length
-    app_cpu_lt_80 = len(list(filter(lambda v: v <= 80, app_cpu_list))) / record_length
+    app_cpu_lt_60 = len(list(filter(lambda v: v <= 60, app_cpu_list))) / float(record_length)
+    app_cpu_lt_80 = len(list(filter(lambda v: v <= 80, app_cpu_list))) / float(record_length)
 
     avg_app_cpu_n = sum(app_cpu_n_list) / record_length
     app_cpu_n_lt_60 = (
-        len(list(filter(lambda v: v <= 60, app_cpu_n_list))) / record_length
+        len(list(filter(lambda v: v <= 60, app_cpu_n_list))) / float(record_length)
     )
     app_cpu_n_lt_80 = (
-        len(list(filter(lambda v: v <= 80, app_cpu_n_list))) / record_length
+        len(list(filter(lambda v: v <= 80, app_cpu_n_list))) / float(record_length)
     )
 
     stat_data["平均AppCPU占用（%）"] = (round(avg_app_cpu, 2), "")
@@ -265,7 +265,7 @@ def export(app_name: str, data: dict, filename: str):
         ws.add_chart(chart, "A104")
 
         # Temp chart
-        selected_titles = ["整体温度", "CPU温度", "GPU温度", "NPU温度", "电池温度"]
+        selected_titles = ["CPU温度", "GPU温度", "体感温度", "电池温度"]
         chart = create_chart(ws_detail, selected_titles, titles, "温度", "%")
         ws.add_chart(chart, "A134")
 
