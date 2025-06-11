@@ -118,7 +118,6 @@ class CpuMonitor(MonitorChart):
         if self.pid is None:  # 如果app没启动，那么就记录0占用
             self.add_point("AppCPU", sec, 0)
         else:
-            # 启动了就从top里面找
             cur_pid_cpu = device.get_pid_cpu(self.pid)
             if self.last_pid_cpu_state is None:
                 self.last_pid_cpu_state = cur_pid_cpu

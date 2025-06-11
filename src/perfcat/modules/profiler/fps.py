@@ -47,7 +47,7 @@ class FpsSampler:
         """
         参考：https://zhuanlan.zhihu.com/p/67056913
         Returns:
-            float: 帧率
+            float: 帧率 
         """
         data = {"fps": -1, "jank": -1, "big_jank": -1, "*frametimes": [0]}
 
@@ -76,7 +76,13 @@ class FpsSampler:
         }
 
     def _parse_data(self, result: str):
-        lines = result.strip().split("\n")
+
+        result = result.strip()
+        if result.startswith("now"):
+             lines = result.splitlines()[2:]
+        else:
+             lines = result.splitlines()
+
         refresh_period = float(lines[0])
 
         data = []
