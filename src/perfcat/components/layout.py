@@ -2,6 +2,7 @@ from nicegui import ui
 from contextlib import contextmanager
 from perfcat import config
 from perfcat.utils import is_active_page
+
 @contextmanager
 def frame():
 
