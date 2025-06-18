@@ -6,9 +6,11 @@ from perfcat.utils import is_active_page
 @contextmanager
 def frame():
 
+    ui.query("main").style("height:92vh")
+    ui.query("main .nicegui-content").style("height:100%")
+
     # 内容区域
-    with ui.column():
-        yield
+    yield
     
     # 标题栏
     with ui.header(elevated=True).classes('items-center').style("padding:0.3rem"):
