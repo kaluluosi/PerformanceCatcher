@@ -1,9 +1,9 @@
+import contextlib
 from nicegui import ui
-from contextlib import contextmanager
 from perfcat import config
 from perfcat.utils import is_active_page
 
-@contextmanager
+@contextlib.contextmanager
 def frame():
 
     ui.query("main").style("height:92vh")
