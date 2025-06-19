@@ -1,5 +1,4 @@
-
-navigationbar_expand = True
+url = "http://localhost:8000/"
 
 navigations = {
     'home': {
