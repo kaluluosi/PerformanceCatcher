@@ -1,14 +1,12 @@
-url = "http://localhost:8000/"
-
 navigations = {
-    'home': {
-        'title': 'Home',
-        'icon': 'home',
-        'path': '/',
+    "home": {
+        "title": "主页",
+        "icon": "home",
+        "path": "/",
     },
-    'android_profiler': {
-        'title': 'Android Profiler',
-        'icon': 'android',
-        'path': '/android_profiler',
-    }
+    "android_profiler": {
+        "title": "Android性能",
+        "icon": "android",
+        "path": "/android_profiler",
+    },
 }

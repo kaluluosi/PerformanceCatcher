@@ -1,53 +1,88 @@
-from nicegui import ui,app
+from nicegui import ui, app
 from perfcat.config import navigations
 from perfcat.utils import is_active_page
 
 
-class Frame:
-    navigationbar_expand = True
-
+class Header(ui.header):
     def __init__(self) -> None:
-        
-        ui.query("main").style("height:92vh")
-        ui.query("main .nicegui-content").style("height:100%")
+        super().__init__()
+        self.classes("items-center p-[0.3rem]")
+        self.props("elevated")
 
-        # 头
-        with ui.header(elevated=True).classes('items-center').style("padding:0.3rem"):
+        with self:
             with ui.row().style("gap:0px;"):
-                ui.button(icon="arrow_back",on_click=ui.navigate.back).props('flat color=white')
-                ui.button(icon="menu",on_click=lambda: left_drawer.toggle()).props('flat color=white')
+                self.btn_back = ui.button(
+                    icon="arrow_back", on_click=ui.navigate.back
+                ).props("flat color=white")
+                self.btn_menu = ui.button(icon="menu").props("flat color=white")
             ui.icon("insights")
             ui.label("Performance Catcher").classes("mr-auto")
 
             with ui.row().classes("gap-0 hidden"):
-                ui.button(icon="minimize").props('flat color=white')
-                ui.button(icon="fullscreen").props('flat color=white')
-                ui.button(icon="close").classes("hover:bg-red-400").props('flat color=white')
+                self.btn_minimize = ui.button(icon="minimize").props("flat color=white")
+                self.btn_fullscreen = ui.button(icon="fullscreen").props(
+                    "flat color=white"
+                )
+                self.btn_clsoe = (
+                    ui.button(icon="close")
+                    .classes("hover:bg-red-400")
+                    .props("flat color=white")
+                )
 
-        # 导航菜单
-        with ui.left_drawer(fixed=False,elevated=True).style("padding:0px;").props("width=225") as left_drawer:
-            left_drawer.bind_value(app.storage.general,'navigationbar_expand')
 
-            with ui.scroll_area().classes('mb-auto h-full') as scroll_area:
+class NavigationBar(ui.drawer):
+    def __init__(self) -> None:
+        super().__init__(side="left")
+        self.classes("p-0 w-[225px]")
+        self.props("elevated")
+        self.bind_value(app.storage.general, "navigationbar_expand")
 
+        with self:
+            with ui.scroll_area().classes("mb-auto h-full") as scroll_area:
                 content = ui.query(f"#{scroll_area.html_id} .q-scrollarea__content")
                 content.classes("!p-0")
 
                 # 路由菜单
-                with ui.list().props('padding').classes("full-width"): 
+                with ui.list().props("padding").classes("full-width"):
                     for _, value in navigations.items():
-                        with ui.item(on_click=lambda path=value['path']: ui.navigate.to(path)) as item: # type: ignore
-                            item.props['active'] = is_active_page(value['path'])
-                            with ui.item_section().props('avatar'):
-                                ui.icon(value['icon'])
+                        with ui.item() as item:  # type: ignore
+                            item.on_click(
+                                lambda arg, path=value["path"]: ui.navigate.to(path)
+                            )
+                            item.props["active"] = is_active_page(value["path"])
+                            with ui.item_section().props("avatar"):
+                                ui.icon(value["icon"])
                             with ui.item_section():
-                                ui.item_label(value['title'])
+                                ui.item_label(value["title"])
 
             # 固定设定栏
-            with ui.list().props('padding bordered').classes("full-width"): 
-                    with ui.item(on_click=lambda: ui.notification("Coming soon!")) as item: # type: ignore
-                        with ui.item_section().props('avatar'):
-                            ui.icon("settings")
-                        with ui.item_section():
-                            ui.item_label("Settings")
+            with ui.list().props("padding bordered").classes("full-width"):
+                with ui.item(
+                    on_click=lambda: ui.notification("Coming soon!")
+                ) as self.setting_item:
+                    with ui.item_section().props("avatar"):
+                        ui.icon("settings")
+                    with ui.item_section():
+                        ui.item_label("Settings")
 
+
+class Page:
+    def __init__(self, path: str, *, title: str | None = None) -> None:
+        @ui.page(path, title=title)
+        async def _():
+            await self._frame()
+            await self.render()
+
+    async def _frame(self):
+        ui.query("main").style("height:92vh")
+        ui.query("main .nicegui-content").style("height:100%")
+
+        # 头
+        self.header = Header()
+        self.header.btn_menu.on_click(lambda e: self.navigationbar.toggle())
+
+        # 导航菜单
+        self.navigationbar = NavigationBar()
+
+    async def render(self):
+        raise NotImplementedError
