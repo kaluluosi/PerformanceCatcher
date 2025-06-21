@@ -1,34 +1,12 @@
-from contextlib import contextmanager
 import re
+import random
+from contextlib import contextmanager
 from typing import cast
-from nicegui import app, ui, events
+from nicegui import app, ui
+from pydantic import BaseModel, Field, RootModel
 from perfcat.components.layout import Page
 from perfcat.services.android_profiler_service import AndroidProfielerService
 from perfcat.utils import notify
-
-columns = [
-    {
-        "name": "name",
-        "label": "属性",
-        "field": "name",
-        "required": True,
-        "align": "left",
-    },
-    {"name": "value", "label": "值", "field": "value", "sortable": False},
-]
-rows = [
-    {"name": "Alice", "age": 18},
-    {"name": "Bob", "age": 21},
-    {"name": "Carol", "age": None},  # 假设 Carol 的年龄未知，可以设置为 None
-]
-
-
-class AndroidProfilerPage(Page):
-    def __init__(self) -> None:
-        super().__init__("/android_profiler", title="安卓性能")
-
-    async def render(self):
-        self.drawer = Drawer()
 
 
 class Drawer(ui.drawer):
@@ -42,7 +20,7 @@ class Drawer(ui.drawer):
             self.btn_expand = ui.button(
                 icon="arrow_left", on_click=lambda: self.toggle()
             )
-            self.btn_expand.classes("pl-4 pr-4 pt-4 pb-4 w-1")
+            self.btn_expand.classes("pl-2 pr-2 pt-8 pb-8 w-1")
             self.btn_expand.style("border-radius:3px 0px 0px 3px;")
 
         with self:
@@ -86,7 +64,7 @@ class ControlCard(ui.card):
         self.classes("w-full")
 
     @contextmanager
-    def sessions(self):
+    def session(self):
         with ui.card_section().classes("w-full"):
             with ui.row().classes("items-center w-full"):
                 yield
@@ -101,7 +79,7 @@ class RemoteConnectCard(ControlCard):
     def __init__(self) -> None:
         super().__init__()
         with self:
-            with self.sessions():
+            with self.session():
                 self.input_address = (
                     ui.input(
                         "远程连接",
@@ -129,7 +107,7 @@ class ProfilerSettingCard(ControlCard):
     def __init__(self) -> None:
         super().__init__()
         with self:
-            with self.sessions():
+            with self.session():
                 self.device_select = (
                     ui.select([], label="选择设备")
                     .props("dense")
@@ -177,8 +155,178 @@ class MonitorTabPanel(ui.tab_panel):
     def __init__(self, name: str | ui.tab) -> None:
         super().__init__(name)
         self.classes("w-full")
+
+
+class SerieData(BaseModel):
+    name: str
+    type: str = "line"
+    data: list[float] = Field(default_factory=list)
+
+
+Series = RootModel[list[SerieData]]
+
+
+class MonitorCard(ui.card):
+    def __init__(self, title: str) -> None:
+        super().__init__()
+        self.classes("w-full")
+
+        self.title = title
+
+        self._series: list[SerieData] = []
+
         with self:
-            ui.label("敬请期待")
+            with ui.card_section().classes("w-full"):
+                self.label_title = ui.label(title)
+                ui.separator()
+
+            with self:
+                self.chart = ui.echart(
+                    {
+                        "legend": {"data": [], "orient": "vertical", "left": 10},
+                        "grid": {
+                            "left": "100px",
+                            "right": "4%",
+                            "top": "3%",
+                            "bottom": "10%",
+                            "containLabel": True,
+                        },
+                        "xAxis": {"type": "category"},
+                        "yAxis": {"type": "value"},
+                        "series": [],
+                    }
+                )
+
+    @contextmanager
+    def session(self):
+        with ui.card_section().classes("w-full"):
+            yield
+
+    def craete_serie(self, name: str, type: str = "line"):
+        seire = SerieData(name=name, type=type, data=[])
+        self._series.append(seire)
+
+    def _add_point(self, serie_name: str, value: float, type: str = "line"):
+        for serie in self._series:
+            if serie.name == serie_name:
+                serie.data.append(value)
+                return
+
+        new_series = SerieData(name=serie_name, data=[value], type=type)
+        self._series.append(new_series)
+
+    def update_chart(self):
+        self.chart.options["series"] = Series(self._series).model_dump()
+        self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
+        self.chart.update()
+
+
+class FPSMonitorCard(MonitorCard):
+    def __init__(self) -> None:
+        super().__init__("FPS")
+
+        self.craete_serie("FPS")
+        self.craete_serie("Jank")
+        self.update_chart()
+
+    def sample(self):
+        self._add_point("FPS", random.randrange(0, 60))
+        self._add_point("Jank", random.randrange(0, 60))
+        self.update_chart()
+
+
+class CPUMonitorCard(MonitorCard):
+    def __init__(self) -> None:
+        super().__init__("CPU")
+
+        self.craete_serie("CPU")
+        self.craete_serie("TotalCPU")
+        self.update_chart()
+
+
+class MemoryMonitorCard(MonitorCard):
+    def __init__(self) -> None:
+        super().__init__("Memory")
+        self.craete_serie("Memory")
+        self.update_chart()
+
+
+class TemperatureMonitorCard(MonitorCard):
+    def __init__(self) -> None:
+        super().__init__("Temperature")
+        self.craete_serie("体感温度")
+        self.craete_serie("CPU温度")
+        self.craete_serie("电池温度")
+        self.update_chart()
+
+
+class AndroidProfilerPage(Page):
+    def __init__(self) -> None:
+        super().__init__("/android_profiler", title="安卓性能")
+
+        self.monitor_list = [
+            {"name": "FPS", "description": "帧率情况"},
+            {"name": "CPU", "description": "CPU使用情况"},
+            {"name": "MEMORY", "description": "内存使用情况"},
+            {"name": "TEMPERATURE", "description": "温度情况"},
+        ]
+
+        self.monitor_register = {
+            "FPS": FPSMonitorCard,
+            "CPU": CPUMonitorCard,
+            "MEMORY": MemoryMonitorCard,
+            "TEMPERATURE": TemperatureMonitorCard,
+        }
+
+        self.monitors = {}
+
+    async def render(self):
+        self.drawer = Drawer()
+        with self.drawer.monitor_tab_panel:
+            with ui.card().classes("w-full"):
+                with ui.row().classes("items-center"):
+                    ui.icon("info").props("size=xs color=blue")
+                    ui.label("选择要监控采集的性能参数")
+            self.table_monitor = (
+                ui.table(
+                    columns=[
+                        {
+                            "name": "name",
+                            "label": "名称",
+                            "field": "name",
+                            "required": True,
+                            "align": "left",
+                        },
+                        {
+                            "name": "description",
+                            "label": "描述",
+                            "field": "description",
+                            "required": True,
+                            "align": "left",
+                        },
+                    ],
+                    rows=self.monitor_list,
+                    row_key="name",
+                )
+                .classes("w-full")
+                .props("selection=multiple hide-selected-banner")
+            )
+            self.table_monitor.selected[:] = self.monitor_list[:4]
+
+        self.monitor_view()
+
+    def monitor_view(self):
+        for monitor_data in self.table_monitor.selected:
+            monitor: MonitorCard = self.monitor_register[monitor_data["name"]]()
+            monitor.bind_visibility_from(
+                self.table_monitor,
+                "selected",
+                backward=lambda e, monitor_data=monitor_data: monitor_data in e,
+            )
+            self.monitors[monitor_data["name"]] = monitor
+
+    def selected_monitors(self):
+        return self.table_monitor.selected
 
 
 AndroidProfilerPage()

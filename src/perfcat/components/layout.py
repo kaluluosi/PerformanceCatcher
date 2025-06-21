@@ -75,7 +75,8 @@ class Page:
 
     async def _frame(self):
         ui.query("main").style("height:92vh")
-        ui.query("main .nicegui-content").style("height:100%")
+        ui.query("main .nicegui-content")
+        ui.query(".nicegui-content").classes("pr-8")
 
         # 头
         self.header = Header()
