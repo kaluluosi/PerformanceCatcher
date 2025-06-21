@@ -1,36 +1,29 @@
 import re
 import random
-from contextlib import contextmanager
 from typing import cast
-from nicegui import app, ui
-from pydantic import BaseModel, Field, RootModel
+from nicegui import ui
+from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
+from perfcat.components.profiler import ControlCard
+from perfcat.components.profiler import Drawer
+from perfcat.components.profiler import MonitorCard
 from perfcat.services.android_profiler_service import AndroidProfielerService
 from perfcat.utils import notify
 
 
-class Drawer(ui.drawer):
+class AndroidProfilerDrawer(Drawer):
     def __init__(self) -> None:
-        super().__init__(side="right", value=True, elevated=True)
-        self.bind_value(app.storage.general, "android_profiler_drawer_expand")
-        self.classes("p-0")
-        self.props("width=400")
-
-        with ui.page_sticky(position="top-right", y_offset=100).style("z-index:2000"):
-            self.btn_expand = ui.button(
-                icon="arrow_left", on_click=lambda: self.toggle()
-            )
-            self.btn_expand.classes("pl-2 pr-2 pt-8 pb-8 w-1")
-            self.btn_expand.style("border-radius:3px 0px 0px 3px;")
+        super().__init__()
 
         with self:
-            with ui.tabs() as tabs:
-                self.device_panel = ui.tab("设备面板")
-                self.monitor_panel = ui.tab("监控面板")
+            with self.create_tabs():
+                self.tab_device = ui.tab("设备")
+                self.tab_monitor = ui.tab("监控")
 
-            with ui.tab_panels(tabs, value=self.device_panel).classes("w-full"):
-                self.device_tab_panel = DeviceTabPanel(self.device_panel)
-                self.monitor_tab_panel = MonitorTabPanel(self.monitor_panel)
+            with self.create_tab_panels():
+                self.tab_panels.value = self.tab_device
+                self.panel_device = DeviceTabPanel(self.tab_device)
+                self.panel_monitor = MonitorTabPanel(self.tab_monitor)
 
 
 class DeviceTabPanel(ui.tab_panel):
@@ -40,39 +33,6 @@ class DeviceTabPanel(ui.tab_panel):
         with self:
             self.remote_connect_card = RemoteConnectCard()
             self.profiler_setting_card = ProfilerSettingCard()
-
-    @contextmanager
-    def _create_card(self):
-        with ui.card().tight().classes("w-full"):
-            with ui.card_section().classes("w-full"):
-                with ui.row().classes("items-center w-full"):
-                    yield
-
-    def _ip_port_validation(self, v: str):
-        # 正则表达式来识别 ip:port 格式，要兼容localhost:port
-        pattern = re.compile(r"^((\d{1,3}\.){3}\d{1,3}|\blocalhost\b):(\d{1,5})$")
-        if pattern.match(v):
-            return None
-        else:
-            return "请输入正确的IP端口格式"
-
-
-class ControlCard(ui.card):
-    def __init__(self) -> None:
-        super().__init__()
-        self.tight()
-        self.classes("w-full")
-
-    @contextmanager
-    def session(self):
-        with ui.card_section().classes("w-full"):
-            with ui.row().classes("items-center w-full"):
-                yield
-
-    @contextmanager
-    def actions(self):
-        with ui.card_actions().classes("w-full"):
-            yield
 
 
 class RemoteConnectCard(ControlCard):
@@ -151,79 +111,12 @@ class ProfilerSettingCard(ControlCard):
                     )
 
 
-class MonitorTabPanel(ui.tab_panel):
-    def __init__(self, name: str | ui.tab) -> None:
-        super().__init__(name)
-        self.classes("w-full")
-
-
-class SerieData(BaseModel):
-    name: str
-    type: str = "line"
-    data: list[float] = Field(default_factory=list)
-
-
-Series = RootModel[list[SerieData]]
-
-
-class MonitorCard(ui.card):
-    def __init__(self, title: str) -> None:
-        super().__init__()
-        self.classes("w-full")
-
-        self.title = title
-
-        self._series: list[SerieData] = []
-
-        with self:
-            with ui.card_section().classes("w-full"):
-                self.label_title = ui.label(title)
-                ui.separator()
-
-            with self:
-                self.chart = ui.echart(
-                    {
-                        "legend": {"data": [], "orient": "vertical", "left": 10},
-                        "grid": {
-                            "left": "100px",
-                            "right": "4%",
-                            "top": "3%",
-                            "bottom": "10%",
-                            "containLabel": True,
-                        },
-                        "xAxis": {"type": "category"},
-                        "yAxis": {"type": "value"},
-                        "series": [],
-                    }
-                )
-
-    @contextmanager
-    def session(self):
-        with ui.card_section().classes("w-full"):
-            yield
-
-    def craete_serie(self, name: str, type: str = "line"):
-        seire = SerieData(name=name, type=type, data=[])
-        self._series.append(seire)
-
-    def _add_point(self, serie_name: str, value: float, type: str = "line"):
-        for serie in self._series:
-            if serie.name == serie_name:
-                serie.data.append(value)
-                return
-
-        new_series = SerieData(name=serie_name, data=[value], type=type)
-        self._series.append(new_series)
-
-    def update_chart(self):
-        self.chart.options["series"] = Series(self._series).model_dump()
-        self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
-        self.chart.update()
-
-
 class FPSMonitorCard(MonitorCard):
+    title = "FPS"
+    description = "帧率"
+
     def __init__(self) -> None:
-        super().__init__("FPS")
+        super().__init__()
 
         self.craete_serie("FPS")
         self.craete_serie("Jank")
@@ -236,97 +129,152 @@ class FPSMonitorCard(MonitorCard):
 
 
 class CPUMonitorCard(MonitorCard):
+    title = "CPU"
+    description = "CPU使用率"
+
     def __init__(self) -> None:
-        super().__init__("CPU")
+        super().__init__()
 
         self.craete_serie("CPU")
         self.craete_serie("TotalCPU")
         self.update_chart()
 
+    def sample(self):
+        self._add_point("CPU", random.randrange(0, 100))
+        self._add_point("TotalCPU", random.randrange(0, 100))
+        self.update_chart()
+
 
 class MemoryMonitorCard(MonitorCard):
+    title = "Memory"
+    description = "内存使用情况"
+
     def __init__(self) -> None:
-        super().__init__("Memory")
+        super().__init__()
         self.craete_serie("Memory")
+        self.update_chart()
+
+    def sample(self):
+        self._add_point("Memory", random.randrange(0, 100))
         self.update_chart()
 
 
 class TemperatureMonitorCard(MonitorCard):
+    title = "Temperature"
+    description = "设备温度情况"
+
     def __init__(self) -> None:
-        super().__init__("Temperature")
+        super().__init__()
         self.craete_serie("体感温度")
         self.craete_serie("CPU温度")
         self.craete_serie("电池温度")
         self.update_chart()
+
+    def sample(self):
+        self._add_point("体感温度", random.randrange(0, 100))
+        self._add_point("CPU温度", random.randrange(0, 100))
+        self._add_point("电池温度", random.randrange(0, 100))
+        self.update_chart()
+
+
+class MonitorTabPanel(ui.tab_panel):
+    def __init__(self, name: str | ui.tab) -> None:
+        super().__init__(name)
+
+        self._monitors_registers = ObservableDict()
+        self._monitors_registers.on_change(self._on_monitors_registers_change)
+
+        with self:
+            with ControlCard().classes("p-4"):
+                with ui.row().classes("items-center"):
+                    ui.icon("info").props("size=xs color=blue")
+                    ui.label("选择要监控采集的性能参数")
+
+            self.create_table()  # type: ignore
+
+    def _on_monitors_registers_change(self, e):
+        self.create_table.refresh()
+
+    def register_monitor(self, name: str, description: str):
+        self._monitors_registers[name] = description
+
+    @ui.refreshable
+    def create_table(self):
+        columns = [
+            {
+                "name": "name",
+                "label": "名称",
+                "field": "name",
+                "required": True,
+                "align": "left",
+            },
+            {
+                "name": "description",
+                "label": "描述",
+                "field": "description",
+                "required": True,
+                "align": "left",
+            },
+        ]
+        rows = [
+            {"name": name, "description": description}
+            for name, description in self._monitors_registers.items()
+        ]
+        self.table = (
+            ui.table(columns=columns, rows=rows, row_key="name")
+            .classes("w-full")
+            .props("selection=multiple hide-selected-banner")
+        )
+        self.table.selected = rows
+
+    def monitors(self):
+        pass
 
 
 class AndroidProfilerPage(Page):
     def __init__(self) -> None:
         super().__init__("/android_profiler", title="安卓性能")
 
-        self.monitor_list = [
-            {"name": "FPS", "description": "帧率情况"},
-            {"name": "CPU", "description": "CPU使用情况"},
-            {"name": "MEMORY", "description": "内存使用情况"},
-            {"name": "TEMPERATURE", "description": "温度情况"},
-        ]
-
-        self.monitor_register = {
+        self.monitor_registers = {
             "FPS": FPSMonitorCard,
             "CPU": CPUMonitorCard,
-            "MEMORY": MemoryMonitorCard,
-            "TEMPERATURE": TemperatureMonitorCard,
+            "Memory": MemoryMonitorCard,
+            "Temperature": TemperatureMonitorCard,
         }
 
-        self.monitors = {}
+        self.monitors: list[MonitorCard] = []
 
     async def render(self):
-        self.drawer = Drawer()
-        with self.drawer.monitor_tab_panel:
-            with ui.card().classes("w-full"):
-                with ui.row().classes("items-center"):
-                    ui.icon("info").props("size=xs color=blue")
-                    ui.label("选择要监控采集的性能参数")
-            self.table_monitor = (
-                ui.table(
-                    columns=[
-                        {
-                            "name": "name",
-                            "label": "名称",
-                            "field": "name",
-                            "required": True,
-                            "align": "left",
-                        },
-                        {
-                            "name": "description",
-                            "label": "描述",
-                            "field": "description",
-                            "required": True,
-                            "align": "left",
-                        },
-                    ],
-                    rows=self.monitor_list,
-                    row_key="name",
-                )
-                .classes("w-full")
-                .props("selection=multiple hide-selected-banner")
-            )
-            self.table_monitor.selected[:] = self.monitor_list[:4]
+        self.drawer = AndroidProfilerDrawer()
 
-        self.monitor_view()
+        self.drawer.panel_device.profiler_setting_card.btn_record.on_click(
+            self.start_record
+        )
 
-    def monitor_view(self):
-        for monitor_data in self.table_monitor.selected:
-            monitor: MonitorCard = self.monitor_register[monitor_data["name"]]()
+        for name, monitor_card in self.monitor_registers.items():
+            self.drawer.panel_monitor.register_monitor(name, monitor_card.description)
+
+        await self.create_monitors()
+
+    async def create_monitors(self):
+        for name, monitor_card in self.monitor_registers.items():
+            monitor: MonitorCard = monitor_card()
+            self.monitors.append(monitor)
             monitor.bind_visibility_from(
-                self.table_monitor,
+                self.drawer.panel_monitor.table,
                 "selected",
-                backward=lambda e, monitor_data=monitor_data: monitor_data in e,
+                backward=lambda selected, name=name: any(
+                    [name == s["name"] for s in selected]
+                ),
             )
-            self.monitors[monitor_data["name"]] = monitor
 
-    def selected_monitors(self):
-        return self.table_monitor.selected
+    def start_record(self):
+        ui.timer(1, self._on_sample)
+
+    def _on_sample(self):
+        for monitor in self.monitors:
+            if monitor.visible:
+                monitor.sample()
 
 
 AndroidProfilerPage()
