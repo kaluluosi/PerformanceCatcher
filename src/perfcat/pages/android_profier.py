@@ -118,8 +118,8 @@ class FPSMonitorCard(MonitorCard):
     def __init__(self) -> None:
         super().__init__()
 
-        self.craete_serie("FPS")
-        self.craete_serie("Jank")
+        self.create_serie("FPS")
+        self.create_serie("Jank")
         self.update_chart()
 
     def sample(self):
@@ -135,8 +135,8 @@ class CPUMonitorCard(MonitorCard):
     def __init__(self) -> None:
         super().__init__()
 
-        self.craete_serie("CPU")
-        self.craete_serie("TotalCPU")
+        self.create_serie("CPU")
+        self.create_serie("TotalCPU")
         self.update_chart()
 
     def sample(self):
@@ -151,7 +151,7 @@ class MemoryMonitorCard(MonitorCard):
 
     def __init__(self) -> None:
         super().__init__()
-        self.craete_serie("Memory")
+        self.create_serie("Memory")
         self.update_chart()
 
     def sample(self):
@@ -165,9 +165,9 @@ class TemperatureMonitorCard(MonitorCard):
 
     def __init__(self) -> None:
         super().__init__()
-        self.craete_serie("体感温度")
-        self.craete_serie("CPU温度")
-        self.craete_serie("电池温度")
+        self.create_serie("体感温度")
+        self.create_serie("CPU温度")
+        self.create_serie("电池温度")
         self.update_chart()
 
     def sample(self):

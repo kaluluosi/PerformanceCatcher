@@ -5,7 +5,7 @@ Copyright © Kaluluosi All rights reserved
 """
 
 from nicegui import app, ui
-
+from nicegui.observables import ObservableDict
 
 from contextlib import contextmanager
 
@@ -111,30 +111,48 @@ class MonitorCard(ui.card):
                             "position": "js:function (pos, params, el, elRect, size) { var obj = { top: 10 }; obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30; return obj; }",
                             "extraCssText": "width: 170px",
                         },
+                        "dataZoom": [
+                            {
+                                "type": "inside",
+                                "start": 0,
+                                "end": 100,
+                            },
+                            {
+                                "type": "slider",
+                                "show": False,
+                                "start": 0,
+                                "end": 100,
+                            }
+                        ],
                     }
                 )
+
+                self.datazoom = ui.range(min=0,max=100,value={'min':0,'max':100},step=1)
+                self.datazoom.bind_value(app.storage.general, "android_profiler_datazoom")
 
     @contextmanager
     def session(self):
         with ui.card_section().classes("w-full"):
             yield
 
-    def craete_serie(self, name: str, type: str = "line"):
-        seire = SerieData(name=name, type=type, data=[])
-        self._series.append(seire)
+    def create_serie(self, name: str, type: str = "line"):
+        serie = SerieData(name=name, type=type, data=[])
+        self._series.append(serie)
 
     def _add_point(self, serie_name: str, value: float, type: str = "line"):
+        if serie_name not in [serie.name for serie in self._series]:
+            self.create_serie(serie_name, type)
+        
         for serie in self._series:
             if serie.name == serie_name:
                 serie.data.append(value)
                 return
 
-        new_series = SerieData(name=serie_name, data=[value], type=type)
-        self._series.append(new_series)
-
     def update_chart(self):
         self.chart.options["series"] = Series(self._series).model_dump()
         self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
+        self.chart.options['dataZoom'][0]['start'] = self.datazoom.value['min']
+        self.chart.options['dataZoom'][0]['end'] = self.datazoom.value['max']
         self.chart.update()
 
     def sample(self):
