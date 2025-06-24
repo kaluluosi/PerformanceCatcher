@@ -6,7 +6,7 @@ Copyright © Kaluluosi All rights reserved
 
 from nicegui import app, ui
 from nicegui.observables import ObservableDict
-
+from nicegui.events import GenericEventArguments, Handler, handle_event
 from contextlib import contextmanager
 
 from pydantic import BaseModel, Field, RootModel
@@ -16,6 +16,8 @@ class SerieData(BaseModel):
     name: str
     type: str = "line"
     data: list[float] = Field(default_factory=list)
+    showSymbol: bool = False
+    lineStyle:dict = Field(default_factory=lambda: {"normal": {"width": 1}})
 
 
 Series = RootModel[list[SerieData]]
@@ -114,12 +116,16 @@ class MonitorCard(ui.card):
                         "dataZoom": [
                             {
                                 "type": "inside",
+                                "zoomOnMouseWheel": False,
+                                "moveOnMouseWheel": False,
                                 "start": 0,
                                 "end": 100,
                             },
                             {
                                 "type": "slider",
-                                "show": False,
+                                "show": True,
+                                "zoomOnMouseWheel": False,
+                                "moveOnMouseWheel": False,
                                 "start": 0,
                                 "end": 100,
                             }
@@ -127,8 +133,11 @@ class MonitorCard(ui.card):
                     }
                 )
 
-                self.datazoom = ui.range(min=0,max=100,value={'min':0,'max':100},step=1)
-                self.datazoom.bind_value(app.storage.general, "android_profiler_datazoom")
+                # self.datazoom = ui.range(min=0,max=100,value={'min':0,'max':100},step=1)
+                # self.datazoom.bind_value(app.storage.general, "android_profiler_datazoom")
+
+        self.chart.on("chart:datazoom", self._handle_datazoom)
+        app.storage.general.on_change(self._update_zoom)
 
     @contextmanager
     def session(self):
@@ -148,12 +157,19 @@ class MonitorCard(ui.card):
                 serie.data.append(value)
                 return
 
+    def _update_zoom(self):
+        self.chart.options['dataZoom'][0]['start'] = app.storage.general.get('android_profiler_datazoom', {}).get('start', 0)
+        self.chart.options['dataZoom'][0]['end'] = app.storage.general.get('android_profiler_datazoom', {}).get('end', 100)
+        self.chart.update()
+
     def update_chart(self):
         self.chart.options["series"] = Series(self._series).model_dump()
         self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
-        self.chart.options['dataZoom'][0]['start'] = self.datazoom.value['min']
-        self.chart.options['dataZoom'][0]['end'] = self.datazoom.value['max']
         self.chart.update()
+
+    def _handle_datazoom(self, event:GenericEventArguments):
+        app.storage.general['android_profiler_datazoom'] = event.args
+
 
     def sample(self):
         raise NotImplementedError
