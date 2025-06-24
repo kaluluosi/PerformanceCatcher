@@ -39,6 +39,11 @@ class _AndroidProfilerService:
             self.on_devices_changed.on_next(await self.devices)
             self.on_device_connected.on_next(":".join([ip,str(port)]))
         return res
+    
+    async def remote_adb_enable(self, serialno:str):
+        dev = await self.get_device(serialno)
+        res = await dev.adbd_tcpip(5555)
+        print(res)
 
     def start_scan_devices(self):
         self._scan_device_task = background_tasks.create(self._scan_devices())
@@ -49,14 +54,14 @@ class _AndroidProfilerService:
 
     async def _scan_devices(self):
         async for dev in self.adbc.devices_track():
-             print("device: ", dev)
              if dev.status == Status.DEVICE:
+                print(f"Device {dev.serialno} connected")
                 self.on_devices_changed.on_next(await self.devices)
                 self.on_device_connected.on_next(dev.serialno)
-             else:
-                 if dev.serialno in await self.devices:
-                    self.on_devices_changed.on_next(await self.devices)
-                    self.on_device_disconnected.on_next(dev.serialno)
+             elif dev.status == Status.OFFLINE:
+                print(f"Device {dev.serialno} {dev.status} disconnected")
+                self.on_devices_changed.on_next(await self.devices)
+                self.on_device_disconnected.on_next(dev.serialno)
 
 
 

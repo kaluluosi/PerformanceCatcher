@@ -1,7 +1,9 @@
+import asyncio
 import re
 import random
 from typing import cast
-from nicegui import ui
+from nicegui import Client, ui
+from nicegui.events import ValueChangeEventArguments, ClickEventArguments
 from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard
@@ -55,12 +57,22 @@ class RemoteConnectCard(ControlCard):
 
                 self.btn_connect = ui.button(icon="add").props("dense")
 
+                self.btn_connect.on_click(self._on_btn_connect_click)
+
     def _ip_port_validation(self, v: str):
         pattern = re.compile(r"^((\d{1,3}\.){3}\d{1,3}|\blocalhost\b):(\d{1,5})$")
         if pattern.match(v):
             return None
         else:
             return "请输入正确的IP端口格式"
+        
+    async def _on_btn_connect_click(self):
+        ip,port = self.input_address.value.split(":")
+        res = await AndroidProfielerService.remote_connect(ip,int(port))
+        if res:
+            notify(f"连接成功: {ip}:{port}", color="green")
+        else:
+            notify(f"连接失败: {ip}:{port}", color="red")
 
 
 class ProfilerSettingCard(ControlCard):
@@ -70,7 +82,7 @@ class ProfilerSettingCard(ControlCard):
             with self.session():
                 self.device_select = (
                     ui.select([], label="选择设备")
-                    .props("dense")
+                    .props("dense spellcheck=false")
                     .classes("w-full flex-1")
                 )
 
@@ -84,9 +96,8 @@ class ProfilerSettingCard(ControlCard):
 
                 self.app_select = (
                     ui.select([], label="选择APP", with_input=True)
-                    .props("dense")
+                    .props("dense spellcheck=false")
                     .classes("w-full")
-                    .props("dense")
                 )
                 self.app_select.bind_enabled_from(
                     self.device_select, "value", backward=lambda v: v is not None
@@ -95,7 +106,9 @@ class ProfilerSettingCard(ControlCard):
                     ui.icon("apps")
 
                 self.process_select = (
-                    ui.select([], label="选择进程").classes("w-full").props("dense")
+                    ui.select([], label="选择进程")
+                    .classes("w-full")
+                    .props("dense spellcheck=false")
                 )
                 self.process_select.bind_enabled_from(
                     self.app_select, "value", backward=lambda v: v is not None
@@ -110,6 +123,56 @@ class ProfilerSettingCard(ControlCard):
                         .classes("p-2")
                     )
 
+        AndroidProfielerService.on_device_connected.subscribe(
+            lambda device:notify(f"设备连接成功: {device}",type='positive',position='bottom-right', color="green")
+        )
+
+        AndroidProfielerService.on_device_disconnected.subscribe(
+            lambda device: notify(f"设备断开连接: {device}",type='negative',position='bottom-right', color="red")
+        )
+
+        AndroidProfielerService.on_devices_changed.subscribe(
+            self._on_device_changed
+        )
+
+        self.device_select.on_value_change(self._on_device_select_changed)
+        self.app_select.on_value_change(self._on_app_select_changed)
+        self.btn_tcpip.on_click(self._on_btn_tcpip_click)
+
+    def _on_device_changed(self, devices: list[str]):
+        self.device_select.set_options(devices)
+
+    async def _on_device_select_changed(self, value:ValueChangeEventArguments):
+        if not value.value:
+            self.app_select.set_options([])
+            return
+        apps = await AndroidProfielerService.get_device_apps(value.value)
+        self.app_select.set_options(apps)
+
+    async def _on_app_select_changed(self, value:ValueChangeEventArguments):
+        if not value.value:
+            self.process_select.set_options([])
+            return
+        processes = await AndroidProfielerService.get_device_processes(
+            self.device_select.value, value.value # type: ignore
+        )
+        self.process_select.set_options(processes)
+
+    async def _on_btn_tcpip_click(self):
+        serialno = self.device_select.value
+        if not serialno:
+            notify("请先选择设备", color="red")
+            return
+        dev = await AndroidProfielerService.get_device(serialno)
+        ip = await dev.shell("ip route | awk '{print $9}'")
+
+        await AndroidProfielerService.remote_adb_enable(serialno)
+        res = await AndroidProfielerService.remote_connect(ip.strip(), 5555)
+        if res:
+            notify(f"开启无线连接成功: {ip.strip()}:5555", color="green")
+        else:
+            notify(f"开启无线连接失败: {ip.strip()}:5555", color="red")
+
 
 class FPSMonitorCard(MonitorCard):
     title = "FPS"
@@ -122,7 +185,7 @@ class FPSMonitorCard(MonitorCard):
         self.create_serie("Jank")
         self.update_chart()
 
-    def sample(self):
+    def sample(self, serialno: str, app: str, process: str):
         self._add_point("FPS", random.randrange(0, 60))
         self._add_point("Jank", random.randrange(0, 60))
         self.update_chart()
@@ -139,7 +202,7 @@ class CPUMonitorCard(MonitorCard):
         self.create_serie("TotalCPU")
         self.update_chart()
 
-    def sample(self):
+    def sample(self, serialno: str, app: str, process: str):
         self._add_point("CPU", random.randrange(0, 100))
         self._add_point("TotalCPU", random.randrange(0, 100))
         self.update_chart()
@@ -154,7 +217,7 @@ class MemoryMonitorCard(MonitorCard):
         self.create_serie("Memory")
         self.update_chart()
 
-    def sample(self):
+    def sample(self, serialno: str, app: str, process: str):
         self._add_point("Memory", random.randrange(0, 100))
         self.update_chart()
 
@@ -170,7 +233,7 @@ class TemperatureMonitorCard(MonitorCard):
         self.create_serie("电池温度")
         self.update_chart()
 
-    def sample(self):
+    def sample(self, serialno: str, app: str, process: str):
         self._add_point("体感温度", random.randrange(0, 100))
         self._add_point("CPU温度", random.randrange(0, 100))
         self._add_point("电池温度", random.randrange(0, 100))
@@ -227,8 +290,6 @@ class MonitorTabPanel(ui.tab_panel):
         )
         self.table.selected = rows
 
-    def monitors(self):
-        pass
 
 
 class AndroidProfilerPage(Page):
@@ -242,19 +303,42 @@ class AndroidProfilerPage(Page):
             "Temperature": TemperatureMonitorCard,
         }
 
+        self.serialno:str|None = None
+        self.app: str | None = None
+        self.process: str | None = None
+        self.timer_sampler:ui.timer|None = None
+
+        self.setting_card_enable:bool = True
+
         self.monitors: list[MonitorCard] = []
+       
 
     async def render(self):
+        AndroidProfielerService.start_scan_devices()
+
+        AndroidProfielerService.on_device_disconnected.subscribe(self._on_device_disconnected)
+
         self.drawer = AndroidProfilerDrawer()
 
+        self.drawer.panel_device.profiler_setting_card.device_select.bind_value(self, "serialno")
+        self.drawer.panel_device.profiler_setting_card.app_select.bind_value(self, "app")
+        self.drawer.panel_device.profiler_setting_card.process_select.bind_value(self, "process")
+
+        self.drawer.panel_device.profiler_setting_card.device_select.bind_enabled(self, "setting_card_enable")
+        self.drawer.panel_device.profiler_setting_card.app_select.bind_enabled(self, "setting_card_enable")
+        self.drawer.panel_device.profiler_setting_card.process_select.bind_enabled(self, "setting_card_enable")
+
+
+
         self.drawer.panel_device.profiler_setting_card.btn_record.on_click(
-            self.start_record
+            self.toggle_record
         )
 
         for name, monitor_card in self.monitor_registers.items():
             self.drawer.panel_monitor.register_monitor(name, monitor_card.description)
 
         await self.create_monitors()
+        
 
     async def create_monitors(self):
         for name, monitor_card in self.monitor_registers.items():
@@ -268,13 +352,57 @@ class AndroidProfilerPage(Page):
                 ),
             )
 
-    def start_record(self):
-        ui.timer(1, self._on_sample)
+    def toggle_record(self,event:ClickEventArguments):
+        if not self.serialno or not self.app or not self.process:
+            notify("请先选择设备、应用和进程", color="red")
+            return
+        if event.sender.props["icon"] == "lens":
+            self.start_record(event)
+        else:
+            self.stop_record()
+
+    def start_record(self, event):
+        self.drawer.panel_device.profiler_setting_card.btn_record.props("icon=stop color=green")
+        self._clear_monitors()
+        self.setting_card_enable = False
+        self.timer_sampler = ui.timer(1,self._on_sample, active=True)
+        ui.notify(
+                f"开始采集: {self.serialno} - {self.app} - {self.process}",
+                color="green",
+                position="top",
+            )
+    
+    def stop_record(self):
+        self.drawer.panel_device.profiler_setting_card.btn_record.props("icon=lens color=red")
+        self.setting_card_enable = True
+        self.timer_sampler.cancel() if self.timer_sampler else None
+        ui.notify(
+            f"停止采集: {self.serialno} - {self.app} - {self.process}",
+            color="red",
+            position="top"
+        )
 
     def _on_sample(self):
+        if not self.serialno or not self.app or not self.process:
+            return
+
         for monitor in self.monitors:
             if monitor.visible:
-                monitor.sample()
+                monitor.sample(self.serialno, self.app, self.process)
 
+    def _clear_monitors(self):
+        for monitor in self.monitors:
+            monitor.clear()
+
+    def _on_device_disconnected(self, serialno:str):
+        if not self.serialno:
+            self.setting_card_enable = True
+            self.timer_sampler.cancel() if self.timer_sampler else None
+            ui.notify(
+                f"设备 {serialno} 断开连接，停止采集",
+                color="red",
+                position="top",
+                type='negative'
+            )
 
 AndroidProfilerPage()

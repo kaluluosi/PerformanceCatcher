@@ -147,6 +147,14 @@ class MonitorCard(ui.card):
         serie = SerieData(name=name, type=type, data=[])
         self._series.append(serie)
 
+    def sample(self,serialno: str, app:str, process: str):
+        raise NotImplementedError
+    
+    def update_chart(self):
+        self.chart.options["series"] = Series(self._series).model_dump()
+        self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
+        self.chart.update()
+
     def _add_point(self, serie_name: str, value: float, type: str = "line"):
         if serie_name not in [serie.name for serie in self._series]:
             self.create_serie(serie_name, type)
@@ -161,14 +169,11 @@ class MonitorCard(ui.card):
         self.chart.options['dataZoom'][0]['end'] = app.storage.general.get('android_profiler_datazoom', {}).get('end', 100)
         self.chart.update()
 
-    def update_chart(self):
-        self.chart.options["series"] = Series(self._series).model_dump()
-        self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
-        self.chart.update()
 
     def _handle_datazoom(self, event:GenericEventArguments):
         app.storage.general['android_profiler_datazoom'] = event.args
 
 
-    def sample(self):
-        raise NotImplementedError
+    def clear(self):
+        self._series.clear()
+        self.update_chart()
