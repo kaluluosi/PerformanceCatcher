@@ -5,8 +5,7 @@ Copyright © Kaluluosi All rights reserved
 """
 
 from nicegui import app, ui
-from nicegui.observables import ObservableDict
-from nicegui.events import GenericEventArguments, Handler, handle_event
+from nicegui.events import GenericEventArguments
 from contextlib import contextmanager
 
 from pydantic import BaseModel, Field, RootModel
