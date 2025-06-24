@@ -33,8 +33,8 @@ class Header(ui.header):
 class NavigationBar(ui.drawer):
     def __init__(self) -> None:
         super().__init__(side="left")
-        self.classes("p-0 w-[225px]")
-        self.props("elevated")
+        self.classes("p-0")
+        self.props("elevated width=200")
         self.bind_value(app.storage.general, "navigationbar_expand")
 
         with self:
