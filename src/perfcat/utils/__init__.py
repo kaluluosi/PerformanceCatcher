@@ -1,6 +1,5 @@
 from typing import Any, Callable, Literal, Optional, Union
 from nicegui import Client,ui
-from functools import wraps
 
 def resolve(page:Callable):
     """
@@ -14,7 +13,7 @@ def is_active_page(path:str):
     """
     Check if current page is the same as the given path
     """
-    return ui.context.client.page.path == path
+    return ui.context.client.page.path.startswith(path)
 
 
 def notify(message: Any, *,
@@ -55,3 +54,4 @@ def notify(message: Any, *,
                 color=color, 
                 multi_line=multi_line, 
                 **kwargs)
+            

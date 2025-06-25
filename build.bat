@@ -1,0 +1,1 @@
+nicegui-pack.exe --name PerformanceCatcher --icon=icon.ico --add-data src\perfcat\static:perfcat\static --add-data src\perfcat\media:perfcat\media --windowed .\prod.py

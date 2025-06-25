@@ -2,7 +2,7 @@ navigations = {
     "home": {
         "title": "主页",
         "icon": "home",
-        "path": "/",
+        "path": "/home",
     },
     "android_profiler": {
         "title": "Android性能",

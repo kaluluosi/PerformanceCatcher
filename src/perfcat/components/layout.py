@@ -73,7 +73,7 @@ class Page:
             await self._frame()
             await self.render()
 
-    async def _frame(self):
+    async def _frame(self, *args):
         ui.query("main").style("height:92vh")
         ui.query("main .nicegui-content")
         ui.query(".nicegui-content").classes("pr-8")
@@ -85,5 +85,5 @@ class Page:
         # 导航菜单
         self.navigationbar = NavigationBar()
 
-    async def render(self):
+    async def render(self, *args, **kwargs):
         raise NotImplementedError

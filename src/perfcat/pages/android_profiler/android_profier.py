@@ -275,7 +275,10 @@ class AndroidProfilerPage(Page):
         for name, monitor_card in self.monitor_registers.items():
             self.drawer.panel_monitor.register_monitor(name, monitor_card.description)
 
+
         await self.create_monitors()
+
+
         
 
     async def create_monitors(self):
@@ -318,7 +321,7 @@ class AndroidProfilerPage(Page):
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("开始采集")
         self.timer_sampler.cancel() if self.timer_sampler else None
         await RecordService.save_record(
-            f"{self.app}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            f"{self.app}-{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         )
         ui.notify(
             f"停止采集: {self.serialno} - {self.app} - {self.process}",
@@ -348,5 +351,7 @@ class AndroidProfilerPage(Page):
                 position="top",
                 type='negative'
             )
+            with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"') as dialog:
+                ui.label('设备断开连接，停止采集').classes('text-3xl text-white')
 
 AndroidProfilerPage()

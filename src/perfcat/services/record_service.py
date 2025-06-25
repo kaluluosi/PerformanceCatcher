@@ -1,7 +1,14 @@
+import json
 import logging
 import os
 import shutil
 from .android_profiler_service import AndroidProfielerService
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        if isinstance(record.msg, dict):
+            record.msg = json.dumps(record.msg, ensure_ascii=False)
+        return super().format(record)
 
 class _RecordService:
     def __init__(self):
@@ -18,6 +25,7 @@ class _RecordService:
 
         self.filehandler = logging.FileHandler("record.log", mode='a', encoding='utf-8')
         self.filehandler.addFilter(lambda record: record.name == "RecordService")
+        self.filehandler.setFormatter(JsonFormatter('%(message)s'))
         self._logger.addHandler(self.filehandler)
 
         self._logger.info({
@@ -34,9 +42,11 @@ class _RecordService:
             self._logger.removeHandler(self.filehandler)
             if not os.path.exists("records"):
                 os.makedirs("records")
-            shutil.move("record.log", f"records/{filename}.log")
+            shutil.move("record.log", f"records/{filename}")
 
-
+    def record_files(self):
+        files = os.listdir("records")
+        return files
 
 RecordService = _RecordService()
 
