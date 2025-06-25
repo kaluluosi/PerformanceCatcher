@@ -1,6 +1,6 @@
 import asyncio
+import datetime
 import re
-import random
 from typing import cast
 from nicegui import Client, ui
 from nicegui.events import ValueChangeEventArguments, ClickEventArguments
@@ -9,7 +9,11 @@ from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard
 from perfcat.components.profiler import Drawer
 from perfcat.components.profiler import MonitorCard
-from perfcat.services.android_profiler_service import AndroidProfielerService
+from perfcat.pages.android_profiler.cpu_monitor import CPUMonitorCard
+from perfcat.pages.android_profiler.memery_monitor import MemoryTotalPSSMonitorCard
+from perfcat.pages.android_profiler.temperature_monitor import TemperatureMonitorCard
+from perfcat.pages.android_profiler.fps_monitor import FPSMonitorCard
+from perfcat.services import AndroidProfielerService,RecordService
 from perfcat.utils import notify
 
 
@@ -174,72 +178,6 @@ class ProfilerSettingCard(ControlCard):
             notify(f"开启无线连接失败: {ip.strip()}:5555", color="red")
 
 
-class FPSMonitorCard(MonitorCard):
-    title = "FPS"
-    description = "帧率"
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.create_serie("FPS")
-        self.create_serie("Jank")
-        self.update_chart()
-
-    def sample(self, serialno: str, app: str, process: str):
-        self._add_point("FPS", random.randrange(0, 60))
-        self._add_point("Jank", random.randrange(0, 60))
-        self.update_chart()
-
-
-class CPUMonitorCard(MonitorCard):
-    title = "CPU"
-    description = "CPU使用率"
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.create_serie("CPU")
-        self.create_serie("TotalCPU")
-        self.update_chart()
-
-    def sample(self, serialno: str, app: str, process: str):
-        self._add_point("CPU", random.randrange(0, 100))
-        self._add_point("TotalCPU", random.randrange(0, 100))
-        self.update_chart()
-
-
-class MemoryMonitorCard(MonitorCard):
-    title = "Memory"
-    description = "内存使用情况"
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.create_serie("Memory")
-        self.update_chart()
-
-    def sample(self, serialno: str, app: str, process: str):
-        self._add_point("Memory", random.randrange(0, 100))
-        self.update_chart()
-
-
-class TemperatureMonitorCard(MonitorCard):
-    title = "Temperature"
-    description = "设备温度情况"
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.create_serie("体感温度")
-        self.create_serie("CPU温度")
-        self.create_serie("电池温度")
-        self.update_chart()
-
-    def sample(self, serialno: str, app: str, process: str):
-        self._add_point("体感温度", random.randrange(0, 100))
-        self._add_point("CPU温度", random.randrange(0, 100))
-        self._add_point("电池温度", random.randrange(0, 100))
-        self.update_chart()
-
-
 class MonitorTabPanel(ui.tab_panel):
     def __init__(self, name: str | ui.tab) -> None:
         super().__init__(name)
@@ -299,16 +237,16 @@ class AndroidProfilerPage(Page):
         self.monitor_registers = {
             "FPS": FPSMonitorCard,
             "CPU": CPUMonitorCard,
-            "Memory": MemoryMonitorCard,
+            "Memory": MemoryTotalPSSMonitorCard,
             "Temperature": TemperatureMonitorCard,
         }
 
-        self.serialno:str|None = None
-        self.app: str | None = None
-        self.process: str | None = None
-        self.timer_sampler:ui.timer|None = None
+        self.serialno:str
+        self.app: str
+        self.process: str
+        self.timer_sampler: ui.timer
 
-        self.setting_card_enable:bool = True
+        self.setting_card_enable: bool = True
 
         self.monitors: list[MonitorCard] = []
        
@@ -352,43 +290,49 @@ class AndroidProfilerPage(Page):
                 ),
             )
 
-    def toggle_record(self,event:ClickEventArguments):
+    async def toggle_record(self,event:ClickEventArguments):
         if not self.serialno or not self.app or not self.process:
             notify("请先选择设备、应用和进程", color="red")
             return
         if event.sender.props["icon"] == "lens":
-            self.start_record(event)
+            await self.start_record(event)
         else:
-            self.stop_record()
+            await self.stop_record()
 
-    def start_record(self, event):
+    async def start_record(self, event):
         self.drawer.panel_device.profiler_setting_card.btn_record.props("icon=stop color=green")
         self._clear_monitors()
         self.setting_card_enable = False
+        self.drawer.panel_device.profiler_setting_card.btn_record.set_text("停止采集")
         self.timer_sampler = ui.timer(1,self._on_sample, active=True)
+        await RecordService.init_logger(self.serialno, self.app, self.process)
         ui.notify(
                 f"开始采集: {self.serialno} - {self.app} - {self.process}",
                 color="green",
                 position="top",
             )
     
-    def stop_record(self):
+    async def stop_record(self):
         self.drawer.panel_device.profiler_setting_card.btn_record.props("icon=lens color=red")
         self.setting_card_enable = True
+        self.drawer.panel_device.profiler_setting_card.btn_record.set_text("开始采集")
         self.timer_sampler.cancel() if self.timer_sampler else None
+        await RecordService.save_record(
+            f"{self.app}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        )
         ui.notify(
             f"停止采集: {self.serialno} - {self.app} - {self.process}",
             color="red",
             position="top"
         )
 
-    def _on_sample(self):
+    async def _on_sample(self):
         if not self.serialno or not self.app or not self.process:
             return
 
         for monitor in self.monitors:
             if monitor.visible:
-                monitor.sample(self.serialno, self.app, self.process)
+                await monitor.sample(self.serialno, self.app, self.process)
 
     def _clear_monitors(self):
         for monitor in self.monitors:

@@ -1,2 +1,2 @@
 from . import home
-from . import android_profier
+from .android_profiler import android_profier

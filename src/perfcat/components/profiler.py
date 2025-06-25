@@ -92,7 +92,7 @@ class MonitorCard(ui.card):
                     {
                         "legend": {"data": [], "orient": "vertical", "left": 10},
                         "grid": {
-                            "left": "100px",
+                            "left": "140px",
                             "right": "4%",
                             "top": "3%",
                             "bottom": "10%",
@@ -147,7 +147,7 @@ class MonitorCard(ui.card):
         serie = SerieData(name=name, type=type, data=[])
         self._series.append(serie)
 
-    def sample(self,serialno: str, app:str, process: str):
+    async def sample(self,serialno: str, app:str, process: str):
         raise NotImplementedError
     
     def update_chart(self):
