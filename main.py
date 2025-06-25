@@ -1,8 +1,6 @@
-import perfcat
+import perfcat # noqa
 import secrets
 from nicegui import ui, app
-from perfcat import config
-from importlib import resources
 
 app.native.window_args["resizable"] = True
 app.native.start_args["debug"] = True

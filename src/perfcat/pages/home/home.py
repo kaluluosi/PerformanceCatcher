@@ -56,19 +56,3 @@ class HomePage(Page):
 
 HomePage()
 
-
-class ReportView(Page):
-    def __init__(self) -> None:
-        # super().__init__("/report/{filename}", title="报告")
-        
-        @ui.page("/home/report/{filename}", title="报告")
-        async def _(filename:str):
-            await self._frame()
-            await self.render(filename)
-
-    async def render(self, filename: str):
-        ui.label("报告页面内容将在此处显示。")
-        ui.label(f"报告文件名: {filename}")
-        # 这里可以添加更多的组件和逻辑来展示报告内容
-
-ReportView()

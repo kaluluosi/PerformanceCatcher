@@ -1,4 +1,4 @@
-import perfcat
+import perfcat # noqa
 import secrets
 from nicegui import ui, app
 

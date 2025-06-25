@@ -1,20 +1,16 @@
-import asyncio
 import datetime
 import re
-from typing import cast
-from nicegui import Client, ui
+from nicegui import ui
 from nicegui.events import ValueChangeEventArguments, ClickEventArguments
 from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
-from perfcat.components.profiler import ControlCard
-from perfcat.components.profiler import Drawer
-from perfcat.components.profiler import MonitorCard
-from perfcat.pages.android_profiler.cpu_monitor import CPUMonitorCard
-from perfcat.pages.android_profiler.memery_monitor import MemoryTotalPSSMonitorCard
-from perfcat.pages.android_profiler.temperature_monitor import TemperatureMonitorCard
-from perfcat.pages.android_profiler.fps_monitor import FPSMonitorCard
+from perfcat.components.profiler import ControlCard,Drawer,MonitorCard
 from perfcat.services import AndroidProfielerService,RecordService
 from perfcat.utils import notify
+from .cpu_monitor import CPUMonitorCard
+from .memery_monitor import MemoryTotalPSSMonitorCard
+from .temperature_monitor import TemperatureMonitorCard
+from .fps_monitor import FPSMonitorCard
 
 
 class AndroidProfilerDrawer(Drawer):
@@ -351,7 +347,7 @@ class AndroidProfilerPage(Page):
                 position="top",
                 type='negative'
             )
-            with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"') as dialog:
+            with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"'):
                 ui.label('设备断开连接，停止采集').classes('text-3xl text-white')
 
 AndroidProfilerPage()

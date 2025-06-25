@@ -1,5 +1,4 @@
 import asyncio
-import random
 from perfcat.components.profiler import MonitorCard
 from perfcat.services import AndroidProfielerService,RecordService
 
