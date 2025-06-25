@@ -241,10 +241,10 @@ class AndroidProfilerPage(Page):
             "Temperature": TemperatureMonitorCard,
         }
 
-        self.serialno:str
-        self.app: str
-        self.process: str
-        self.timer_sampler: ui.timer
+        self.serialno: str = ""
+        self.app: str = ""
+        self.process: str = ""
+        self.timer_sampler: ui.timer|None = None
 
         self.setting_card_enable: bool = True
 
