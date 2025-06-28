@@ -259,6 +259,8 @@ class AndroidProfilerPage(Page):
         return self.timer_sampler.active if self.timer_sampler else False
 
     async def render(self):
+        self.monitors.clear()
+
         AndroidProfielerService.start_scan_devices()
 
         AndroidProfielerService.on_device_disconnected.subscribe(
