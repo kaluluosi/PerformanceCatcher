@@ -14,7 +14,7 @@ def index():
 
 class HomePage(Page):
     def __init__(self) -> None:
-        super().__init__("/home", title="首页")
+        super().__init__("/home", title="主页")
 
     async def render(self):
         columns = [
