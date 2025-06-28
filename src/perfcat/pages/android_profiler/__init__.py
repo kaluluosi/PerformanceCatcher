@@ -1,6 +1,6 @@
 import datetime
 import re
-from nicegui import Client, ui
+from nicegui import ui
 from nicegui.events import ValueChangeEventArguments, ClickEventArguments
 from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
@@ -175,7 +175,7 @@ class ProfilerSettingCard(ControlCard):
         dev = await AndroidProfielerService.get_device(serialno)
         ip = await dev.shell("ip route | awk '{print $9}'")
 
-        await AndroidProfielerService.remote_adb_enable(serialno)
+        await AndroidProfielerService.adb_tcpip_enable(serialno)
         res = await AndroidProfielerService.remote_connect(ip.strip(), 5555)
         if res:
             notify(f"开启无线连接成功: {ip.strip()}:5555", color="green")
@@ -312,7 +312,7 @@ class AndroidProfilerPage(Page):
         ui.run_javascript("echarts.connect('monitor')")
 
     def _make_log_filename(self):
-        return f"{self.app} - {datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        return f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
     async def toggle_record(self, event: ClickEventArguments):
         if not self.serialno or not self.app or not self.process:

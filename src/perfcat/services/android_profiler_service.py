@@ -1,7 +1,6 @@
 import reactivex as rx
-from asyncio import Task
-from nicegui import ui, background_tasks
-from async_adbc import ADBClient, Device, Status
+from nicegui import ui
+from async_adbc import ADBClient, Status
 
 
 class _AndroidProfilerService:
@@ -38,12 +37,15 @@ class _AndroidProfilerService:
             self.on_device_connected.on_next(":".join([ip, str(port)]))
         return res
 
-    async def remote_adb_enable(self, serialno: str):
+    async def adb_tcpip_enable(self, serialno: str):
         dev = await self.get_device(serialno)
         res = await dev.adbd_tcpip(5555)
-        print(res)
+        return res
 
     def start_scan_devices(self):
+        if self._timer_scan_device:
+            self._timer_scan_device.cancel()
+
         self._timer_scan_device = ui.timer(1, self._scan_devices, once=True)
 
     def stop_scan_devices(self):
