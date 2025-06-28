@@ -254,6 +254,10 @@ class AndroidProfilerPage(Page):
 
         self.monitors: list[MonitorCard] = []
 
+    @property
+    def is_recording(self):
+        return self.timer_sampler.active if self.timer_sampler else False
+
     async def render(self):
         AndroidProfielerService.start_scan_devices()
 
@@ -307,6 +311,9 @@ class AndroidProfilerPage(Page):
 
         ui.run_javascript("echarts.connect('monitor')")
 
+    def _make_log_filename(self):
+        return f"{self.app} - {datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
     async def toggle_record(self, event: ClickEventArguments):
         if not self.serialno or not self.app or not self.process:
             notify("请先选择设备、应用和进程", color="red")
@@ -327,7 +334,7 @@ class AndroidProfilerPage(Page):
         await RecordService.init_logger(self.serialno, self.app, self.process)
         ui.notify(
             f"开始采集: {self.serialno} - {self.app} - {self.process}",
-            color="green",
+            type="positive",
             position="top",
         )
 
@@ -338,14 +345,36 @@ class AndroidProfilerPage(Page):
         self.setting_card_enable = True
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("开始采集")
         self.timer_sampler.cancel() if self.timer_sampler else None
-        await RecordService.save_record(
-            f"{self.app}-{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        )
         ui.notify(
             f"停止采集: {self.serialno} - {self.app} - {self.process}",
-            color="red",
+            type="info",
             position="top",
         )
+
+        self._show_save_record_dialog()
+
+    def _show_save_record_dialog(self):
+        async def _on_ok():
+            await RecordService.save_record(input_filename.value)
+            dialog.close()
+            notify("日志保存成功", type="positive")
+
+        with ui.dialog(value=True) as dialog, ui.card():
+            with ui.card_section().style("width:400px"):
+                ui.label("日志保存为").classes("text-h6")
+                input_filename = (
+                    ui.input(value=self._make_log_filename())
+                    .classes("w-full")
+                    .props("hint=日志将保存到records目录下")
+                )
+
+            with ui.card_actions().classes("w-full justify-end"):
+                ui.button(
+                    "确认",
+                    color="primary",
+                    on_click=_on_ok,
+                )
+                ui.button("取消", color="secondary", on_click=dialog.close)
 
     async def _on_sample(self):
         if not self.serialno or not self.app or not self.process:
@@ -360,22 +389,19 @@ class AndroidProfilerPage(Page):
             monitor.clear()
 
     def _on_device_disconnected(self, serialno: str):
-        if not self.serialno:
-            self.setting_card_enable = True
-            self.timer_sampler.cancel() if self.timer_sampler else None
-            notify(
-                f"设备 {serialno} 断开连接，停止采集",
-                color="red",
-                position="top",
-                type="negative",
-            )
+        if serialno and not self.is_recording:
+            return
 
-        for client in Client.instances.values():
-            if not client.has_socket_connection:
-                continue
-            with client:
-                with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"'):
-                    ui.label("设备断开连接，停止采集").classes("text-3xl text-white")
+        self.setting_card_enable = True
+        self.timer_sampler.cancel() if self.timer_sampler else None
+
+        with ui.context.client.content:
+            with ui.dialog(value=True).props(
+                'backdrop-filter="blur(8px) brightness(40%)"'
+            ) as dialog:
+                ui.label("设备断开连接，停止采集").classes("text-3xl text-white")
+
+            dialog.on("hide", self._show_save_record_dialog)
 
 
 AndroidProfilerPage()

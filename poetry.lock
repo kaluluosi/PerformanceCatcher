@@ -188,13 +188,13 @@ trio = ["trio (>=0.26.1)"]
 
 [[package]]
 name = "async-adbc"
-version = "1.1.0"
+version = "1.1.1"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "async_adbc-1.1.0-py3-none-any.whl", hash = "sha256:f3ff507cc121b91009ca162f90159a2c6907528cc40db18107d1f7f381bf27de"},
-    {file = "async_adbc-1.1.0.tar.gz", hash = "sha256:f182da26b8eb3f923ea7860a4a93ae645af84ac65157174803b5498fe2e3c064"},
+    {file = "async_adbc-1.1.1-py3-none-any.whl", hash = "sha256:c929276ced163af74487daa132c340d9ae091063aebce5353cfbb3d90a3153d8"},
+    {file = "async_adbc-1.1.1.tar.gz", hash = "sha256:925c57d848e12be5dc806868a37f886632f77e8320e66886858746b1c61b1031"},
 ]
 
 [package.dependencies]
@@ -2413,4 +2413,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.14"
-content-hash = "8698e08b2c19221a59bc842f9243aac3c8cdb85aa958d13b0ebad33334b6881b"
+content-hash = "cf60b6a98386399292ef3b48a677d7207685d63a8198d0ead7eaa9c3e39336c8"

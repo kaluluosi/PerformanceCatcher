@@ -25,6 +25,9 @@ class _RecordService:
         device = await AndroidProfielerService.get_device(serialno)
         model_name = await device.prop.get("ro.product.model")
 
+        if os.path.exists("record.log"):
+            os.remove("record.log")
+
         self.filehandler = logging.FileHandler("record.log", mode="a", encoding="utf-8")
         self.filehandler.addFilter(lambda record: record.name == "RecordService")
         self.filehandler.setFormatter(JsonFormatter("%(message)s"))
@@ -41,7 +44,7 @@ class _RecordService:
             self._logger.removeHandler(self.filehandler)
             if not os.path.exists("records"):
                 os.makedirs("records")
-            shutil.move("record.log", f"records/{filename}")
+            shutil.move("record.log", f"records/{filename}.log")
 
     def record_files(self):
         if not os.path.exists("records"):
