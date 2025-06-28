@@ -1,7 +1,7 @@
 import datetime
 import json
 import os
-from nicegui import ui, app
+from nicegui import ui
 from fastapi.responses import RedirectResponse
 from perfcat.components.layout import Page
 from perfcat.services import RecordService
