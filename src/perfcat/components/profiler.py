@@ -16,7 +16,7 @@ class SerieData(BaseModel):
     type: str = "line"
     data: list[float] = Field(default_factory=list)
     showSymbol: bool = False
-    lineStyle:dict = Field(default_factory=lambda: {"normal": {"width": 1}})
+    lineStyle: dict = Field(default_factory=lambda: {"normal": {"width": 1}})
 
 
 Series = RootModel[list[SerieData]]
@@ -76,10 +76,10 @@ class Drawer(ui.drawer):
 class MonitorCard(ui.card):
     title: str = "Monitor"
 
-    def __init__(self) -> None:
+    def __init__(self, group: str = "monitor") -> None:
         super().__init__()
         self.classes("w-full")
-
+        self._group = group
         self._series: list[SerieData] = []
 
         with self:
@@ -90,7 +90,7 @@ class MonitorCard(ui.card):
             with self:
                 self.chart = ui.echart(
                     {
-                        "legend": {"data": [], "orient": "vertical", "left": 10},
+                        "legend": {"orient": "vertical", "left": 10, "selected": {}},
                         "grid": {
                             "left": "140px",
                             "right": "4%",
@@ -114,29 +114,45 @@ class MonitorCard(ui.card):
                         },
                         "dataZoom": [
                             {
-                                "type": "inside",
-                                "zoomOnMouseWheel": False,
-                                "moveOnMouseWheel": False,
-                                "start": 0,
-                                "end": 100,
-                            },
-                            {
                                 "type": "slider",
                                 "show": True,
                                 "zoomOnMouseWheel": False,
                                 "moveOnMouseWheel": False,
                                 "start": 0,
                                 "end": 100,
-                            }
+                            },
                         ],
                     }
                 )
 
-                # self.datazoom = ui.range(min=0,max=100,value={'min':0,'max':100},step=1)
-                # self.datazoom.bind_value(app.storage.general, "android_profiler_datazoom")
-
         self.chart.on("chart:datazoom", self._handle_datazoom)
-        app.storage.general.on_change(self._update_zoom)
+        self.chart.on("chart:legendselectchanged", self._handle_legendselectchanged)
+
+        ui.run_javascript(
+            f"""
+            let chart = echarts.getInstanceByDom(document.getElementById('{self.chart.html_id}'));
+            chart.group = '{self.group}';
+            """
+        )
+
+    @property
+    def group(self) -> str:
+        return self._group
+
+    @property
+    def dataZoom(self):
+        storage_datazoom = app.storage.general.get("android_profiler_datazoom", {})
+        datazoom = {
+            "start": storage_datazoom.get("start", 0),
+            "end": storage_datazoom.get("end", 100),
+        }
+        return datazoom
+
+    @property
+    def legend_selected(self):
+        return app.storage.general.get("android_profiler_legend", {}).get(
+            self.title, {}
+        )
 
     @contextmanager
     def session(self):
@@ -147,32 +163,36 @@ class MonitorCard(ui.card):
         serie = SerieData(name=name, type=type, data=[])
         self._series.append(serie)
 
-    async def sample(self,serialno: str, app:str, process: str):
+    async def sample(self, serialno: str, app: str, process: str):
         raise NotImplementedError
-    
+
     def update_chart(self):
-        self.chart.options["series"] = Series(self._series).model_dump()
-        self.chart.options["legend"]["data"] = [serie.name for serie in self._series]
+        options = self.chart.options
+        options.update(
+            {
+                "series": Series(self._series).model_dump(),
+            }
+        )
+        options["dataZoom"][0].update(self.dataZoom)
+        options["legend"]["selected"].update(self.legend_selected)
         self.chart.update()
 
     def _add_point(self, serie_name: str, value: float, type: str = "line"):
         if serie_name not in [serie.name for serie in self._series]:
             self.create_serie(serie_name, type)
-        
+
         for serie in self._series:
             if serie.name == serie_name:
                 serie.data.append(value)
                 return
 
-    def _update_zoom(self):
-        self.chart.options['dataZoom'][0]['start'] = app.storage.general.get('android_profiler_datazoom', {}).get('start', 0)
-        self.chart.options['dataZoom'][0]['end'] = app.storage.general.get('android_profiler_datazoom', {}).get('end', 100)
-        self.chart.update()
+    def _handle_datazoom(self, event: GenericEventArguments):
+        app.storage.general["android_profiler_datazoom"] = event.args
 
-
-    def _handle_datazoom(self, event:GenericEventArguments):
-        app.storage.general['android_profiler_datazoom'] = event.args
-
+    def _handle_legendselectchanged(self, event: GenericEventArguments):
+        app.storage.general["android_profiler_legend"][self.title] = event.args[
+            "selected"
+        ]
 
     def clear(self):
         self._series.clear()

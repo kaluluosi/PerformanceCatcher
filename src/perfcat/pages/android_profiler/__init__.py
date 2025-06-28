@@ -1,11 +1,11 @@
 import datetime
 import re
-from nicegui import ui
+from nicegui import Client, ui
 from nicegui.events import ValueChangeEventArguments, ClickEventArguments
 from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
-from perfcat.components.profiler import ControlCard,Drawer,MonitorCard
-from perfcat.services import AndroidProfielerService,RecordService
+from perfcat.components.profiler import ControlCard, Drawer, MonitorCard
+from perfcat.services import AndroidProfielerService, RecordService
 from perfcat.utils import notify
 from .cpu_monitor import CPUMonitorCard
 from .memery_monitor import MemoryTotalPSSMonitorCard
@@ -65,10 +65,10 @@ class RemoteConnectCard(ControlCard):
             return None
         else:
             return "请输入正确的IP端口格式"
-        
+
     async def _on_btn_connect_click(self):
-        ip,port = self.input_address.value.split(":")
-        res = await AndroidProfielerService.remote_connect(ip,int(port))
+        ip, port = self.input_address.value.split(":")
+        res = await AndroidProfielerService.remote_connect(ip, int(port))
         if res:
             notify(f"连接成功: {ip}:{port}", color="green")
         else:
@@ -124,16 +124,24 @@ class ProfilerSettingCard(ControlCard):
                     )
 
         AndroidProfielerService.on_device_connected.subscribe(
-            lambda device:notify(f"设备连接成功: {device}",type='positive',position='bottom-right', color="green")
+            lambda device: notify(
+                f"设备连接成功: {device}",
+                type="positive",
+                position="bottom-right",
+                color="green",
+            )
         )
 
         AndroidProfielerService.on_device_disconnected.subscribe(
-            lambda device: notify(f"设备断开连接: {device}",type='negative',position='bottom-right', color="red")
+            lambda device: notify(
+                f"设备断开连接: {device}",
+                type="negative",
+                position="bottom-right",
+                color="red",
+            )
         )
 
-        AndroidProfielerService.on_devices_changed.subscribe(
-            self._on_device_changed
-        )
+        AndroidProfielerService.on_devices_changed.subscribe(self._on_device_changed)
 
         self.device_select.on_value_change(self._on_device_select_changed)
         self.app_select.on_value_change(self._on_app_select_changed)
@@ -142,19 +150,20 @@ class ProfilerSettingCard(ControlCard):
     def _on_device_changed(self, devices: list[str]):
         self.device_select.set_options(devices)
 
-    async def _on_device_select_changed(self, value:ValueChangeEventArguments):
+    async def _on_device_select_changed(self, value: ValueChangeEventArguments):
         if not value.value:
             self.app_select.set_options([])
             return
         apps = await AndroidProfielerService.get_device_apps(value.value)
         self.app_select.set_options(apps)
 
-    async def _on_app_select_changed(self, value:ValueChangeEventArguments):
-        if not value.value:
+    async def _on_app_select_changed(self, value: ValueChangeEventArguments):
+        if not value.value or not self.device_select.value:
             self.process_select.set_options([])
             return
         processes = await AndroidProfielerService.get_device_processes(
-            self.device_select.value, value.value # type: ignore
+            self.device_select.value,
+            value.value,  # type: ignore
         )
         self.process_select.set_options(processes)
 
@@ -225,7 +234,6 @@ class MonitorTabPanel(ui.tab_panel):
         self.table.selected = rows
 
 
-
 class AndroidProfilerPage(Page):
     def __init__(self) -> None:
         super().__init__("/android_profiler", title="安卓性能")
@@ -240,29 +248,40 @@ class AndroidProfilerPage(Page):
         self.serialno: str = ""
         self.app: str = ""
         self.process: str = ""
-        self.timer_sampler: ui.timer|None = None
+        self.timer_sampler: ui.timer | None = None
 
         self.setting_card_enable: bool = True
 
         self.monitors: list[MonitorCard] = []
-       
 
     async def render(self):
         AndroidProfielerService.start_scan_devices()
 
-        AndroidProfielerService.on_device_disconnected.subscribe(self._on_device_disconnected)
+        AndroidProfielerService.on_device_disconnected.subscribe(
+            self._on_device_disconnected
+        )
 
         self.drawer = AndroidProfilerDrawer()
 
-        self.drawer.panel_device.profiler_setting_card.device_select.bind_value(self, "serialno")
-        self.drawer.panel_device.profiler_setting_card.app_select.bind_value(self, "app")
-        self.drawer.panel_device.profiler_setting_card.process_select.bind_value(self, "process")
+        self.drawer.panel_device.profiler_setting_card.device_select.bind_value(
+            self, "serialno"
+        )
+        self.drawer.panel_device.profiler_setting_card.app_select.bind_value(
+            self, "app"
+        )
+        self.drawer.panel_device.profiler_setting_card.process_select.bind_value(
+            self, "process"
+        )
 
-        self.drawer.panel_device.profiler_setting_card.device_select.bind_enabled(self, "setting_card_enable")
-        self.drawer.panel_device.profiler_setting_card.app_select.bind_enabled(self, "setting_card_enable")
-        self.drawer.panel_device.profiler_setting_card.process_select.bind_enabled(self, "setting_card_enable")
-
-
+        self.drawer.panel_device.profiler_setting_card.device_select.bind_enabled(
+            self, "setting_card_enable"
+        )
+        self.drawer.panel_device.profiler_setting_card.app_select.bind_enabled(
+            self, "setting_card_enable"
+        )
+        self.drawer.panel_device.profiler_setting_card.process_select.bind_enabled(
+            self, "setting_card_enable"
+        )
 
         self.drawer.panel_device.profiler_setting_card.btn_record.on_click(
             self.toggle_record
@@ -271,16 +290,13 @@ class AndroidProfilerPage(Page):
         for name, monitor_card in self.monitor_registers.items():
             self.drawer.panel_monitor.register_monitor(name, monitor_card.description)
 
-
         await self.create_monitors()
-
-
-        
 
     async def create_monitors(self):
         for name, monitor_card in self.monitor_registers.items():
             monitor: MonitorCard = monitor_card()
             self.monitors.append(monitor)
+
             monitor.bind_visibility_from(
                 self.drawer.panel_monitor.table,
                 "selected",
@@ -289,7 +305,9 @@ class AndroidProfilerPage(Page):
                 ),
             )
 
-    async def toggle_record(self,event:ClickEventArguments):
+        ui.run_javascript("echarts.connect('monitor')")
+
+    async def toggle_record(self, event: ClickEventArguments):
         if not self.serialno or not self.app or not self.process:
             notify("请先选择设备、应用和进程", color="red")
             return
@@ -299,20 +317,24 @@ class AndroidProfilerPage(Page):
             await self.stop_record()
 
     async def start_record(self, event):
-        self.drawer.panel_device.profiler_setting_card.btn_record.props("icon=stop color=green")
+        self.drawer.panel_device.profiler_setting_card.btn_record.props(
+            "icon=stop color=green"
+        )
         self._clear_monitors()
         self.setting_card_enable = False
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("停止采集")
-        self.timer_sampler = ui.timer(1,self._on_sample, active=True)
+        self.timer_sampler = ui.timer(1, self._on_sample, active=True)
         await RecordService.init_logger(self.serialno, self.app, self.process)
         ui.notify(
-                f"开始采集: {self.serialno} - {self.app} - {self.process}",
-                color="green",
-                position="top",
-            )
-    
+            f"开始采集: {self.serialno} - {self.app} - {self.process}",
+            color="green",
+            position="top",
+        )
+
     async def stop_record(self):
-        self.drawer.panel_device.profiler_setting_card.btn_record.props("icon=lens color=red")
+        self.drawer.panel_device.profiler_setting_card.btn_record.props(
+            "icon=lens color=red"
+        )
         self.setting_card_enable = True
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("开始采集")
         self.timer_sampler.cancel() if self.timer_sampler else None
@@ -322,7 +344,7 @@ class AndroidProfilerPage(Page):
         ui.notify(
             f"停止采集: {self.serialno} - {self.app} - {self.process}",
             color="red",
-            position="top"
+            position="top",
         )
 
     async def _on_sample(self):
@@ -337,17 +359,23 @@ class AndroidProfilerPage(Page):
         for monitor in self.monitors:
             monitor.clear()
 
-    def _on_device_disconnected(self, serialno:str):
+    def _on_device_disconnected(self, serialno: str):
         if not self.serialno:
             self.setting_card_enable = True
             self.timer_sampler.cancel() if self.timer_sampler else None
-            ui.notify(
+            notify(
                 f"设备 {serialno} 断开连接，停止采集",
                 color="red",
                 position="top",
-                type='negative'
+                type="negative",
             )
-            with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"'):
-                ui.label('设备断开连接，停止采集').classes('text-3xl text-white')
+
+        for client in Client.instances.values():
+            if not client.has_socket_connection:
+                continue
+            with client:
+                with ui.dialog().props('backdrop-filter="blur(8px) brightness(40%)"'):
+                    ui.label("设备断开连接，停止采集").classes("text-3xl text-white")
+
 
 AndroidProfilerPage()
