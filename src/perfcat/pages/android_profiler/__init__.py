@@ -35,6 +35,7 @@ class DeviceTabPanel(ui.tab_panel):
         with self:
             self.remote_connect_card = RemoteConnectCard()
             self.profiler_setting_card = ProfilerSettingCard()
+            self.device_info_card = DeviceInfoCard()
 
 
 class RemoteConnectCard(ControlCard):
@@ -125,18 +126,18 @@ class ProfilerSettingCard(ControlCard):
 
         AndroidProfielerService.on_device_connected.subscribe(
             lambda device: notify(
-                f"设备连接成功: {device}",
+                f"设备连接: {device}",
                 type="positive",
-                position="bottom-right",
+                position="top-right",
                 color="green",
             )
         )
 
         AndroidProfielerService.on_device_disconnected.subscribe(
             lambda device: notify(
-                f"设备断开连接: {device}",
+                f"设备断开: {device}",
                 type="negative",
-                position="bottom-right",
+                position="top-right",
                 color="red",
             )
         )
@@ -147,8 +148,8 @@ class ProfilerSettingCard(ControlCard):
         self.app_select.on_value_change(self._on_app_select_changed)
         self.btn_tcpip.on_click(self._on_btn_tcpip_click)
 
-    def _on_device_changed(self, devices: list[str]):
-        self.device_select.set_options(devices)
+    def _on_device_changed(self, devices: set[str]):
+        self.device_select.set_options(list(devices))
 
     async def _on_device_select_changed(self, value: ValueChangeEventArguments):
         if not value.value:
@@ -168,6 +169,7 @@ class ProfilerSettingCard(ControlCard):
         self.process_select.set_options(processes)
 
     async def _on_btn_tcpip_click(self):
+        self.btn_tcpip.props("loading=true")
         serialno = self.device_select.value
         if not serialno:
             notify("请先选择设备", color="red")
@@ -181,6 +183,80 @@ class ProfilerSettingCard(ControlCard):
             notify(f"开启无线连接成功: {ip.strip()}:5555", color="green")
         else:
             notify(f"开启无线连接失败: {ip.strip()}:5555", color="red")
+        self.btn_tcpip.props("loading=false")
+
+
+class DeviceInfoCard(ControlCard):
+    def __init__(self) -> None:
+        super().__init__()
+
+        with self:
+            columns = [
+                {
+                    "name": "name",
+                    "label": "名称",
+                    "field": "name",
+                    "align": "left",
+                    "style": "width:120px",
+                },
+                {
+                    "name": "value",
+                    "label": "值",
+                    "field": "value",
+                    "style": "overflow-wrap:anywhere",
+                },
+            ]
+
+            self._default_rows = [
+                {"name": "品牌", "value": ""},
+                {"name": "制造商", "value": ""},
+                {"name": "型号", "value": ""},
+                {"name": "名称", "value": ""},
+                {"name": "系统版本", "value": ""},
+                {"name": "SDK版本", "value": ""},
+                {"name": "首选SDK版本", "value": ""},
+                {"name": "CPU平台", "value": ""},
+                {"name": "CPU名称", "value": ""},
+                {"name": "CPU架构", "value": ""},
+                {"name": "CPU核心", "value": ""},
+                {"name": "CPU频率", "value": ""},
+                {"name": "GPU型号", "value": ""},
+                {
+                    "name": "OpenGL",
+                    "value": "",
+                },
+                {"name": "RAM", "value": ""},
+                {"name": "SWAP", "value": ""},
+                {"name": "ROOT", "value": ""},
+                {"name": "Serial", "value": ""},
+            ]
+
+            self.table = ui.table(
+                columns=columns, rows=self._default_rows, row_key="name"
+            )
+            self.table.props("dense wrap-cells bordered separator=cell")
+            self.table.classes("w-full")
+
+            with ui.card_actions().classes("w-full justify-end"):
+                ui.button("复制到剪贴板", on_click=self._copy_to_clipboard)
+
+    async def _copy_to_clipboard(self):
+        rows = self.table.rows
+        data = "\n".join([f"{row['name']}   {row['value']}" for row in rows])
+        ui.clipboard.write(data)
+        notify("已复制到剪贴板")
+
+    async def load(self, args: ValueChangeEventArguments):
+        if not args.value:
+            self.table.rows = self._default_rows
+            return
+
+        serialno = args.value
+        self.table.props("loading=true")
+        device_info = await AndroidProfielerService.get_device_info(serialno)
+        rows = [{"name": key, "value": value} for key, value in device_info.items()]
+        self.table.rows = rows
+        self.table.props("loading=false")
 
 
 class MonitorTabPanel(ui.tab_panel):
@@ -279,14 +355,18 @@ class AndroidProfilerPage(Page):
             self, "process"
         )
 
-        self.drawer.panel_device.profiler_setting_card.device_select.bind_enabled(
+        self.drawer.panel_device.profiler_setting_card.device_select.bind_enabled_from(
             self, "setting_card_enable"
         )
-        self.drawer.panel_device.profiler_setting_card.app_select.bind_enabled(
+        self.drawer.panel_device.profiler_setting_card.app_select.bind_enabled_from(
             self, "setting_card_enable"
         )
-        self.drawer.panel_device.profiler_setting_card.process_select.bind_enabled(
+        self.drawer.panel_device.profiler_setting_card.process_select.bind_enabled_from(
             self, "setting_card_enable"
+        )
+
+        self.drawer.panel_device.profiler_setting_card.device_select.on_value_change(
+            self.drawer.panel_device.device_info_card.load
         )
 
         self.drawer.panel_device.profiler_setting_card.btn_record.on_click(
@@ -346,7 +426,7 @@ class AndroidProfilerPage(Page):
         )
         self.setting_card_enable = True
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("开始采集")
-        self.timer_sampler.cancel() if self.timer_sampler else None
+        self.timer_sampler.deactivate() if self.timer_sampler else None
         ui.notify(
             f"停止采集: {self.serialno} - {self.app} - {self.process}",
             type="info",
@@ -391,7 +471,7 @@ class AndroidProfilerPage(Page):
             monitor.clear()
 
     def _on_device_disconnected(self, serialno: str):
-        if serialno and not self.is_recording:
+        if not self.is_recording:
             return
 
         self.setting_card_enable = True

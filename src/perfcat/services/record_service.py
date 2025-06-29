@@ -26,6 +26,8 @@ class _RecordService:
         model_name = await device.prop.get("ro.product.model")
 
         if os.path.exists("record.log"):
+            if self.filehandler:
+                self.filehandler.close()
             os.remove("record.log")
 
         self.filehandler = logging.FileHandler("record.log", mode="a", encoding="utf-8")
