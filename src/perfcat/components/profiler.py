@@ -76,11 +76,12 @@ class Drawer(ui.drawer):
 class MonitorCard(ui.card):
     title: str = "Monitor"
 
-    def __init__(self, group: str = "monitor") -> None:
+    def __init__(self, y_axis_unit: str = "", group: str = "monitor") -> None:
         super().__init__()
         self.classes("w-full")
         self._group = group
         self._series: list[SerieData] = []
+        self._y_unit = y_axis_unit
 
         with self:
             with ui.card_section().classes("w-full"):
@@ -98,8 +99,14 @@ class MonitorCard(ui.card):
                             "bottom": "10%",
                             "containLabel": True,
                         },
-                        "xAxis": {"type": "category"},
-                        "yAxis": {"type": "value"},
+                        "xAxis": {
+                            "type": "category",
+                            "axisLabel": {"formatter": "{value}s"},
+                        },
+                        "yAxis": {
+                            "type": "value",
+                            "axisLabel": {"formatter": f"{{value}}{self._y_unit}"},
+                        },
                         "series": [],
                         "axisPointer": {
                             "link": {"xAxisIndex": "all"},

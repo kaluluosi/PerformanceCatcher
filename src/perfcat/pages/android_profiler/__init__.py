@@ -1,7 +1,11 @@
 import datetime
 import re
-from nicegui import ui
-from nicegui.events import ValueChangeEventArguments, ClickEventArguments
+from nicegui import app, ui
+from nicegui.events import (
+    ValueChangeEventArguments,
+    ClickEventArguments,
+    TableSelectionEventArguments,
+)
 from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard, Drawer, MonitorCard
@@ -11,6 +15,8 @@ from .cpu_monitor import CPUMonitorCard
 from .memery_monitor import MemoryTotalPSSMonitorCard
 from .temperature_monitor import TemperatureMonitorCard
 from .fps_monitor import FPSMonitorCard
+from .battery_monitor import BatteryLevelMonitorCard, BatterymAhMonitorCard
+from .traffic_monitor import TrafficMonitorCard
 
 
 class AndroidProfilerDrawer(Drawer):
@@ -303,11 +309,21 @@ class MonitorTabPanel(ui.tab_panel):
             for name, description in self._monitors_registers.items()
         ]
         self.table = (
-            ui.table(columns=columns, rows=rows, row_key="name")
+            ui.table(
+                columns=columns,
+                rows=rows,
+                row_key="name",
+                on_select=self._on_select,
+            )
             .classes("w-full")
             .props("selection=multiple hide-selected-banner")
         )
-        self.table.selected = rows
+        self.table.selected = app.storage.general.get(
+            "android_profiler_monitors_selection", []
+        )
+
+    def _on_select(self, e: TableSelectionEventArguments):
+        app.storage.general["android_profiler_monitors_selection"] = e.selection
 
 
 class AndroidProfilerPage(Page):
@@ -319,6 +335,9 @@ class AndroidProfilerPage(Page):
             "CPU": CPUMonitorCard,
             "Memory": MemoryTotalPSSMonitorCard,
             "Temperature": TemperatureMonitorCard,
+            "Battery-level": BatteryLevelMonitorCard,
+            "Battery-mAh": BatterymAhMonitorCard,
+            "Trafic": TrafficMonitorCard,
         }
 
         self.serialno: str = ""
@@ -384,10 +403,10 @@ class AndroidProfilerPage(Page):
             self.monitors.append(monitor)
 
             monitor.bind_visibility_from(
-                self.drawer.panel_monitor.table,
-                "selected",
-                backward=lambda selected, name=name: any(
-                    [name == s["name"] for s in selected]
+                app.storage.general,
+                "android_profiler_monitors_selection",
+                backward=lambda selection, name=name: any(
+                    [name == select["name"] for select in selection]
                 ),
             )
 
