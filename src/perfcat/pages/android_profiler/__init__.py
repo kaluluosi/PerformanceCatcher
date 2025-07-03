@@ -336,7 +336,7 @@ class AndroidProfilerPage(Page):
     def __init__(self) -> None:
         super().__init__("/android_profiler", title="安卓性能")
 
-        self.monitor_registers:list[type[MonitorCard]] = [
+        self.monitor_registers: list[type[MonitorCard]] = [
             FPSMonitorCard,
             CPUMonitorCard,
             MemoryTotalPSSMonitorCard,
@@ -370,7 +370,6 @@ class AndroidProfilerPage(Page):
 
         self.monitors.clear()
 
-
         self.drawer = AndroidProfilerDrawer()
 
         self.drawer.panel_device.profiler_setting_card.device_select.bind_value(
@@ -402,7 +401,9 @@ class AndroidProfilerPage(Page):
         )
 
         for monitor_card in self.monitor_registers:
-            self.drawer.panel_monitor.register_monitor(monitor_card.title, monitor_card.description)
+            self.drawer.panel_monitor.register_monitor(
+                monitor_card.title, monitor_card.description
+            )
 
         with ui.column().classes("w-full p-2 scroll h-[90vh]"):
             await self.create_monitors()
@@ -467,8 +468,8 @@ class AndroidProfilerPage(Page):
         self._show_save_record_dialog()
 
     def _show_save_record_dialog(self):
-        async def _on_ok():
-            await RecordService.save_record(input_filename.value)
+        def _on_ok():
+            RecordService.save_record(input_filename.value)
             dialog.close()
             notify("日志保存成功", type="positive")
 
@@ -504,7 +505,7 @@ class AndroidProfilerPage(Page):
     def _on_device_disconnected(self, serialno: str):
         if not self.is_recording:
             return
-        
+
         if self.serialno:
             return
 
