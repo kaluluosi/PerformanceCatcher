@@ -395,7 +395,8 @@ class AndroidProfilerPage(Page):
         for name, monitor_card in self.monitor_registers.items():
             self.drawer.panel_monitor.register_monitor(name, monitor_card.description)
 
-        await self.create_monitors()
+        with ui.column().classes("w-full p-2 scroll h-[90vh]"):
+            await self.create_monitors()
 
     async def create_monitors(self):
         for name, monitor_card in self.monitor_registers.items():
