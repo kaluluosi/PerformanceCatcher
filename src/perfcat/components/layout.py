@@ -12,7 +12,8 @@ class Header(ui.header):
         with self:
             with ui.row().style("gap:0px;"):
                 self.btn_back = ui.button(
-                    icon="arrow_back", on_click=ui.navigate.back
+                    icon="arrow_back", 
+                    on_click=lambda: ui.navigate.back() if not is_navigation_disable() else notify("当前禁止跳转",type='warning')
                 ).props("flat color=white")
                 self.btn_menu = ui.button(icon="menu").props("flat color=white")
             ui.icon("insights")
