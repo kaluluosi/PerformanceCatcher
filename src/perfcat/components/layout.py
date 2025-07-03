@@ -74,6 +74,7 @@ class Page:
             await self.render()
 
     async def _frame(self, *args):
+        ui.query("html").style("overflow:hidden")
         ui.query("main").style("height:92vh")
         ui.query("main .nicegui-content")
         ui.query(".nicegui-content").classes("pr-8")

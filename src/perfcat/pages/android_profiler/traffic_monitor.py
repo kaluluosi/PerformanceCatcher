@@ -6,26 +6,40 @@ Copyright © Kaluluosi All rights reserved
 
 from perfcat.components.profiler import MonitorCard
 from perfcat.services import AndroidProfielerService, RecordService
-
+from async_adbc.plugins.traffic import TrafficStat
 
 class TrafficMonitorCard(MonitorCard):
     title = "Traffic"
-    description = "流量使用情况"
+    description = "累计流量数据"
 
     def __init__(self) -> None:
-        super().__init__(y_axis_unit="byte")
+        super().__init__(y_axis_unit="KB")
 
         self.create_serie("recivce")
         self.create_serie("send")
         self.update_chart()
 
+        self.last_stat:TrafficStat|None
+
+    def clear(self):
+        self.last_stat = None
+        return super().clear()
+
     async def sample(self, serialno: str, app: str, process: str):
         dev = await AndroidProfielerService.get_device(serialno)
-        stat = await dev.traffic.stat()
+        app_stat = await dev.traffic.app_stat(app)
 
-        self._add_point("recivce", stat.receive)
-        self._add_point("send", stat.send)
+
+        if self.last_stat is None:
+            self.last_stat = app_stat
+
+        diff = app_stat-self.last_stat
+        receive = round(diff.receive/1024, 2)
+        send = round(diff.send/1024, 2)
+
+        self._add_point("recivce", receive)
+        self._add_point("send", send)
         RecordService.logger.info(
-            {"name": self.title, "recive": stat.receive, "send": stat.send}
+            {"name": self.title, "recive": receive, "send": send}
         )
         self.update_chart()

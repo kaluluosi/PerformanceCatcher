@@ -1,9 +1,9 @@
 import json
 import logging
+import logging.handlers
 import os
 import shutil
 from .android_profiler_service import AndroidProfielerService
-
 
 class JsonFormatter(logging.Formatter):
     def format(self, record):
@@ -13,37 +13,44 @@ class JsonFormatter(logging.Formatter):
 
 
 class _RecordService:
-    def __init__(self):
-        self._logger = logging.getLogger("RecordService")
-        self._logger.setLevel(logging.INFO)
+
 
     @property
     def logger(self):
         return self._logger
+    
+    def _setup_logger(self):
+        self._file_handler = logging.FileHandler("record.log",mode="w",delay=True, encoding="utf-8")
+        self._file_handler.setFormatter(JsonFormatter())
+
+        self._logger = logging.getLogger("RecordService")
+        self._logger.addHandler(logging.StreamHandler())
+        self._logger.addHandler(self._file_handler)
+        self._logger.setLevel(logging.INFO)
+
+    def _release_logger(self):
+        self._logger.removeHandler(self._file_handler)
+        self._file_handler.flush()
+        self._file_handler.close()
 
     async def init_logger(self, serialno: str, app: str, process: str):
         device = await AndroidProfielerService.get_device(serialno)
         model_name = await device.prop.get("ro.product.model")
 
-        if os.path.exists("record.log"):
-            if self.filehandler:
-                self.filehandler.close()
-            os.remove("record.log")
+        self._setup_logger()
 
-        self.filehandler = logging.FileHandler("record.log", mode="a", encoding="utf-8")
-        self.filehandler.addFilter(lambda record: record.name == "RecordService")
-        self.filehandler.setFormatter(JsonFormatter("%(message)s"))
-        self._logger.addHandler(self.filehandler)
-
-        self._logger.info(
+        self.logger.info(
             {"name": "info", "model": model_name, "app": app, "process": process}
         )
+        app_info = await AndroidProfielerService.get_app_info(serialno, app)
+        self.logger.info(app_info)
+        device_info = await AndroidProfielerService.get_device_info(serialno)
+        self.logger.info(device_info)
+
 
     async def save_record(self, filename: str):
-        # Placeholder for backup logic
+        self._release_logger()
         if os.path.exists("record.log"):
-            self.filehandler.close()
-            self._logger.removeHandler(self.filehandler)
             if not os.path.exists("records"):
                 os.makedirs("records")
             shutil.move("record.log", f"records/{filename}.log")

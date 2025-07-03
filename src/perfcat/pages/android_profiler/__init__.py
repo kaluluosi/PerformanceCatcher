@@ -430,10 +430,10 @@ class AndroidProfilerPage(Page):
             "icon=stop color=green"
         )
         self._clear_monitors()
+        await RecordService.init_logger(self.serialno, self.app, self.process)
         self.setting_card_enable = False
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("停止采集")
         self.timer_sampler = ui.timer(1, self._on_sample, active=True)
-        await RecordService.init_logger(self.serialno, self.app, self.process)
         ui.notify(
             f"开始采集: {self.serialno} - {self.app} - {self.process}",
             type="positive",
@@ -492,6 +492,9 @@ class AndroidProfilerPage(Page):
 
     def _on_device_disconnected(self, serialno: str):
         if not self.is_recording:
+            return
+        
+        if self.serialno:
             return
 
         self.setting_card_enable = True

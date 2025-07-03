@@ -66,7 +66,7 @@ class HomePage(Page):
 
         datas = []
         for file in files:
-            with open(f"records/{file}", "r") as f:
+            with open(f"records/{file}", "r",encoding="utf-8") as f:
                 info = json.loads(f.readline().strip())
                 create_at = os.stat(f"records/{file}").st_ctime
                 datas.append(
