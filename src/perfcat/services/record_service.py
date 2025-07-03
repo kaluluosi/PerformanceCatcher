@@ -1,9 +1,11 @@
+import datetime
 import json
 import logging
 import logging.handlers
 import os
 import shutil
 from .android_profiler_service import AndroidProfielerService
+
 
 class JsonFormatter(logging.Formatter):
     def format(self, record):
@@ -13,14 +15,14 @@ class JsonFormatter(logging.Formatter):
 
 
 class _RecordService:
-
-
     @property
     def logger(self):
         return self._logger
-    
+
     def _setup_logger(self):
-        self._file_handler = logging.FileHandler("record.log",mode="w",delay=True, encoding="utf-8")
+        self._file_handler = logging.FileHandler(
+            "record.log", mode="w", delay=True, encoding="utf-8"
+        )
         self._file_handler.setFormatter(JsonFormatter())
 
         self._logger = logging.getLogger("RecordService")
@@ -39,16 +41,21 @@ class _RecordService:
 
         self._setup_logger()
 
-        self.logger.info(
-            {"name": "info", "model": model_name, "app": app, "process": process}
-        )
         app_info = await AndroidProfielerService.get_app_info(serialno, app)
-        self.logger.info(app_info)
+        self.logger.info(
+            {
+                "model": model_name,
+                "platform": "android",
+                "app": app,
+                "process": process,
+                "create_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                **app_info,
+            }
+        )
         device_info = await AndroidProfielerService.get_device_info(serialno)
         self.logger.info(device_info)
 
-
-    async def save_record(self, filename: str):
+    def save_record(self, filename: str):
         self._release_logger()
         if os.path.exists("record.log"):
             if not os.path.exists("records"):

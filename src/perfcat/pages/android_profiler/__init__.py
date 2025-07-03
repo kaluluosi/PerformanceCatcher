@@ -11,12 +11,7 @@ from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard, Drawer, MonitorCard
 from perfcat.services import AndroidProfielerService, RecordService
 from perfcat.utils import notify, set_navigation_disable
-from .cpu_monitor import CPUMonitorCard
-from .memery_monitor import MemoryTotalPSSMonitorCard
-from .temperature_monitor import TemperatureMonitorCard
-from .fps_monitor import FPSMonitorCard
-from .battery_monitor import BatteryLevelMonitorCard, BatterymAhMonitorCard
-from .traffic_monitor import TrafficMonitorCard
+from perfcat.components.monitors import monitor_factory_map
 
 
 class AndroidProfilerDrawer(Drawer):
@@ -336,16 +331,6 @@ class AndroidProfilerPage(Page):
     def __init__(self) -> None:
         super().__init__("/android_profiler", title="安卓性能")
 
-        self.monitor_registers: list[type[MonitorCard]] = [
-            FPSMonitorCard,
-            CPUMonitorCard,
-            MemoryTotalPSSMonitorCard,
-            TemperatureMonitorCard,
-            BatteryLevelMonitorCard,
-            BatterymAhMonitorCard,
-            TrafficMonitorCard,
-        ]
-
         self.serialno: str = ""
         self.app: str = ""
         self.process: str = ""
@@ -400,7 +385,7 @@ class AndroidProfilerPage(Page):
             self.toggle_record
         )
 
-        for monitor_card in self.monitor_registers:
+        for monitor_card in monitor_factory_map.values():
             self.drawer.panel_monitor.register_monitor(
                 monitor_card.title, monitor_card.description
             )
@@ -409,7 +394,7 @@ class AndroidProfilerPage(Page):
             await self.create_monitors()
 
     async def create_monitors(self):
-        for monitor_card in self.monitor_registers:
+        for monitor_card in monitor_factory_map.values():
             monitor: MonitorCard = monitor_card()
             self.monitors.append(monitor)
 
