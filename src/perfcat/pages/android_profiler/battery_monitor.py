@@ -9,8 +9,8 @@ from perfcat.services import AndroidProfielerService, RecordService
 
 
 class BatteryLevelMonitorCard(MonitorCard):
-    title = "Battery - 电量百分比"
-    description = "电池电量百分比"
+    title = "Battery(Level)"
+    description = "电量百分比"
 
     def __init__(self) -> None:
         super().__init__(y_axis_unit="%")
@@ -30,7 +30,7 @@ class BatteryLevelMonitorCard(MonitorCard):
 
 
 class BatterymAhMonitorCard(MonitorCard):
-    title = "Battery - mAh容量"
+    title = "Battery(mAh)"
     description = "电池电量mAh容量(毫安时)"
 
     def __init__(self) -> None:

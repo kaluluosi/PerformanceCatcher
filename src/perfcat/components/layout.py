@@ -1,6 +1,6 @@
 from nicegui import ui, app
 from perfcat.config import navigations
-from perfcat.utils import is_active_page
+from perfcat.utils import is_active_page,is_navigation_disable, notify
 
 
 class Header(ui.header):
@@ -47,7 +47,8 @@ class NavigationBar(ui.drawer):
                     for _, value in navigations.items():
                         with ui.item() as item:  # type: ignore
                             item.on_click(
-                                lambda arg, path=value["path"]: ui.navigate.to(path)
+                                lambda arg, path=value["path"]: 
+                                ui.navigate.to(path) if not is_navigation_disable() else notify("当前禁止跳转",type='warning') 
                             )
                             item.props["active"] = is_active_page(value["path"])
                             with ui.item_section().props("avatar"):

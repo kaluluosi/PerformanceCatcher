@@ -75,6 +75,7 @@ class Drawer(ui.drawer):
 
 class MonitorCard(ui.card):
     title: str = "Monitor"
+    description:str = ""
 
     def __init__(self, y_axis_unit: str = "", group: str = "monitor") -> None:
         super().__init__()
@@ -85,52 +86,53 @@ class MonitorCard(ui.card):
 
         with self:
             with ui.card_section().classes("w-full"):
-                self.label_title = ui.label(self.title)
+                with ui.row().classes("justify-between items-center w-full"):
+                    self.label_title = ui.label(self.title).classes("text-xl")
+                    self.label_descrip = ui.label(self.description)
                 ui.separator()
 
-            with self:
-                self.chart = ui.echart(
-                    {
-                        "legend": {"orient": "vertical", "left": 10, "selected": {}},
-                        "grid": {
-                            "left": "140px",
-                            "right": "4%",
-                            "top": "3%",
-                            "bottom": "10%",
-                            "containLabel": True,
+            self.chart = ui.echart(
+                {   
+                    "legend": {"orient": "vertical", "left": 10, "selected": {}},
+                    "grid": {
+                        "left": "140px",
+                        "right": "4%",
+                        "top": "3%",
+                        "bottom": "10%",
+                        "containLabel": True,
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "axisLabel": {"formatter": "{value}s"},
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "axisLabel": {"formatter": f"{{value}}{self._y_unit}"},
+                    },
+                    "series": [],
+                    "axisPointer": {
+                        "link": {"xAxisIndex": "all"},
+                        "label": {"backgroundColor": "#777"},
+                    },
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {"type": "cross"},
+                        "backgroundColor": "rgba(255, 255, 255, 0.8)",
+                        "position": "js:function (pos, params, el, elRect, size) { var obj = { top: 10 }; obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30; return obj; }",
+                        "extraCssText": "width: 170px",
+                    },
+                    "dataZoom": [
+                        {
+                            "type": "slider",
+                            "show": True,
+                            "zoomOnMouseWheel": False,
+                            "moveOnMouseWheel": False,
+                            "start": 0,
+                            "end": 100,
                         },
-                        "xAxis": {
-                            "type": "category",
-                            "axisLabel": {"formatter": "{value}s"},
-                        },
-                        "yAxis": {
-                            "type": "value",
-                            "axisLabel": {"formatter": f"{{value}}{self._y_unit}"},
-                        },
-                        "series": [],
-                        "axisPointer": {
-                            "link": {"xAxisIndex": "all"},
-                            "label": {"backgroundColor": "#777"},
-                        },
-                        "tooltip": {
-                            "trigger": "axis",
-                            "axisPointer": {"type": "cross"},
-                            "backgroundColor": "rgba(255, 255, 255, 0.8)",
-                            "position": "js:function (pos, params, el, elRect, size) { var obj = { top: 10 }; obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30; return obj; }",
-                            "extraCssText": "width: 170px",
-                        },
-                        "dataZoom": [
-                            {
-                                "type": "slider",
-                                "show": True,
-                                "zoomOnMouseWheel": False,
-                                "moveOnMouseWheel": False,
-                                "start": 0,
-                                "end": 100,
-                            },
-                        ],
-                    }
-                )
+                    ],
+                }
+            )
 
         self.chart.on("chart:datazoom", self._handle_datazoom)
         self.chart.on("chart:legendselectchanged", self._handle_legendselectchanged)
@@ -167,7 +169,7 @@ class MonitorCard(ui.card):
             yield
 
     def create_serie(self, name: str, type: str = "line"):
-        serie = SerieData(name=name, type=type, data=[])
+        serie = SerieData(name=name, type=type, data=[0])
         self._series.append(serie)
 
     async def sample(self, serialno: str, app: str, process: str):
@@ -202,5 +204,6 @@ class MonitorCard(ui.card):
         ]
 
     def clear(self):
-        self._series.clear()
+        for serie in self._series:
+            serie.data.clear()
         self.update_chart()

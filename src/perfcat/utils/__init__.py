@@ -1,5 +1,5 @@
 from typing import Any, Callable, Literal, Optional, Union
-from nicegui import Client,ui
+from nicegui import Client, app,ui
 
 def resolve(page:Callable):
     """
@@ -55,3 +55,11 @@ def notify(message: Any, *,
                 multi_line=multi_line, 
                 **kwargs)
             
+
+
+def is_navigation_disable():
+    return app.storage.general.get("navigataion_disable", False)
+
+
+def set_navigation_disable(value:bool):
+    app.storage.general["navigataion_disable"]= value

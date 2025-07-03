@@ -10,7 +10,7 @@ from nicegui.observables import ObservableDict
 from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard, Drawer, MonitorCard
 from perfcat.services import AndroidProfielerService, RecordService
-from perfcat.utils import notify
+from perfcat.utils import notify, set_navigation_disable
 from .cpu_monitor import CPUMonitorCard
 from .memery_monitor import MemoryTotalPSSMonitorCard
 from .temperature_monitor import TemperatureMonitorCard
@@ -153,6 +153,11 @@ class ProfilerSettingCard(ControlCard):
         self.device_select.on_value_change(self._on_device_select_changed)
         self.app_select.on_value_change(self._on_app_select_changed)
         self.btn_tcpip.on_click(self._on_btn_tcpip_click)
+
+        self._refresh_devices()
+
+    def _refresh_devices(self):
+        self.device_select.set_options(list(AndroidProfielerService.devices))
 
     def _on_device_changed(self, devices: set[str]):
         self.device_select.set_options(list(devices))
@@ -302,6 +307,7 @@ class MonitorTabPanel(ui.tab_panel):
                 "field": "description",
                 "required": True,
                 "align": "left",
+                "style": "overflow-wrap:anywhere",
             },
         ]
         rows = [
@@ -316,7 +322,7 @@ class MonitorTabPanel(ui.tab_panel):
                 on_select=self._on_select,
             )
             .classes("w-full")
-            .props("selection=multiple hide-selected-banner")
+            .props("selection=multiple dense hide-selected-banner")
         )
         self.table.selected = app.storage.general.get(
             "android_profiler_monitors_selection", []
@@ -330,15 +336,15 @@ class AndroidProfilerPage(Page):
     def __init__(self) -> None:
         super().__init__("/android_profiler", title="安卓性能")
 
-        self.monitor_registers = {
-            "FPS": FPSMonitorCard,
-            "CPU": CPUMonitorCard,
-            "Memory": MemoryTotalPSSMonitorCard,
-            "Temperature": TemperatureMonitorCard,
-            "Battery-level": BatteryLevelMonitorCard,
-            "Battery-mAh": BatterymAhMonitorCard,
-            "Trafic": TrafficMonitorCard,
-        }
+        self.monitor_registers:list[type[MonitorCard]] = [
+            FPSMonitorCard,
+            CPUMonitorCard,
+            MemoryTotalPSSMonitorCard,
+            TemperatureMonitorCard,
+            BatteryLevelMonitorCard,
+            BatterymAhMonitorCard,
+            TrafficMonitorCard,
+        ]
 
         self.serialno: str = ""
         self.app: str = ""
@@ -349,18 +355,21 @@ class AndroidProfilerPage(Page):
 
         self.monitors: list[MonitorCard] = []
 
-    @property
-    def is_recording(self):
-        return self.timer_sampler.active if self.timer_sampler else False
-
-    async def render(self):
-        self.monitors.clear()
-
         AndroidProfielerService.start_scan_devices()
 
         AndroidProfielerService.on_device_disconnected.subscribe(
             self._on_device_disconnected
         )
+
+    @property
+    def is_recording(self):
+        return self.timer_sampler.active if self.timer_sampler else False
+
+    async def render(self):
+        self.setting_card_enable = True
+
+        self.monitors.clear()
+
 
         self.drawer = AndroidProfilerDrawer()
 
@@ -392,21 +401,21 @@ class AndroidProfilerPage(Page):
             self.toggle_record
         )
 
-        for name, monitor_card in self.monitor_registers.items():
-            self.drawer.panel_monitor.register_monitor(name, monitor_card.description)
+        for monitor_card in self.monitor_registers:
+            self.drawer.panel_monitor.register_monitor(monitor_card.title, monitor_card.description)
 
         with ui.column().classes("w-full p-2 scroll h-[90vh]"):
             await self.create_monitors()
 
     async def create_monitors(self):
-        for name, monitor_card in self.monitor_registers.items():
+        for monitor_card in self.monitor_registers:
             monitor: MonitorCard = monitor_card()
             self.monitors.append(monitor)
 
             monitor.bind_visibility_from(
                 app.storage.general,
                 "android_profiler_monitors_selection",
-                backward=lambda selection, name=name: any(
+                backward=lambda selection, name=monitor_card.title: any(
                     [name == select["name"] for select in selection]
                 ),
             )
@@ -426,6 +435,7 @@ class AndroidProfilerPage(Page):
             await self.stop_record()
 
     async def start_record(self, event):
+        set_navigation_disable(True)
         self.drawer.panel_device.profiler_setting_card.btn_record.props(
             "icon=stop color=green"
         )
@@ -435,12 +445,13 @@ class AndroidProfilerPage(Page):
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("停止采集")
         self.timer_sampler = ui.timer(1, self._on_sample, active=True)
         ui.notify(
-            f"开始采集: {self.serialno} - {self.app} - {self.process}",
+            "开始采集",
             type="positive",
-            position="top",
+            position="bottom",
         )
 
     async def stop_record(self):
+        set_navigation_disable(False)
         self.drawer.panel_device.profiler_setting_card.btn_record.props(
             "icon=lens color=red"
         )
@@ -448,9 +459,9 @@ class AndroidProfilerPage(Page):
         self.drawer.panel_device.profiler_setting_card.btn_record.set_text("开始采集")
         self.timer_sampler.deactivate() if self.timer_sampler else None
         ui.notify(
-            f"停止采集: {self.serialno} - {self.app} - {self.process}",
-            type="info",
-            position="top",
+            "停止采集",
+            type="positive",
+            position="bottom",
         )
 
         self._show_save_record_dialog()

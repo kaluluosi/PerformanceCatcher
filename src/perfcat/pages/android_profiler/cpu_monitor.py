@@ -19,8 +19,10 @@ class CPUMonitorCard(MonitorCard):
         app_cpu_usage, total_cpu_usage = await asyncio.gather(
             device.cpu.get_pid_cpu_usage(process), device.cpu.total_cpu_usage
         )
-        self._add_point("Total CPU", round(total_cpu_usage.usage, 2))
-        self._add_point("CPU", round(app_cpu_usage.usage, 2))
+        total_cpu = round(total_cpu_usage.usage, 2)
+        app_cpu = round(app_cpu_usage.usage, 2)
+        self._add_point("Total CPU", total_cpu)
+        self._add_point("CPU", app_cpu)
         RecordService.logger.info(
             {
                 "name": self.title,

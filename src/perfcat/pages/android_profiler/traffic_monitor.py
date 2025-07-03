@@ -15,7 +15,7 @@ class TrafficMonitorCard(MonitorCard):
     def __init__(self) -> None:
         super().__init__(y_axis_unit="KB")
 
-        self.create_serie("recivce")
+        self.create_serie("receive")
         self.create_serie("send")
         self.update_chart()
 
@@ -34,12 +34,13 @@ class TrafficMonitorCard(MonitorCard):
             self.last_stat = app_stat
 
         diff = app_stat-self.last_stat
+
         receive = round(diff.receive/1024, 2)
         send = round(diff.send/1024, 2)
 
-        self._add_point("recivce", receive)
+        self._add_point("receive", receive)
         self._add_point("send", send)
         RecordService.logger.info(
-            {"name": self.title, "recive": receive, "send": send}
+            {"name": self.title, "receive": receive, "send": send}
         )
         self.update_chart()

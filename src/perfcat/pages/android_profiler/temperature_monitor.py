@@ -18,17 +18,22 @@ class TemperatureMonitorCard(MonitorCard):
         device = await AndroidProfielerService.get_device(serialno)
 
         stat = await device.temp.stat()
-        self._add_point("CPU温度", round(stat.cpu, 2))
-        self._add_point("GPU温度", round(stat.gpu, 2))
-        self._add_point("体感温度", round(stat.skin, 2))
-        self._add_point("电池温度", round(stat.battery, 2))
+        cpu_temp = round(stat.cpu, 2)
+        gpu_temp = round(stat.gpu, 2)
+        skin_temp = round(stat.skin, 2)
+        battery_temp = round(stat.battery, 2)
+
+        self._add_point("CPU温度", cpu_temp)
+        self._add_point("GPU温度", gpu_temp)
+        self._add_point("体感温度", skin_temp)
+        self._add_point("电池温度", battery_temp)
         RecordService.logger.info(
             {
-                "name": self.title,
-                "CPU温度": stat.cpu,
-                "GPU温度": stat.gpu,
-                "体感温度": stat.skin,
-                "电池温度": stat.battery,
+            "name": self.title,
+            "CPU温度": cpu_temp,
+            "GPU温度": gpu_temp,
+            "体感温度": skin_temp,
+            "电池温度": battery_temp,
             }
         )
         self.update_chart()
