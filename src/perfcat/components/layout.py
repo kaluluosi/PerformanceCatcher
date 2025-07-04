@@ -60,12 +60,19 @@ class NavigationBar(ui.drawer):
             # 固定设定栏
             with ui.list().props("padding bordered").classes("full-width"):
                 with ui.item(
-                    on_click=lambda: ui.notification("Coming soon!")
+                    on_click=lambda: ui.notification("尚未开发",type="warning")
                 ) as self.setting_item:
                     with ui.item_section().props("avatar"):
                         ui.icon("settings")
                     with ui.item_section():
-                        ui.item_label("Settings")
+                        ui.item_label("设置")
+                with ui.item(
+                    on_click=lambda: ui.notification("尚未开发",type="warning")
+                ) as self.setting_item:
+                    with ui.item_section().props("avatar"):
+                        ui.icon("info")
+                    with ui.item_section():
+                        ui.item_label("关于")
 
 
 class Page:

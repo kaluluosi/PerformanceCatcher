@@ -1,6 +1,7 @@
+import asyncio
 import datetime
 import re
-from nicegui import app, ui
+from nicegui import app, ui,run,background_tasks
 from nicegui.events import (
     ValueChangeEventArguments,
     ClickEventArguments,
@@ -118,9 +119,15 @@ class ProfilerSettingCard(ControlCard):
                 with self.process_select.add_slot("prepend"):
                     ui.icon("wysiwyg")
 
-                with ui.row().classes("items-center w-full justify-end"):
+                with ui.row().classes("items-center w-full justify-between"):
                     self.btn_record = (
                         ui.button("开始采集", icon="lens")
+                        .props("dense color=red ")
+                        .classes("p-2")
+                    )
+
+                    self.btn_restart_adb = (
+                        ui.button("重启ADB服务", icon="restart_alt",color="red")
                         .props("dense color=red ")
                         .classes("p-2")
                     )
@@ -340,8 +347,6 @@ class AndroidProfilerPage(Page):
 
         self.monitors: list[MonitorCard] = []
 
-        AndroidProfielerService.start_scan_devices()
-
         AndroidProfielerService.on_device_disconnected.subscribe(
             self._on_device_disconnected
         )
@@ -351,6 +356,8 @@ class AndroidProfilerPage(Page):
         return self.timer_sampler.active if self.timer_sampler else False
 
     async def render(self):
+        ui.timer(0,self.start_adb_server,once=True)
+
         self.setting_card_enable = True
 
         self.monitors.clear()
@@ -384,6 +391,9 @@ class AndroidProfilerPage(Page):
         self.drawer.panel_device.profiler_setting_card.btn_record.on_click(
             self.toggle_record
         )
+        self.drawer.panel_device.profiler_setting_card.btn_restart_adb.on_click(
+            self.restart_adb_server
+        )
 
         for monitor_card in monitor_factory_map.values():
             self.drawer.panel_monitor.register_monitor(
@@ -392,6 +402,37 @@ class AndroidProfilerPage(Page):
 
         with ui.column().classes("w-full p-2 scroll h-[90vh]"):
             await self.create_monitors()
+
+
+    async def start_adb_server(self):
+        n = ui.notification("正在启动adb服务", position="bottom",spinner=True,timeout=None)
+        ret = await AndroidProfielerService.start_adb_server()
+        
+        if ret == 0:
+            n.message = "adb服务启动成功"
+            n.type = "positive"
+        else:
+            n.message = "adb服务启动失败"
+            n.type = "negative"
+        n.spinner = False
+        await asyncio.sleep(2)
+        n.dismiss()
+
+    async def restart_adb_server(self):
+        n = ui.notification("正在重启adb服务", position="bottom",spinner=True,timeout=None)
+        ret = await AndroidProfielerService.stop_adb_server()
+        ret = await AndroidProfielerService.start_adb_server()
+        
+        if ret == 0:
+            n.message = "adb服务启动成功"
+            n.type = "positive"
+        else:
+            n.message = "adb服务启动失败"
+            n.type = "negative"
+        n.spinner = False
+        await asyncio.sleep(2)
+        n.dismiss()
+
 
     async def create_monitors(self):
         for monitor_card in monitor_factory_map.values():

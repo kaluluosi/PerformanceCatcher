@@ -8,6 +8,7 @@ app.native.start_args["debug"] = True
 
 ui.run(
     native=True,
+    reload=False,
     window_size=(1280, 768),
     title="Performance Catcher",
     storage_secret=secrets.token_hex(16),

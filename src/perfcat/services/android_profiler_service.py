@@ -1,8 +1,12 @@
+import asyncio
+import os
+from pathlib import Path
 import re
+from typing import cast
 import reactivex as rx
-from nicegui import ui
+from nicegui import ui,run
 from async_adbc import ADBClient, Status
-
+from importlib import resources
 
 class _AndroidProfilerService:
     on_devices_changed: rx.Subject[set[str]] = rx.Subject()
@@ -43,6 +47,29 @@ class _AndroidProfilerService:
         install_time = install_time_match.group(1) if install_time_match else "Unknown"
 
         return {"version": version, "install_time": install_time}
+    
+    async def start_adb_server(self):
+        ret = await self._run_adb_cmd("start-server")
+        self.start_scan_devices()
+        return ret
+
+    async def stop_adb_server(self):
+        self.stop_scan_devices()
+        return await self._run_adb_cmd("kill-server")
+    
+    async def _run_adb_cmd(self,cmd:str):
+        files = cast(Path,resources.files("perfcat.adb"))
+        adb_path = files.joinpath("adb.exe").as_posix() # noqa
+        _run_cmd = asyncio.create_subprocess_exec(
+            adb_path, cmd,
+            stdout=asyncio.subprocess.PIPE, 
+            stderr=asyncio.subprocess.PIPE
+            )
+        ret = await _run_cmd
+        stdout,stderr = await ret.communicate()
+        print(stdout.decode(),stderr.decode(),ret.returncode)
+        return ret.returncode
+
 
     async def get_device_info(self, serialno: str):
         dev = await self.get_device(serialno)
@@ -82,8 +109,10 @@ class _AndroidProfilerService:
     async def remote_connect(self, ip: str, port: int):
         res = await self.adbc.remote_connect(ip, port)
         if res:
+            serialno = ":".join([ip, str(port)])
+            self.devices.add(serialno)
             self.on_devices_changed.on_next(self.devices)
-            self.on_device_connected.on_next(":".join([ip, str(port)]))
+            self.on_device_connected.on_next(serialno)
         return res
 
     async def adb_tcpip_enable(self, serialno: str):
