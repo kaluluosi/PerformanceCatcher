@@ -345,9 +345,9 @@ class AndroidProfilerPage(Page):
 
         if "android_profiler_monitors_selection" not in app.storage.general:
             app.storage.general["android_profiler_monitors_selection"] = [
-                FPSMonitorCard.title,
-                CPUMonitorCard.title,
-                MemoryTotalPSSMonitorCard.title
+                {"name":FPSMonitorCard.title,"description":FPSMonitorCard.description},
+                {"name":CPUMonitorCard.title,"description":CPUMonitorCard.description},
+                {"name":MemoryTotalPSSMonitorCard.title,"description":MemoryTotalPSSMonitorCard.description},   
             ]
 
         self.setting_card_enable: bool = True
