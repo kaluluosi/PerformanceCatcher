@@ -21,7 +21,7 @@ class HomePage(Page):
 
         with ui.row():
             ui.button("打开文件",icon="file_open",on_click=self._open_file)
-            ui.button("查看文件夹",icon="folder",on_click=lambda: os.system(f"explorer {os.path.abspath('./records')}"))
+            ui.button("查看目录",icon="folder",on_click=lambda: os.system(f"explorer {os.path.abspath('./records')}"))
 
         columns = [
             {"name": "name", "label": "日志名称", "field": "name", "align": "left"},
