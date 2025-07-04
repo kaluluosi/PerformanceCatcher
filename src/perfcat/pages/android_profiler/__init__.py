@@ -85,7 +85,7 @@ class ProfilerSettingCard(ControlCard):
             with self.session():
                 self.device_select = (
                     ui.select([], label="选择设备")
-                    .props("dense spellcheck=false")
+                    .props("dense spellcheck=false clearable")
                     .classes("w-full flex-1")
                 )
 
@@ -99,7 +99,7 @@ class ProfilerSettingCard(ControlCard):
 
                 self.app_select = (
                     ui.select([], label="选择APP", with_input=True)
-                    .props("dense spellcheck=false")
+                    .props("dense spellcheck=false clearable")
                     .classes("w-full")
                 )
                 self.app_select.bind_enabled_from(
@@ -111,7 +111,7 @@ class ProfilerSettingCard(ControlCard):
                 self.process_select = (
                     ui.select([], label="选择进程")
                     .classes("w-full")
-                    .props("dense spellcheck=false")
+                    .props("dense spellcheck=false clearable")
                 )
                 self.process_select.bind_enabled_from(
                     self.app_select, "value", backward=lambda v: v is not None
