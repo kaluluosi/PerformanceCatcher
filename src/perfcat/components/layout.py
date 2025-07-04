@@ -1,19 +1,21 @@
 from nicegui import ui, app
 from perfcat.config import navigations
-from perfcat.utils import is_active_page,is_navigation_disable, notify
+from perfcat.utils import is_active_page, is_navigation_disable, notify
 
 
 class Header(ui.header):
     def __init__(self) -> None:
         super().__init__()
-        self.classes("items-center p-[0.3rem]")
+        self.classes("items-center p-[0.3rem] pywebview-drag-region")
         self.props("elevated")
 
         with self:
             with ui.row().style("gap:0px;"):
                 self.btn_back = ui.button(
-                    icon="arrow_back", 
-                    on_click=lambda: ui.navigate.back() if not is_navigation_disable() else notify("当前禁止跳转",type='warning')
+                    icon="arrow_back",
+                    on_click=lambda: ui.navigate.back()
+                    if not is_navigation_disable()
+                    else notify("当前禁止跳转", type="warning"),
                 ).props("flat color=white")
                 self.btn_menu = ui.button(icon="menu").props("flat color=white")
             ui.icon("insights")
@@ -48,8 +50,9 @@ class NavigationBar(ui.drawer):
                     for _, value in navigations.items():
                         with ui.item() as item:  # type: ignore
                             item.on_click(
-                                lambda arg, path=value["path"]: 
-                                ui.navigate.to(path) if not is_navigation_disable() else notify("当前禁止跳转",type='warning') 
+                                lambda arg, path=value["path"]: ui.navigate.to(path)
+                                if not is_navigation_disable()
+                                else notify("当前禁止跳转", type="warning")
                             )
                             item.props["active"] = is_active_page(value["path"])
                             with ui.item_section().props("avatar"):
@@ -60,14 +63,14 @@ class NavigationBar(ui.drawer):
             # 固定设定栏
             with ui.list().props("padding bordered").classes("full-width"):
                 with ui.item(
-                    on_click=lambda: ui.notification("尚未开发",type="warning")
+                    on_click=lambda: ui.notification("尚未开发", type="warning")
                 ) as self.setting_item:
                     with ui.item_section().props("avatar"):
                         ui.icon("settings")
                     with ui.item_section():
                         ui.item_label("设置")
                 with ui.item(
-                    on_click=lambda: ui.notification("尚未开发",type="warning")
+                    on_click=lambda: ui.notification("尚未开发", type="warning")
                 ) as self.setting_item:
                     with ui.item_section().props("avatar"):
                         ui.icon("info")

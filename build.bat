@@ -8,4 +8,4 @@ nicegui-pack.exe ^
 --add-data src\perfcat\static:perfcat\static ^
 --add-data src\perfcat\media:perfcat\media ^
 --add-data src\perfcat\adb:perfcat\adb ^
---windowed .\prod.py
+--windowed .\src\perfcat\__main__.py

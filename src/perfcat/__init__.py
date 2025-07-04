@@ -1,6 +1,7 @@
+import asyncio
 from . import pages, logger  # noqa
 import secrets
-from nicegui import app,ui
+from nicegui import Client, app, ui, App
 from importlib import resources
 from perfcat.services import AndroidProfielerService
 
@@ -13,20 +14,23 @@ with resources.path("perfcat", "media") as path:
         path.as_posix(),
     )
 
+
 @app.on_shutdown
-async def teardown(app):
+async def teardown(app: App):
     await AndroidProfielerService.stop_adb_server()
 
-def run():
+
+def run(debug: bool = False):
     app.native.window_args["resizable"] = True
     app.native.window_args["text_select"] = True
-    app.native.start_args["debug"] = True
+    app.native.window_args["easy_drag"] = True
+    app.native.start_args["debug"] = debug
 
     ui.run(
         native=True,
         reload=False,
-        window_size=(1280, 768),
-        title="Performance Catcher 2",
+        window_size=(1280, 800),
+        title="",
         frameless=False,
         storage_secret=secrets.token_hex(16),
     )
