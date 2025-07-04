@@ -22,6 +22,7 @@ class HomePage(Page):
 
         columns = [
             {"name": "name", "label": "日志名称", "field": "name", "align": "left"},
+            {"name": "platform", "label": "平台", "field": "platform", "align": "left"},
             {"name":"abs_path","label":"绝对路径","field":"abs_path","align":"left","classes":"hidden","headerClasses":"hidden"},
             {"name": "model_name", "label": "测试机名", "field": "model_name"},
             {"name": "package_name", "label": "包名", "field": "package_name"},
@@ -103,17 +104,15 @@ class HomePage(Page):
             abs_path = os.path.abspath(os.path.join("records",file))
             with open(abs_path, "r",encoding="utf-8") as f:
                 info = json.loads(f.readline().strip())
-                create_at = os.stat(abs_path).st_ctime
                 datas.append(
                     {
                         "name": file,
                         "abs_path":abs_path,
+                        "platform": info.get("platform", "未知"),
                         "model_name": info.get("model", "未知"),
                         "package_name": info.get("app", "未知"),
                         "process": info.get("process", "未知"),
-                        "created_at": datetime.datetime.fromtimestamp(
-                            create_at
-                        ).strftime("%Y-%m-%d %H:%M:%S"),
+                        "created_at": info.get("created_at", "未知"),
                     }
                 )
 

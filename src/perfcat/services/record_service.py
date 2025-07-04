@@ -48,7 +48,7 @@ class _RecordService:
                 "platform": "android",
                 "app": app,
                 "process": process,
-                "create_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 **app_info,
             }
         )
