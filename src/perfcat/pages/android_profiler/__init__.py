@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import re
-from nicegui import app, ui,run,background_tasks
+from nicegui import app, ui
 from nicegui.events import (
     ValueChangeEventArguments,
     ClickEventArguments,
@@ -12,7 +12,7 @@ from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard, Drawer, MonitorCard
 from perfcat.services import AndroidProfielerService, RecordService
 from perfcat.utils import notify, set_navigation_disable
-from perfcat.components.monitors import monitor_factory_map
+from perfcat.components.monitors import monitor_factory_map,FPSMonitorCard,CPUMonitorCard,MemoryTotalPSSMonitorCard
 
 
 class AndroidProfilerDrawer(Drawer):
@@ -342,6 +342,13 @@ class AndroidProfilerPage(Page):
         self.app: str = ""
         self.process: str = ""
         self.timer_sampler: ui.timer | None = None
+
+        if "android_profiler_monitors_selection" not in app.storage.general:
+            app.storage.general["android_profiler_monitors_selection"] = [
+                FPSMonitorCard.title,
+                CPUMonitorCard.title,
+                MemoryTotalPSSMonitorCard.title
+            ]
 
         self.setting_card_enable: bool = True
 
