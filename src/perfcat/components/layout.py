@@ -17,7 +17,7 @@ class Header(ui.header):
                 ).props("flat color=white")
                 self.btn_menu = ui.button(icon="menu").props("flat color=white")
             ui.icon("insights")
-            ui.label("Performance Catcher").classes("mr-auto")
+            ui.label("Performance Catcher 2").classes("mr-auto")
 
             with ui.row().classes("gap-0 hidden"):
                 self.btn_minimize = ui.button(icon="minimize").props("flat color=white")
