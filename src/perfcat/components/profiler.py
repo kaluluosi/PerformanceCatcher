@@ -216,7 +216,28 @@ class MonitorCard(ui.card):
 
     @ui.refreshable
     def _create_aggregate(self):
-        raise NotImplementedError
+        
+        aggregates = []
+
+        for serie in self._series:
+            if not serie.data:
+                average = 0
+                min_value = 0
+                max_value = 0
+            else:
+                average = round(sum(serie.data) / len(serie.data),2)
+                min_value = round(min(serie.data),2)
+                max_value = round(max(serie.data),2)
+                
+            aggregates.append({
+                "name": serie.name,
+                "max": f"{max_value}{self._y_unit}",
+                "min": f"{min_value}{self._y_unit}",
+                "average": f"{average}{self._y_unit}",
+            })
+        
+        ui.table(rows=aggregates).classes("w-full")
+
 
     def clear(self):
         for serie in self._series:

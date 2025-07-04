@@ -13,21 +13,21 @@ from .temperature_monitor import TemperatureMonitorCard
 from .traffic_monitor import TrafficMonitorCard
 
 __all__ = [
+    "FPSMonitorCard",
     "CPUMonitorCard",
     "MemoryTotalPSSMonitorCard",
+    "TemperatureMonitorCard",
     "BatteryLevelMonitorCard",
     "BatterymAhMonitorCard",
-    "FPSMonitorCard",
-    "TemperatureMonitorCard",
     "TrafficMonitorCard",
 ]
 
 monitor_factory_map: dict[str, type[MonitorCard]] = {
+    FPSMonitorCard.title: FPSMonitorCard,
     CPUMonitorCard.title: CPUMonitorCard,
     MemoryTotalPSSMonitorCard.title: MemoryTotalPSSMonitorCard,
     BatteryLevelMonitorCard.title: BatteryLevelMonitorCard,
     BatterymAhMonitorCard.title: BatterymAhMonitorCard,
-    FPSMonitorCard.title: FPSMonitorCard,
     TemperatureMonitorCard.title: TemperatureMonitorCard,
     TrafficMonitorCard.title: TrafficMonitorCard,
 }

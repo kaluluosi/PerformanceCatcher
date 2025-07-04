@@ -68,6 +68,7 @@ class ReportPage(Page):
                 title = data["name"]
                 if title not in monitors:
                     monitors[title] = monitor_factory_map[title](show_aggregate=True)
+                    monitors[title].clear()
 
                 for key, value in data.items():
                     if key == "name":
