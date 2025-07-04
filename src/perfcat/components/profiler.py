@@ -4,6 +4,7 @@ date:          2025-06-21 20:31:04
 Copyright © Kaluluosi All rights reserved
 """
 
+import math
 from nicegui import app, ui
 from nicegui.events import GenericEventArguments
 from contextlib import contextmanager
@@ -75,24 +76,30 @@ class Drawer(ui.drawer):
 
 class MonitorCard(ui.card):
     title: str = "Monitor"
-    description:str = ""
+    description: str = ""
 
-    def __init__(self, y_axis_unit: str = "", group: str = "monitor") -> None:
+    def __init__(
+        self,
+        y_axis_unit: str = "",
+        group: str = "monitor",
+        show_aggregate: bool = False,
+    ) -> None:
         super().__init__()
         self.classes("w-full")
         self._group = group
         self._series: list[SerieData] = []
         self._y_unit = y_axis_unit
+        self.show_aggregate = show_aggregate
 
         with self:
-            with ui.card_section().classes("w-full"):
+            with self.session():
                 with ui.row().classes("justify-between items-center w-full"):
                     self.label_title = ui.label(self.title).classes("text-xl")
                     self.label_descrip = ui.label(self.description)
                 ui.separator()
 
             self.chart = ui.echart(
-                {   
+                {
                     "legend": {"orient": "vertical", "left": 10, "selected": {}},
                     "grid": {
                         "left": "140px",
@@ -136,6 +143,9 @@ class MonitorCard(ui.card):
 
         self.chart.on("chart:datazoom", self._handle_datazoom)
         self.chart.on("chart:legendselectchanged", self._handle_legendselectchanged)
+
+        if self.show_aggregate:
+            self._create_aggregate()
 
         ui.run_javascript(
             f"""
@@ -185,8 +195,9 @@ class MonitorCard(ui.card):
         options["dataZoom"][0].update(self.dataZoom)
         options["legend"]["selected"].update(self.legend_selected)
         self.chart.update()
+        self._create_aggregate.refresh()
 
-    def _add_point(self, serie_name: str, value: float, type: str = "line"):
+    def add_point(self, serie_name: str, value: float, type: str = "line"):
         if serie_name not in [serie.name for serie in self._series]:
             self.create_serie(serie_name, type)
 
@@ -202,6 +213,10 @@ class MonitorCard(ui.card):
         app.storage.general["android_profiler_legend"][self.title] = event.args[
             "selected"
         ]
+
+    @ui.refreshable
+    def _create_aggregate(self):
+        raise NotImplementedError
 
     def clear(self):
         for serie in self._series:

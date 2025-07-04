@@ -11,12 +11,7 @@ from perfcat.components.layout import Page
 from perfcat.components.profiler import ControlCard, Drawer, MonitorCard
 from perfcat.services import AndroidProfielerService, RecordService
 from perfcat.utils import notify, set_navigation_disable
-from .cpu_monitor import CPUMonitorCard
-from .memery_monitor import MemoryTotalPSSMonitorCard
-from .temperature_monitor import TemperatureMonitorCard
-from .fps_monitor import FPSMonitorCard
-from .battery_monitor import BatteryLevelMonitorCard, BatterymAhMonitorCard
-from .traffic_monitor import TrafficMonitorCard
+from perfcat.components.monitors import monitor_factory_map
 
 
 class AndroidProfilerDrawer(Drawer):
@@ -336,16 +331,6 @@ class AndroidProfilerPage(Page):
     def __init__(self) -> None:
         super().__init__("/android_profiler", title="安卓性能")
 
-        self.monitor_registers:list[type[MonitorCard]] = [
-            FPSMonitorCard,
-            CPUMonitorCard,
-            MemoryTotalPSSMonitorCard,
-            TemperatureMonitorCard,
-            BatteryLevelMonitorCard,
-            BatterymAhMonitorCard,
-            TrafficMonitorCard,
-        ]
-
         self.serialno: str = ""
         self.app: str = ""
         self.process: str = ""
@@ -369,7 +354,6 @@ class AndroidProfilerPage(Page):
         self.setting_card_enable = True
 
         self.monitors.clear()
-
 
         self.drawer = AndroidProfilerDrawer()
 
@@ -401,14 +385,16 @@ class AndroidProfilerPage(Page):
             self.toggle_record
         )
 
-        for monitor_card in self.monitor_registers:
-            self.drawer.panel_monitor.register_monitor(monitor_card.title, monitor_card.description)
+        for monitor_card in monitor_factory_map.values():
+            self.drawer.panel_monitor.register_monitor(
+                monitor_card.title, monitor_card.description
+            )
 
         with ui.column().classes("w-full p-2 scroll h-[90vh]"):
             await self.create_monitors()
 
     async def create_monitors(self):
-        for monitor_card in self.monitor_registers:
+        for monitor_card in monitor_factory_map.values():
             monitor: MonitorCard = monitor_card()
             self.monitors.append(monitor)
 
@@ -467,8 +453,8 @@ class AndroidProfilerPage(Page):
         self._show_save_record_dialog()
 
     def _show_save_record_dialog(self):
-        async def _on_ok():
-            await RecordService.save_record(input_filename.value)
+        def _on_ok():
+            RecordService.save_record(input_filename.value)
             dialog.close()
             notify("日志保存成功", type="positive")
 
@@ -504,7 +490,7 @@ class AndroidProfilerPage(Page):
     def _on_device_disconnected(self, serialno: str):
         if not self.is_recording:
             return
-        
+
         if self.serialno:
             return
 

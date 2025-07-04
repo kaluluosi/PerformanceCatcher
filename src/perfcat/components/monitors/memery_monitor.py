@@ -6,8 +6,15 @@ class MemoryTotalPSSMonitorCard(MonitorCard):
     title = "Memory(PSS)"
     description = "APP Total PSS内存情况"
 
-    def __init__(self) -> None:
-        super().__init__(y_axis_unit="MB")
+    def __init__(
+        self,
+        y_axis_unit: str = "MB",
+        group: str = "monitor",
+        show_aggregate: bool = False,
+    ) -> None:
+        super().__init__(
+            y_axis_unit=y_axis_unit, group=group, show_aggregate=show_aggregate
+        )
         self.create_serie("pss")
         self.create_serie("private_dirty")
         self.create_serie("private_clean")
@@ -30,23 +37,23 @@ class MemoryTotalPSSMonitorCard(MonitorCard):
         heap_alloc = round(app_memory_stat.heap_alloc / 1000, 2)
         heap_free = round(app_memory_stat.heap_free / 1000, 2)
 
-        self._add_point("pss", pss)
-        self._add_point("private_dirty", private_dirty)
-        self._add_point("private_clean", private_clean)
-        self._add_point("swapped_dirty", swapped_dirty)
-        self._add_point("heap_size", heap_size)
-        self._add_point("heap_alloc", heap_alloc)
-        self._add_point("heap_free", heap_free)
+        self.add_point("pss", pss)
+        self.add_point("private_dirty", private_dirty)
+        self.add_point("private_clean", private_clean)
+        self.add_point("swapped_dirty", swapped_dirty)
+        self.add_point("heap_size", heap_size)
+        self.add_point("heap_alloc", heap_alloc)
+        self.add_point("heap_free", heap_free)
         RecordService.logger.info(
             {
-            "name": self.title,
-            "pss": pss,
-            "private_dirty": private_dirty,
-            "private_clean": private_clean,
-            "swapped_dirty": swapped_dirty,
-            "heap_size": heap_size,
-            "heap_alloc": heap_alloc,
-            "heap_free": heap_free,
+                "name": self.title,
+                "pss": pss,
+                "private_dirty": private_dirty,
+                "private_clean": private_clean,
+                "swapped_dirty": swapped_dirty,
+                "heap_size": heap_size,
+                "heap_alloc": heap_alloc,
+                "heap_free": heap_free,
             }
         )
         self.update_chart()
