@@ -1,13 +1,9 @@
-import os
+from .android_profiler import AndroidProfilerPage
+from .home import HomePage
+from .report import ReportPage
 
-# todo: 之后要引入dotenv 根据开发和生产环境切换导入这个控件示例页面
-from .widgets import Widgets
-from .home import Home
-from .profiler import Profiler
-
-MODE = os.environ.get("MODE", "development")
-print("==========", MODE)
-
-register = [Home, Profiler]
-if MODE == "development":
-    register.append(Widgets)
+__all__ = [
+    HomePage,
+    AndroidProfilerPage,
+    ReportPage
+] # type: ignore

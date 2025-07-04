@@ -5,12 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run",
-            "type": "python",
+            "name": "Python 调试程序: 重载模式",
+            "type": "debugpy",
+            "env": {"RELOAD_MODE":"1"},
             "request": "launch",
-            "program": "${workspaceFolder}/src/perfcat/Perfcat.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
+            "program": "main.py"
+        },
+        {
+            "name": "Python 调试程序: 模块",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "perfcat"
         }
     ]
 }
