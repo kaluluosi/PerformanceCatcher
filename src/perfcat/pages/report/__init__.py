@@ -49,7 +49,7 @@ class ReportPage(Page):
                 {"name": "进程名", "value": base_info.get("process", "unknown")},
                 {"name": "构建版本", "value": base_info.get("version", "unknown")},
                 {"name": "安装日期", "value": base_info.get("install_time", "unknown")},
-                {"name": "测试时间", "value": base_info.get("create_at", "unknown")},
+                {"name": "测试时间", "value": base_info.get("created_at", "unknown")},
             ]
             ui.label("基本信息")
             ui.table(columns=columns, rows=rows).classes("w-full").props(

@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import sys
 from nicegui import app, ui
 from fastapi.responses import RedirectResponse
 from perfcat.components.layout import Page
@@ -18,7 +19,9 @@ class HomePage(Page):
 
     async def render(self):
 
-        ui.button("打开文件",icon="file_open",on_click=self._open_file)
+        with ui.row():
+            ui.button("打开文件",icon="file_open",on_click=self._open_file)
+            ui.button("查看文件夹",icon="folder",on_click=lambda: os.system(f"explorer {os.path.abspath('./records')}"))
 
         columns = [
             {"name": "name", "label": "日志名称", "field": "name", "align": "left"},
