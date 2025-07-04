@@ -17,8 +17,10 @@ class HomePage(Page):
         super().__init__("/home", title="主页")
 
     async def render(self):
+
         columns = [
             {"name": "name", "label": "日志名称", "field": "name", "align": "left"},
+            {"name":"abs_path","label":"绝对路径","field":"abs_path","align":"left","classes":"hidden","headerClasses":"hidden"},
             {"name": "model_name", "label": "测试机名", "field": "model_name"},
             {"name": "package_name", "label": "包名", "field": "package_name"},
             {"name": "process", "label": "进程名", "field": "process"},
@@ -55,9 +57,10 @@ class HomePage(Page):
                 </q-td>
             """,
             )
+
             self.table.on(
                 "action_preview",
-                lambda row: ui.navigate.to(f"/home/report/{row.args['name']}"),
+                lambda row: ui.navigate.to(f"/home/report?filename={row.args['abs_path']}",),
             )
             self.table.on("action_delete", lambda row: None)
 
@@ -66,12 +69,14 @@ class HomePage(Page):
 
         datas = []
         for file in files:
-            with open(f"records/{file}", "r",encoding="utf-8") as f:
+            abs_path = os.path.abspath(os.path.join("records",file))
+            with open(abs_path, "r",encoding="utf-8") as f:
                 info = json.loads(f.readline().strip())
-                create_at = os.stat(f"records/{file}").st_ctime
+                create_at = os.stat(abs_path).st_ctime
                 datas.append(
                     {
                         "name": file,
+                        "abs_path":abs_path,
                         "model_name": info.get("model", "未知"),
                         "package_name": info.get("app", "未知"),
                         "process": info.get("process", "未知"),

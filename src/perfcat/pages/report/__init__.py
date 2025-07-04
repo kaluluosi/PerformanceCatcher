@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 import os
 from nicegui import ui
@@ -8,7 +9,7 @@ from perfcat.components.profiler import MonitorCard
 
 class ReportPage(Page):
     def __init__(self) -> None:
-        @ui.page("/home/report/{filename}", title="性能报告")
+        @ui.page("/home/report", title="性能报告")
         async def _(filename: str):
             # await self._frame()
             await self.render(filename)
@@ -16,7 +17,7 @@ class ReportPage(Page):
     async def render(self, filename: str):
         Header()
 
-        with open(os.path.join("records", filename), "r", encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             lines = f.readlines()
             base_info = json.loads(lines[0])
             device_info = json.loads(lines[1])
@@ -61,22 +62,22 @@ class ReportPage(Page):
                 "hide-header dense"
             )
 
-            monitors: dict[str, MonitorCard] = {}
+            monitor_seires: dict[str, list] = defaultdict(list) 
 
             for line in lines[2:]:
                 data: dict = json.loads(line)
                 title = data["name"]
-                if title not in monitors:
-                    monitors[title] = monitor_factory_map[title](show_aggregate=True)
-                    monitors[title].clear()
-
-                for key, value in data.items():
-                    if key == "name":
-                        continue
-                    monitors[title].add_point(key, value)
-
-            for monitor in monitors.values():
-                monitor.update_chart()
+                monitor_seires[title].append(data)
+               
+            for moinitor_name,monitor_class in monitor_factory_map.items():
+                if moinitor_name in monitor_seires:
+                    monitor = monitor_class(show_aggregate=True)
+                    monitor.clear()
+                    for data in monitor_seires[moinitor_name]:
+                        for serie_name, data_value in data.items():
+                            if serie_name != "name":
+                                monitor.add_point(serie_name, data_value)
+                    monitor.update_chart()
 
 
 ReportPage()
