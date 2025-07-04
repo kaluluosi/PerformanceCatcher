@@ -1,7 +1,7 @@
 import datetime
 import json
 import os
-from nicegui import ui
+from nicegui import app, ui
 from fastapi.responses import RedirectResponse
 from perfcat.components.layout import Page
 from perfcat.services import RecordService
@@ -17,6 +17,8 @@ class HomePage(Page):
         super().__init__("/home", title="主页")
 
     async def render(self):
+
+        ui.button("打开文件",icon="file_open",on_click=self._open_file)
 
         columns = [
             {"name": "name", "label": "日志名称", "field": "name", "align": "left"},
@@ -62,7 +64,36 @@ class HomePage(Page):
                 "action_preview",
                 lambda row: ui.navigate.to(f"/home/report?filename={row.args['abs_path']}",),
             )
-            self.table.on("action_delete", lambda row: None)
+
+            self.table.on("action_delete", self._remove_row)
+
+    async def _remove_row(self,row):
+        with ui.dialog() as dialog, ui.card():
+            ui.label('确定要删除?')
+            with ui.row():
+                ui.button('是',color="red", on_click=lambda: dialog.submit('Yes'))
+                ui.button('否', on_click=lambda: dialog.submit('No'))
+        result = await dialog
+        if result=="Yes":
+            if row.args in self.table.rows:
+                self.table.rows.remove(row.args)
+                os.remove(row.args["abs_path"])
+                self.table.update()
+                ui.notify("删除成功",type="positive")
+
+    async def _open_file(self):
+        if app.native.main_window:
+            filenames = await (
+                app.native
+                .main_window
+                .create_file_dialog(
+                    directory=os.path.abspath("./records"),
+                    file_types=('PC Files (*.pc)',)
+                    )
+            )
+            if filenames:
+                filename = filenames[0]
+                ui.navigate.to(f"/home/report?filename={filename}")
 
     def load_record_data(self):
         files = RecordService.record_files()
