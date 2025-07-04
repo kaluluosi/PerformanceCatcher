@@ -1,3 +1,4 @@
+import secrets
 from nicegui import ui, app
 
 if __name__ == "__main__":
@@ -9,6 +10,7 @@ if __name__ == "__main__":
         native=True,
         reload=False,
         window_size=(1024, 768),
-        title="Performance Catcher",
+        title="Performance Catcher 2",
         frameless=False,
+        storage_secret=secrets.token_hex(16),
     )

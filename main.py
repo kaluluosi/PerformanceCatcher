@@ -10,6 +10,6 @@ ui.run(
     native=True,
     reload=False,
     window_size=(1280, 768),
-    title="Performance Catcher",
+    title="Performance Catcher 2",
     storage_secret=secrets.token_hex(16),
 )
