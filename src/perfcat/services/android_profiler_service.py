@@ -2,9 +2,10 @@ import asyncio
 import os
 from pathlib import Path
 import re
+import subprocess
 from typing import cast
 import reactivex as rx
-from nicegui import ui,run
+from nicegui import app, ui,background_tasks
 from async_adbc import ADBClient, Status
 from importlib import resources
 
@@ -63,7 +64,8 @@ class _AndroidProfilerService:
         _run_cmd = asyncio.create_subprocess_exec(
             adb_path, cmd,
             stdout=asyncio.subprocess.PIPE, 
-            stderr=asyncio.subprocess.PIPE
+            stderr=asyncio.subprocess.PIPE,
+            creationflags=subprocess.CREATE_NO_WINDOW
             )
         ret = await _run_cmd
         stdout,stderr = await ret.communicate()
