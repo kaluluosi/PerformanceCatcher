@@ -1,3 +1,4 @@
+from typing import cast
 from nicegui import ui, app
 from perfcat.config import navigations
 from perfcat.utils import is_active_page, is_navigation_disable, notify
@@ -70,12 +71,28 @@ class NavigationBar(ui.drawer):
                     with ui.item_section():
                         ui.item_label("设置")
                 with ui.item(
-                    on_click=lambda: ui.notification("尚未开发", type="warning")
-                ) as self.setting_item:
+                    on_click=self._about
+                ) as self.about_item:
                     with ui.item_section().props("avatar"):
                         ui.icon("info")
                     with ui.item_section():
                         ui.item_label("关于")
+
+    def _about(self, *args):
+        with ui.dialog(value=True) as dialog:
+            from importlib.metadata import metadata
+            pkg_metadata = metadata("performance-catcher")
+            json_data = cast(dict,pkg_metadata.json)
+            with ui.card():
+                with ui.card_section():
+                    ui.label("Performance Catcher 2").classes("text-2xl font-bold")
+                with ui.card_section():
+                    ui.label(json_data['summary'])
+                    ui.label(f"Version: {json_data['version']}")
+                    ui.label(f"Author: {json_data['author']}")
+                    ui.label(f"Email: {json_data['author_email']}")
+                    ui.label(f"License: {json_data['license']}")
+                    ui.label("Repository: https://github.com/kaluluosi/PerformanceCatcher")
 
 
 class Page:
@@ -98,5 +115,8 @@ class Page:
         # 导航菜单
         self.navigationbar = NavigationBar()
 
+
     async def render(self, *args, **kwargs):
         raise NotImplementedError
+
+
