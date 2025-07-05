@@ -83,7 +83,7 @@ class NavigationBar(ui.drawer):
                         ui.item_label("关于")
 
     def _about(self, *args):
-        with ui.dialog(value=True) as dialog:
+        with ui.dialog(value=True):
             from importlib.metadata import metadata
             pkg_metadata = metadata("performance-catcher")
             json_data = cast(dict,pkg_metadata.json)
@@ -96,7 +96,12 @@ class NavigationBar(ui.drawer):
                     ui.label(f"Author: {json_data['author']}")
                     ui.label(f"Email: {json_data['author_email']}")
                     ui.label(f"License: {json_data['license']}")
-                    ui.label("Repository: https://github.com/kaluluosi/PerformanceCatcher")
+                    with ui.label("Repository:"):
+                        ui.link(
+                            "https://github.com/kaluluosi/PerformanceCatcher",
+                            target="https://github.com/kaluluosi/PerformanceCatcher",
+                            new_tab=True
+                            )
 
 
 class Page:
