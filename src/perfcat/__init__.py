@@ -30,7 +30,7 @@ def run(debug: bool = False):
         native=True,
         reload=False,
         window_size=(1280, 800),
-        title="",
+        title="Performance Catcher",
         frameless=False,
         storage_secret=secrets.token_hex(16),
     )
