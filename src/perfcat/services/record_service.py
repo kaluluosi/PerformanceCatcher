@@ -60,14 +60,14 @@ class _RecordService:
         if os.path.exists("record.log"):
             if not os.path.exists("records"):
                 os.makedirs("records")
-            shutil.move("record.log", f"records/{filename}.pc")
+            shutil.move("record.log", f"records/{filename}.pcat")
 
     def record_files(self):
         if not os.path.exists("records"):
             os.makedirs("records")
 
         files = os.listdir("records")
-        return files
+        return [f for f in files if f.endswith(".pcat")]
 
 
 RecordService = _RecordService()

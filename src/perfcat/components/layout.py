@@ -7,7 +7,7 @@ from perfcat.utils import is_active_page, is_navigation_disable, notify
 class Header(ui.header):
     def __init__(self) -> None:
         super().__init__()
-        self.classes("items-center p-[0.3rem] pywebview-drag-region")
+        self.classes("items-center p-[0.3rem]")
         self.props("elevated")
 
         with self:
@@ -22,14 +22,18 @@ class Header(ui.header):
             ui.icon("insights")
             ui.label("Performance Catcher 2").classes("mr-auto")
 
-            with ui.row().classes("gap-0 hidden"):
-                self.btn_minimize = ui.button(icon="minimize").props("flat color=white")
-                self.btn_fullscreen = ui.button(icon="fullscreen").props(
+            with ui.row().classes("gap-0"):
+                self.btn_browser = ui.button(icon="o_open_in_browser").classes("hidden").props("flat color=white")
+                with self.btn_browser:
+                    ui.tooltip("浏览器中打开")
+
+                self.btn_minimize = ui.button(icon="minimize").classes("hidden").props("flat color=white")
+                self.btn_fullscreen = ui.button(icon="fullscreen").classes("hidden").props(
                     "flat color=white"
                 )
                 self.btn_clsoe = (
                     ui.button(icon="close")
-                    .classes("hover:bg-red-400")
+                    .classes("hover:bg-red-400 hidden")
                     .props("flat color=white")
                 )
 

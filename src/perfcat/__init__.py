@@ -1,7 +1,6 @@
-import asyncio
-from . import pages, logger  # noqa
 import secrets
-from nicegui import Client, app, ui, App
+from . import pages, logger  # noqa
+from nicegui import app, ui, App
 from importlib import resources
 from perfcat.services import AndroidProfielerService
 
@@ -21,10 +20,10 @@ async def teardown(app: App):
 
 
 def run(debug: bool = False):
+
     app.native.window_args["resizable"] = True
     app.native.window_args["text_select"] = True
-    app.native.window_args["easy_drag"] = True
-    app.native.start_args["debug"] = debug
+    app.native.start_args['debug'] = debug
 
     ui.run(
         native=True,

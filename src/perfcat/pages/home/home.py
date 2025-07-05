@@ -90,7 +90,7 @@ class HomePage(Page):
                 .main_window
                 .create_file_dialog(
                     directory=os.path.abspath("./records"),
-                    file_types=('PC Files (*.pc)',)
+                    file_types=('PCAT Files (*.pcat)',)
                     )
             )
             if filenames:
