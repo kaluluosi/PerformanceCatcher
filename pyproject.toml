@@ -22,6 +22,7 @@ pydantic-settings = "^2.9.1"
 toml = "^0.10.2"
 async-adbc = "1.1.2"
 html2image = "^2.0.7"
+py-ios-device = "^2.4.22"
 
 
 [tool.poetry.group.dev.dependencies]

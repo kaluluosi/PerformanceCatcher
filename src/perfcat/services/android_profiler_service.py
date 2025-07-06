@@ -1,13 +1,13 @@
 import asyncio
-import os
 from pathlib import Path
 import re
 import subprocess
 from typing import cast
 import reactivex as rx
-from nicegui import app, ui,background_tasks
+from nicegui import ui
 from async_adbc import ADBClient, Status
 from importlib import resources
+
 
 class _AndroidProfilerService:
     on_devices_changed: rx.Subject[set[str]] = rx.Subject()
@@ -48,7 +48,7 @@ class _AndroidProfilerService:
         install_time = install_time_match.group(1) if install_time_match else "Unknown"
 
         return {"version": version, "install_time": install_time}
-    
+
     async def start_adb_server(self):
         ret = await self._run_adb_cmd("start-server")
         self.start_scan_devices()
@@ -57,21 +57,21 @@ class _AndroidProfilerService:
     async def stop_adb_server(self):
         self.stop_scan_devices()
         return await self._run_adb_cmd("kill-server")
-    
-    async def _run_adb_cmd(self,cmd:str):
-        files = cast(Path,resources.files("perfcat.adb"))
-        adb_path = files.joinpath("adb.exe").as_posix() # noqa
-        _run_cmd = asyncio.create_subprocess_exec(
-            adb_path, cmd,
-            stdout=asyncio.subprocess.PIPE, 
-            stderr=asyncio.subprocess.PIPE,
-            creationflags=subprocess.CREATE_NO_WINDOW
-            )
-        ret = await _run_cmd
-        stdout,stderr = await ret.communicate()
-        print(stdout.decode(),stderr.decode(),ret.returncode)
-        return ret.returncode
 
+    async def _run_adb_cmd(self, cmd: str):
+        files = cast(Path, resources.files("perfcat.adb"))
+        adb_path = files.joinpath("adb.exe").as_posix()  # noqa
+        _run_cmd = asyncio.create_subprocess_exec(
+            adb_path,
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+        ret = await _run_cmd
+        stdout, stderr = await ret.communicate()
+        print(stdout.decode(), stderr.decode(), ret.returncode)
+        return ret.returncode
 
     async def get_device_info(self, serialno: str):
         dev = await self.get_device(serialno)
