@@ -16,7 +16,8 @@ class FPSMonitorCard(MonitorCard):
             y_axis_unit=y_axis_unit, group=group, show_aggregate=show_aggregate
         )
 
-        self._create_new()
+        if self.show_aggregate:
+            self._create_new()
 
         self.create_serie("FPS")
         self.create_serie("Jank", type="bar")
