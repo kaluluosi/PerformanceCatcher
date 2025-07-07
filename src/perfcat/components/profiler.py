@@ -182,6 +182,11 @@ class MonitorCard(ui.card):
         serie = SerieData(name=name, type=type, data=[0])
         self._series.append(serie)
 
+    def get_serie(self,name:str):
+        for serie in self._series:
+            if serie.name == name:
+                return serie
+
     async def sample(self, serialno: str, app: str, process: str):
         raise NotImplementedError
 

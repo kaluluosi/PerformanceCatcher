@@ -1,6 +1,6 @@
 from perfcat.components.profiler import MonitorCard
 from perfcat.services import AndroidProfielerService, RecordService
-
+from nicegui import ui
 
 class FPSMonitorCard(MonitorCard):
     title = "FPS(Game)"
@@ -15,6 +15,8 @@ class FPSMonitorCard(MonitorCard):
         super().__init__(
             y_axis_unit=y_axis_unit, group=group, show_aggregate=show_aggregate
         )
+
+        self._create_new()
 
         self.create_serie("FPS")
         self.create_serie("Jank", type="bar")
@@ -38,3 +40,37 @@ class FPSMonitorCard(MonitorCard):
             }
         )
         self.update_chart()
+
+    def update_chart(self):
+        self._create_new.refresh()
+        return super().update_chart()
+
+
+    @ui.refreshable
+    def _create_new(self):
+        
+        aggregate = []
+
+        jank_serie = self.get_serie("Jank")
+
+        if jank_serie and jank_serie.data:
+            jank_count = len(list(filter(lambda x: x > 0, jank_serie.data)))
+            total_count = len(jank_serie.data)
+            jank_rate = round(jank_count / total_count * 100, 2)
+            aggregate.append({
+                "name": "Jank概率",
+                "value": f"{jank_rate}%"
+            })
+
+        big_jank_serie = self.get_serie("Big-Jank")
+
+        if big_jank_serie and big_jank_serie.data:
+            big_jank_count = len(list(filter(lambda x: x > 0, big_jank_serie.data)))
+            total_count = len(big_jank_serie.data)
+            big_jank_rate = round(big_jank_count / total_count * 100, 2)
+            aggregate.append({
+                "name": "Big-Jank概率",
+                "value": f"{big_jank_rate}%"
+            })
+
+        ui.table(rows=aggregate)
