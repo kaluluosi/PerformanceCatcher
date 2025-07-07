@@ -22,7 +22,7 @@ class ReportPage(Page):
 
     async def render(self, filename: str):
         self.filename = filename
-        ui.query("html").style("overflow:scroll")
+        ui.query("html").style("overflow:auto")
         ui.add_head_html("<script src='/static/js/html2canvas.min.js'></script>")
 
         self.header.btn_browser.classes(remove="hidden")
