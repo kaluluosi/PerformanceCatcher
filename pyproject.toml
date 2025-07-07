@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "performance-catcher"
-version = "2.1.0"
+version = "2.1.1"
 description = "Android Performance Toolkit"
 authors = ["kaluluosi111 <kaluluosi@gmail.com>"]
 repository = "https://github.com/kaluluosi/performance-catcher"
