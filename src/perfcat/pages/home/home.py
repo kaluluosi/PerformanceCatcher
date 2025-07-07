@@ -28,6 +28,7 @@ class HomePage(Page):
             {"name": "model_name", "label": "测试机名", "field": "model_name"},
             {"name": "package_name", "label": "包名", "field": "package_name"},
             {"name": "process", "label": "进程名", "field": "process"},
+            {"name": "version", "label": "构建版本", "field": "version"},
             {
                 "name": "created_at",
                 "label": "创建时间",
@@ -113,6 +114,7 @@ class HomePage(Page):
                         "model_name": info.get("model", "未知"),
                         "package_name": info.get("app", "未知"),
                         "process": info.get("process", "未知"),
+                        "version": info.get("version", "未知"),
                         "created_at": info.get("created_at", "未知"),
                     }
                 )
