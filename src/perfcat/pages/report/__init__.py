@@ -1,3 +1,4 @@
+import asyncio
 import os
 import json
 import webview
@@ -116,6 +117,7 @@ class ReportPage(Page):
 
         nav_show = self.navigationbar.value
         self.navigationbar.value = False
+        await asyncio.sleep(0.5)
 
         url = await ui.run_javascript(
             '''
@@ -140,7 +142,7 @@ class ReportPage(Page):
                 f.write(base64.b64decode(b64_data))
 
             logger.info(f"save screenshot to {save_to}")
-            
+            ui.notify(f"截图已保存为 {save_to}")
         else:
             ui.download(url,base_name.replace(".pcat",".png"),media_type="image/png")
 
