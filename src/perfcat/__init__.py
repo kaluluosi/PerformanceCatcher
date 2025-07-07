@@ -24,6 +24,8 @@ def run(debug: bool = False):
     app.native.window_args["resizable"] = True
     app.native.window_args["text_select"] = True
     app.native.start_args['debug'] = debug
+    app.native.start_args['user_agent'] = "native"
+    app.native.settings['ALLOW_DOWNLOADS'] = True
 
     ui.run(
         native=True,

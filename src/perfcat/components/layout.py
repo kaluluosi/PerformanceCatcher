@@ -22,7 +22,11 @@ class Header(ui.header):
             ui.icon("insights")
             ui.label("Performance Catcher 2").classes("mr-auto")
 
-            with ui.row().classes("gap-0"):
+            with ui.row().classes("gap-0") as self.btn_group:
+                self.btn_screenshot = ui.button(icon="photo_camera").classes("hidden").props("flat color=white")
+                with self.btn_screenshot:
+                    ui.tooltip("将报告保存成图片")
+                
                 self.btn_browser = ui.button(icon="o_open_in_browser").classes("hidden").props("flat color=white")
                 with self.btn_browser:
                     ui.tooltip("浏览器中打开")
