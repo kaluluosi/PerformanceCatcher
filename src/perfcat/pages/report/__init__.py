@@ -98,6 +98,8 @@ class ReportPage(Page):
                                 monitor.add_point(serie_name, data_value)
                     monitor.update_chart()
 
+            ui.run_javascript("echarts.connect('monitor')")
+
     async def _to_browser(self):
         url = await app.native.main_window.get_current_url() # type: ignore
         ui.navigate.to(url,True)
@@ -111,6 +113,9 @@ class ReportPage(Page):
             behavior: 'instant',
             });
         ''')
+
+        nav_show = self.navigationbar.value
+        self.navigationbar.value = False
 
         url = await ui.run_javascript(
             '''
@@ -139,4 +144,6 @@ class ReportPage(Page):
         else:
             ui.download(url,base_name.replace(".pcat",".png"),media_type="image/png")
 
+        self.navigationbar.value = nav_show
+        
 ReportPage()
