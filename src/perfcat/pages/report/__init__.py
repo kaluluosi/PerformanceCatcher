@@ -103,6 +103,15 @@ class ReportPage(Page):
         ui.navigate.to(url,True)
 
     async def _on_screenshot(self):
+        ui.run_javascript(
+            '''
+            scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'instant',
+            });
+        ''')
+
         url = await ui.run_javascript(
             '''
             return await new Promise((resolve, reject) => {
