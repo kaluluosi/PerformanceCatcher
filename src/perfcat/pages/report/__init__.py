@@ -85,9 +85,14 @@ class ReportPage(Page):
             monitor_seires: dict[str, list] = defaultdict(list) 
 
             for line in lines[2:]:
-                data: dict = json.loads(line)
-                title = data["name"]
-                monitor_seires[title].append(data)
+                try:
+                    data: dict = json.loads(line)
+                    title = data["name"]
+                    monitor_seires[title].append(data)
+                except Exception as e:
+                    logger.error(f"解析数据失败: {e}")
+                    logger.error(line)
+                    raise e
             
             for moinitor_name,monitor_class in monitor_factory_map.items():
                 if moinitor_name in monitor_seires:
