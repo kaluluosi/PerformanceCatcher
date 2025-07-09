@@ -1,4 +1,6 @@
 import secrets
+
+from perfcat.utils import set_navigation_disable
 from . import pages, logger  # noqa
 from nicegui import app, ui, App
 from importlib import resources
@@ -13,10 +15,14 @@ with resources.path("perfcat", "media") as path:
         path.as_posix(),
     )
 
+@app.on_startup
+async def setup(app: App):
+    set_navigation_disable(False)
 
 @app.on_shutdown
 async def teardown(app: App):
     await AndroidProfielerService.stop_adb_server()
+    set_navigation_disable(False)
 
 
 def run(debug: bool = False):
