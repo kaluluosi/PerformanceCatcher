@@ -506,6 +506,12 @@ class AndroidProfilerPage(Page):
             dialog.close()
             notify("日志保存成功", type="positive")
 
+        def _on_cancel():
+            RecordService.clear_record()
+            dialog.close()
+            notify("日志已清空", type="warning")
+
+
         with ui.dialog(value=True) as dialog, ui.card():
             with ui.card_section().style("width:400px"):
                 ui.label("日志保存为").classes("text-h6")
@@ -521,7 +527,7 @@ class AndroidProfilerPage(Page):
                     color="primary",
                     on_click=_on_ok,
                 )
-                ui.button("取消", color="secondary", on_click=dialog.close)
+                ui.button("取消", color="secondary", on_click=_on_cancel)
 
     async def _on_sample(self):
         if not self.serialno or not self.app or not self.process:

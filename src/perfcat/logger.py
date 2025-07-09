@@ -1,12 +1,10 @@
-import sys
 import logging
+import sys
 
 # 配置baseconfig，让logging可以输出到文件，日志不追加，而是覆盖
 logging.basicConfig(
-	level=logging.INFO,
-	format='%(asctime)s %(levelname)s %(message)s',
+	level=logging.WARNING,
 	filename='app.log',
-	filemode='w'
 )
 
 # 捕获未处理异常，输出到日志文件

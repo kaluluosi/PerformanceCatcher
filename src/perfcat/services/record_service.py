@@ -32,7 +32,7 @@ class _RecordService:
 
     def _release_logger(self):
         self._logger.removeHandler(self._file_handler)
-        self._file_handler.flush()
+        # self._file_handler.flush()
         self._file_handler.close()
 
     async def init_logger(self, serialno: str, app: str, process: str):
@@ -61,6 +61,11 @@ class _RecordService:
             if not os.path.exists("records"):
                 os.makedirs("records")
             shutil.move("record.log", f"records/{filename}.pcat")
+
+    def clear_record(self):
+        self._release_logger()
+        if os.path.exists("record.log"):
+            os.remove("record.log")
 
     def record_files(self):
         if not os.path.exists("records"):

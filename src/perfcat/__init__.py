@@ -34,4 +34,6 @@ def run(debug: bool = False):
         title="Performance Catcher",
         frameless=False,
         storage_secret=secrets.token_hex(16),
+        uvicorn_logging_level="info",
+        uvicorn_reload_excludes="app.log"
     )
