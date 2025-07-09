@@ -466,7 +466,8 @@ class AndroidProfilerPage(Page):
         if event.sender.props["icon"] == "lens":
             await self.start_record(event)
         else:
-            await self.stop_record()
+            self.stop_record()
+            self._show_save_record_dialog()
 
     async def start_record(self, event):
         set_navigation_disable(True)
@@ -484,7 +485,7 @@ class AndroidProfilerPage(Page):
             position="bottom",
         )
 
-    async def stop_record(self):
+    def stop_record(self):
         set_navigation_disable(False)
         self.drawer.panel_device.profiler_setting_card.btn_record.props(
             "icon=lens color=red"
@@ -498,7 +499,6 @@ class AndroidProfilerPage(Page):
             position="bottom",
         )
 
-        self._show_save_record_dialog()
 
     def _show_save_record_dialog(self):
         def _on_ok():
@@ -548,8 +548,7 @@ class AndroidProfilerPage(Page):
         if self.serialno:
             return
 
-        self.setting_card_enable = True
-        self.timer_sampler.cancel() if self.timer_sampler else None
+        self.stop_record()
 
         with ui.context.client.content:
             with ui.dialog(value=True).props(
