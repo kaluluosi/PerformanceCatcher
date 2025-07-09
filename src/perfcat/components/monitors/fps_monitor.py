@@ -26,7 +26,7 @@ class FPSMonitorCard(MonitorCard):
 
     async def sample(self, serialno: str, app: str, process: str):
         device = await AndroidProfielerService.get_device(serialno)
-        stat = await device.fps.stat(process)
+        stat = await device.fps.stat(app)
         fps = round(stat.fps, 2)
 
         self.add_point("FPS", fps)
