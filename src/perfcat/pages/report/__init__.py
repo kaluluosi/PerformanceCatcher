@@ -44,7 +44,8 @@ class ReportPage(Page):
                     },
                 ]
                 rows = [
-                    {"name": "测试设备", "value": base_info.get("model", "unknown")},
+                    {"name": "测试机型号", "value": base_info.get("model", "unknown")},
+                    {"name": "测试机名", "value": base_info.get("device_name", "unknown")},
                     {"name": "包名", "value": base_info.get("app", "unknown")},
                     {"name": "进程名", "value": base_info.get("process", "unknown")},
                     {"name": "构建版本", "value": base_info.get("version", "unknown")},

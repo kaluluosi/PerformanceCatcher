@@ -9,4 +9,9 @@ navigations = {
         "icon": "android",
         "path": "/android_profiler",
     },
+    "ios_profiler":{
+        "title": "iOS性能",
+        "icon": "apple",
+        "path": "/ios_profiler",
+    }
 }

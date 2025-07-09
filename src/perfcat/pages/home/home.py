@@ -25,7 +25,8 @@ class HomePage(Page):
             {"name": "name", "label": "日志名称", "field": "name", "align": "left"},
             {"name": "platform", "label": "平台", "field": "platform", "align": "left"},
             {"name":"abs_path","label":"绝对路径","field":"abs_path","align":"left","classes":"hidden","headerClasses":"hidden"},
-            {"name": "model_name", "label": "测试机名", "field": "model_name"},
+            {"name": "model_name", "label": "测试机型号", "field": "model_name"},
+            {"name": "device_name", "label": "测试机名", "field": "device_name"},
             {"name": "package_name", "label": "包名", "field": "package_name"},
             {"name": "process", "label": "进程名", "field": "process"},
             {

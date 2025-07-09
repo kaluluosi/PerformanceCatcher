@@ -72,6 +72,10 @@ class _AndroidProfilerService:
         stdout, stderr = await ret.communicate()
         print(stdout.decode(), stderr.decode(), ret.returncode)
         return ret.returncode
+    
+    async def get_device_name(self,serialno: str):
+        dev = await self.get_device(serialno)
+        return await dev.shell("settings get global device_name")
 
     async def get_device_info(self, serialno: str):
         dev = await self.get_device(serialno)

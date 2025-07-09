@@ -38,6 +38,7 @@ class _RecordService:
     async def init_logger(self, serialno: str, app: str, process: str):
         device = await AndroidProfielerService.get_device(serialno)
         model_name = await device.prop.get("ro.product.model")
+        device_name = await AndroidProfielerService.get_device_name(serialno)
 
         self._setup_logger()
 
@@ -45,6 +46,7 @@ class _RecordService:
         self.logger.info(
             {
                 "model": model_name,
+                "device_name": device_name,
                 "platform": "android",
                 "app": app,
                 "process": process,

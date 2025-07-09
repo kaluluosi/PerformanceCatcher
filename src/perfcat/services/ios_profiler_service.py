@@ -8,12 +8,12 @@ from ios_device.util.usbmux import USBMux
 
 
 class _IOSProfilerService:
-    def __init__(self) -> None: ...
+    def __init__(self) -> None: 
+        self.usbmux = USBMux()
 
     @property
     def devices(self):
-        with USBMux() as mux:
-            return mux.get_devices()
+        return [device.serial for device in self.usbmux.get_devices()]
 
 
 IOSProfilerService = _IOSProfilerService()
