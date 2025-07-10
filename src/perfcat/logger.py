@@ -5,6 +5,7 @@ import sys
 logging.basicConfig(
 	level=logging.WARNING,
 	filename='app.log',
+	encoding="utf-8"
 )
 
 # 捕获未处理异常，输出到日志文件

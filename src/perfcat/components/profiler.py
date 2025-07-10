@@ -3,14 +3,12 @@ author:        kaluluosi111 <kaluluosi@gmail.com>
 date:          2025-06-21 20:31:04
 Copyright © Kaluluosi All rights reserved
 """
-
-import math
+import logging
 from nicegui import app, ui
 from nicegui.events import GenericEventArguments
 from contextlib import contextmanager
 
 from pydantic import BaseModel, Field, RootModel
-
 
 class SerieData(BaseModel):
     name: str
@@ -215,9 +213,13 @@ class MonitorCard(ui.card):
         app.storage.general["android_profiler_datazoom"] = event.args
 
     def _handle_legendselectchanged(self, event: GenericEventArguments):
-        app.storage.general["android_profiler_legend"][self.title] = event.args[
-            "selected"
-        ]
+        if not app.storage.general.get("android_profiler_legend"):
+            app.storage.general["android_profiler_legend"] = {}
+
+        app.storage.general["android_profiler_legend"][self.title] = event.args["selected"]
+        logging.warning(f"legend select changed: {event.args}")
+        
+
 
     @ui.refreshable
     def _create_aggregate(self):
