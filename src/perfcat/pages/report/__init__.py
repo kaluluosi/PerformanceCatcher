@@ -6,7 +6,7 @@ import base64
 import logging
 from typing import cast
 from collections import defaultdict
-from nicegui import app, ui
+from nicegui import app, ui,events
 from perfcat.components.layout import Page
 from perfcat.components.monitors import monitor_factory_map
 
@@ -110,7 +110,7 @@ class ReportPage(Page):
         url = await app.native.main_window.get_current_url() # type: ignore
         ui.navigate.to(url,True)
 
-    async def _on_screenshot(self):
+    async def _on_screenshot(self,args:events.ClickEventArguments):
         ui.run_javascript(
             '''
             scrollTo({
@@ -123,34 +123,46 @@ class ReportPage(Page):
         nav_show = self.navigationbar.value
         self.navigationbar.value = False
         await asyncio.sleep(0.5)
+        try:
+            args.sender.props("loading")
+            url = await ui.run_javascript(
+                '''
+                let canvas = await html2canvas(document.body);
+                let imgData = canvas.toDataURL("image/jpg");
+                const link = document.createElement('a');
+                link.download = 'screenshot.jpg';
+                link.href = imgData;
+                link.click();
+                return ;
+                ''',
+                timeout=60
+            )
+            args.sender.props(remove="loading")
+            self.navigationbar.value = nav_show
+        except Exception as e:
+            logger.error(f"截图失败: {e}")
+            ui.notify("截图失败")
+            self.navigationbar.value = nav_show
+            args.sender.props(remove="loading")
+            return
+    
+        # user_agent = ui.context.client.request.headers['user-agent'] # type: ignore
+        # base_name = os.path.basename(self.filename)
+        # if "Edg/138.0.0.0" in user_agent:
+        #     save_to = await app.native.main_window.create_file_dialog( # type: ignore
+        #         webview.SAVE_DIALOG,directory="./",
+        #         save_filename=base_name.replace(".pcat",".png"),
+        #         file_types=("PNG (*.png)",)
+        #         )
+        #     save_to = cast(str,save_to)
+        #     with open(save_to,"wb") as f:
+        #         b64_data = url.split(",")[1]
+        #         f.write(base64.b64decode(b64_data))
 
-        url = await ui.run_javascript(
-            '''
-            return await new Promise((resolve, reject) => {
-                html2canvas(document.body).then(canvas => {
-                    resolve(canvas.toDataURL("image/png"));
-                })
-            })
-            '''
-        )
-        user_agent = ui.context.client.request.headers['user-agent'] # type: ignore
-        base_name = os.path.basename(self.filename)
-        if "Edg/138.0.0.0" in user_agent:
-            save_to = await app.native.main_window.create_file_dialog( # type: ignore
-                webview.SAVE_DIALOG,directory="./",
-                save_filename=base_name.replace(".pcat",".png"),
-                file_types=("PNG (*.png)",)
-                )
-            save_to = cast(str,save_to)
-            with open(save_to,"wb") as f:
-                b64_data = url.split(",")[1]
-                f.write(base64.b64decode(b64_data))
+        #     logger.info(f"save screenshot to {save_to}")
+        #     ui.notify(f"截图已保存为 {save_to}")
+        # else:
+        #     ui.download(url,base_name.replace(".pcat",".png"),media_type="image/png")
 
-            logger.info(f"save screenshot to {save_to}")
-            ui.notify(f"截图已保存为 {save_to}")
-        else:
-            ui.download(url,base_name.replace(".pcat",".png"),media_type="image/png")
-
-        self.navigationbar.value = nav_show
         
 ReportPage()
