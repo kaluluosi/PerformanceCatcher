@@ -125,12 +125,13 @@ class ReportPage(Page):
         await asyncio.sleep(0.5)
         try:
             args.sender.props("loading")
+            base_name = os.path.basename(self.filename).replace(".pcat",".jpg")
             url = await ui.run_javascript(
-                '''
+                f'''
                 let canvas = await html2canvas(document.body);
                 let imgData = canvas.toDataURL("image/jpg");
                 const link = document.createElement('a');
-                link.download = 'screenshot.jpg';
+                link.download = '{base_name}';
                 link.href = imgData;
                 link.click();
                 return ;
