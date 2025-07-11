@@ -143,7 +143,7 @@ class MonitorCard(ui.card):
         self.chart.on("chart:legendselectchanged", self._handle_legendselectchanged)
 
         if self.show_aggregate:
-            self._create_aggregate()
+            self._create_aggregate() # type: ignore
 
         ui.run_javascript(
             f"""

@@ -17,7 +17,7 @@ class FPSMonitorCard(MonitorCard):
         )
 
         if self.show_aggregate:
-            self._create_new()
+            self._create_new() # type: ignore
 
         self.create_serie("FPS")
         self.create_serie("Jank", type="bar")
